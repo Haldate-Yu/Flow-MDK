@@ -1,0 +1,36 @@
+# Faithful replication of the official SWE-GNN runs (RBTV1/SWE-GNN-paper-repository,
+# config.yaml): mdk off, 2 outer layers x K=8 internal hops, per-hop weight
+# matrices, Tanh after every layer. Used to validate our backbone against the
+# official implementation before the Flow-MDK modifications.
+model:
+  arch: flow_mdk
+  hidden_dim: 64               # official hid_features: 64
+  num_message_passing_layers: 2  # official outer layers (default n_GNN_layers=2)
+  hops_per_layer: 8            # official "K: 8  # num GNN layers"
+  hidden_activation: tanh      # official gnn_activation: 'tanh' (applied per layer)
+  num_previous_steps: 1        # official previous_t: 2 frames (current + 1)
+  num_dynamic_vars: 2
+  elevation_feature_idx: 0     # 1D layout: z_bottom channel
+  mdk:
+    use: false                 # pure SWE-GNN: no diffusion branch
+
+train:
+  horizon_max: 8               # official rollout_steps: 8
+  curriculum_steps: 15         # official curriculum_epoch: 15
+  var_weights: [1.0, 3.0]      # official velocity_scaler: 3
+  only_where_water: true       # official only_where_water: true
+  lr: 0.007                    # official learning_rate (paper text says 0.005)
+  lr_decay: 0.9                # official gamma
+  lr_step_epochs: 7            # official step_size
+  max_epochs: 150
+  early_stop_patience: 30      # official patience: 30
+  batch_size: 8
+  grad_clip_value: 0.5         # official clip_grad_value_(0.5)
+
+data:
+  name: 1d_chain
+  root: data/scenarios_1d
+
+seed: 0
+device: auto
+out_dir: runs/1d_swegnn_official

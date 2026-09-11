@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flow-mdk"
+version = "0.1.0"
+description = "Flow-directed Markov Diffusion Kernel GNN surrogates for shallow-water solvers (1D / 2D / 1D-2D coupled)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Flow-MDK contributors" }]
+keywords = ["GNN", "shallow water equations", "flood modelling", "surrogate model", "TELEMAC", "Mascaret"]
+dependencies = [
+    "numpy>=1.24",
+    "torch>=2.0",
+    "torch_geometric>=2.4",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+eval = ["scipy>=1.10", "matplotlib>=3.7"]
+dev = ["pytest>=7.0", "ruff>=0.4"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,40 @@
+# Flow-MDK full model: GCN baseline (comparison protocol: same encoder-decoder, GCNConv processor)
+model:
+  arch: baseline_gcn
+  hidden_dim: 64
+  num_message_passing_layers: 6
+  hops_per_layer: 1              # official SWE-GNN uses 8 (see 1d_swegnn_official.yaml)
+  num_previous_steps: 1
+  num_dynamic_vars: 2
+  elevation_feature_idx: 0      # 1D layout: z_bottom channel
+  mdk:
+    use: false               # unused by baselines
+    num_steps: 2                # K: matched to sqrt(2 D dt)/dx (see layers.mdk.suggest_num_steps)
+    weighting: geometric        # S2GC MDK series
+    lambda0: 0.3                # identity/teleport coefficient (over-smoothing cap)
+    learn_lambda: true
+    directed: true              # flow-directed transition matrix
+    wet_gate: source            # dry nodes never relay diffusion
+    mixing: learned             # per-channel advection/diffusion gate
+    edge_weight: discharge      # |Q|-weighted conductance
+    direction_beta: 1.0
+
+train:
+  horizon_max: 8
+  curriculum_steps: 15
+  var_weights: [1.0, 3.0]
+  lr: 0.007                    # official learning_rate
+  lr_decay: 0.9
+  lr_step_epochs: 7
+  max_epochs: 150
+  early_stop_patience: 30
+  batch_size: 8
+  grad_clip_value: 0.5         # official clip_grad_value_(0.5)
+
+data:
+  name: 1d_chain
+  root: data/scenarios_1d
+
+seed: 0
+device: auto
+out_dir: runs/1d_baseline_gcn

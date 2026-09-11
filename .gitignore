@@ -216,3 +216,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Flow-MDK generated datasets & checkpoints
+data/
+runs/
+*.npz
+*.zarr
+*.pt
+*.ckpt
+
+# archival datasets are tracked (via Git LFS patterns in .gitattributes)
+!datasets/**
