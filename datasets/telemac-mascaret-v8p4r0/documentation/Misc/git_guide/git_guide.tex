@@ -1,0 +1,83 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Telemac Documentation
+%  Git guide
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+\documentclass[Misc]{../../data/TelemacDoc} % Default font size and left-justified equations
+%\documentclass[Telemac2D,french]{TelemacDoc} % Default font size and left-justified equations in french
+% set font for software
+\newcommand{\soft}[1]{{\texttt{\color{blue} #1}}}
+\newcommand{\file}[1]{{\texttt{\color{orange} #1}}}
+\newcommand{\important}[1]{{\textbf{\color{orange} #1}}}
+\newcommand{\crixus}{\soft{Crixus}}
+\newcommand{\gmsh}{\soft{Gmsh}}
+\newcommand{\blender}{\soft{Blender}}
+\newcommand{\paraview}{\soft{Paraview}}
+\newcommand{\spartacus}{\soft{Spartacus}}
+\newcommand{\sphynx}{\soft{Sphynx}}
+
+%---------------------------------------------------------------------------
+% Code format
+%---------------------------------------------------------------------------
+\usepackage{listings}
+\lstset{%language=bash,
+	basicstyle=\ttfamily,	% the size of the fonts that are used for the code
+	tabsize=4,
+%	commentstyle=\color{orange},
+%	numbers=left,				% where to put the line-numbers; possible values are (none, left, right)
+%	numbersep=5pt,				% how far the line-numbers are from the code
+%	numberstyle=\tiny\color{darkgray}	% the style that is used for the line-numbers
+}
+
+\begin{document}
+
+\let\cleardoublepage\clearpage
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title{\telemacsystem}
+\subtitle{Git Guide}
+\version{\telmaversion}
+\date{\today}
+\maketitle
+\clearpage
+
+
+%----------------------------------------------------------------------------------------
+%	COPYRIGHT PAGE
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+\thispagestyle{empty}
+
+\TelemacCopyright{}
+
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+
+\pagestyle{empty} % No headers
+
+\tableofcontents% Print the table of contents itself
+
+%\cleardoublepage % Forces the first chapter to start on an odd page so it's on the right
+
+\pagestyle{fancy} % Print headers again
+
+\input{latex/intro}
+
+\input{latex/git_project}
+
+\input{latex/branches}
+
+\input{latex/workflow}
+
+\end{document}

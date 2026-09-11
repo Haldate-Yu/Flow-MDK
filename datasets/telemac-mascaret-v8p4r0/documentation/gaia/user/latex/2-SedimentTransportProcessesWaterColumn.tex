@@ -1,0 +1,10 @@
+%-------------------------------------------------------------------------------
+\chapter[Sediment Transport Processes in the Water Column]{Sediment Transport Processes in the Water Column}
+\label{chap:SuspendedSedimentTransport}
+%-------------------------------------------------------------------------------
+
+Suspended sediment particles being transported by the flow at a given time and maintained in temporary suspension above the bottom by the action of upward-moving turbulent eddies are commonly called \textit{suspended load}. The equation describing mass conservation of suspended sediment is the advection-diffusion equation (ADE), that is valid only for dilute suspensions of particles that are not too coarse (i.e.,~$\leq$ 0.5 mm).
+
+Within this new sediment transport framework, the solution of the ADE, completed with appropriate boundary and initial conditions, is computed by \telemac{2D} or \telemac{3D} for 2D and 3D cases respectively, assuming the suspended sediment as a tracer. The solution procedure remains almost invisible to the user since the physical parameters are provided by the \gaia{} steering file. Even though, we suggest to readers to refer to the tracer transport chapters of \telemac{2D} and \telemac{3D} user guides for a complete overview of advection-diffusion problems. Two advantages of this procedure are evident: ($i$) to stay up-to-date with the numerical schemes and algorithm developments in the hydrodynamics modules for the solution of the advection terms and ($ii$) for a clearer distinction between sediment transport processes happening in the water column, in the near-bed, and in the bed structure (for example in cases where exchanges with the bottom are not required such as suspended sediment transport over a rigid bed).
+
+The chapter is organized in two main parts according to the type of sediment class (non cohesive or cohesive). For each part, the user guides are described without distinguishing between 2D or 3D where possible. When differences arise between the 2D and the 3D sediment treatment, a clear distinction is done.

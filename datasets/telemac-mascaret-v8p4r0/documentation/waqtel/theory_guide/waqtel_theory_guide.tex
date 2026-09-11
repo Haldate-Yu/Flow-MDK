@@ -1,0 +1,190 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  WAQTEL Documentation
+%  Technical manual
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+\documentclass[Waqtel]{../../data/TelemacDoc} % Default font size and left-justified equations
+
+
+\begin{document}
+
+\let\cleardoublepage\clearpage
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title{\waqtel}
+\subtitle{Technical manual}
+\version{\telmaversion}
+\date{\today}
+\maketitle
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	AUTHORS PAGE
+%----------------------------------------------------------------------------------------
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+
+\pagestyle{empty} % No headers
+
+\tableofcontents% Print the table of contents itself
+
+%\cleardoublepage % Forces the first chapter to start on an odd page so it's on the right
+
+\pagestyle{fancy} % Print headers again
+
+\thispagestyle{empty}
+
+\chapter*{Abstract}
+This technical manual is mainly based on the translation of the TRACER principle note
+``Outil de simulation 1-D MASCARET V7.1. Module de qualité d'eau TRACER. Note de principe''
+written by Kamal El Kadi Abderrezzak and Marilyne Luck in 2012
+\cite{elkadi_tracer_2012} (ref: EDF R\&D-LNHE H-P73-2011-01786-FR).
+It also includes the heat atmosphere exchange subsection of the \telemac{3D} theory guide.
+
+TRACER is the transport and water quality module of the 1D free surface code MASCARET.
+TRACER simulates the evolution of several coupled tracers
+without retroaction on the flow with respect to hydraulic conditions,
+boundary conditions, external sources and biochemical interactions between tracers.\\
+
+This note contains an explanation of the method retained for solving the advection-dispersion equation,
+and its application to water quality modeling.
+
+All the processes existing in TRACER were implemented in \telemac{2D} and \telemac{3D} through
+a new module called \waqtel between v7.0 and v7.2.
+The following water quality modules are described:
+\begin{itemize}
+\item O$_2$ (dissolved oxygen, organic and ammonia loads),
+\item BIOMASS (phytoplankton biomass and nutrients),
+\item EUTRO (dissolved oxygen, phytoplankton biomass, nutrients, organic and ammonia loads),
+\item MICROPOL (micropollutants and suspended matter),
+\item THERMIC (water temperature),
+\item degradation law.
+\end{itemize}
+A reference to the library documentation of the water quality and aquatic ecology model
+AED2 is also given.
+
+\newpage
+
+\input{latex/waq_models.tex}
+
+\input{latex/module_o2.tex}
+
+\input{latex/module_biomass.tex}
+
+\input{latex/module_eutro.tex}
+
+\input{latex/module_micropol.tex}
+
+\input{latex/module_thermic.tex}
+
+
+\chapter{AED2 Module}
+
+See the AED2 model technical manual (water quality and aquatic ecology model)
+available on the AED2 website:
+
+http://aed.see.uwa.edu.au/research/models/AED/downloads/AED\_ScienceManual\_v4\_draft.pdf
+
+
+\chapter{Degradation law}
+
+%WAQTEL simulates the evolution of a tracer $C$ over time from an initial condition
+%according to a degradation law that is assumed to be of 1$^{\rm{st}}$ order (i.e. a tracer decrease):
+
+%\begin{equation}
+%  F([C]) = -k_1 [C],
+%\end{equation}
+
+%where $k_1$ is the constant of tracer kinetic degradation $C$ (d$^{-1}$),
+%to be specified by the user.
+
+\waqtel can simulate usual laws for bacterial degradation with
+$T_{90}$ coefficient(s):
+time(s) required for 90\% of the initial bacterial population to disappear
+or also described as the time for bacterial or viral concentration to decrease
+by one log unit (hence the 2.3 coefficient below).
+It is expressed in hours.
+%mortality rate(s) of 90~\% when 90~\% of bacteria die.
+
+In other words, it simulates the evolution of tracer(s) $C$ over time from
+initial condition(s) according to a degradation law assumed to be of
+1$^{\rm{st}}$ order (i.e. a tracer decrease) with constant(s) of tracer kinetic
+degradation equal to $\frac{2.3}{T_{90}}$:
+
+\begin{equation}
+  F([C]) = -\frac{2.3}{T_{90}} [C],
+\end{equation}
+
+with $T_{90}$ coefficient(s) described above, in hours.
+%where $T_{90}$ the time when 90~\% of bacteria die, in hours.
+\\
+
+%\begin{WarningBlock}{Note:}
+%  This is not
+\waqtel can also simulate the evolution of tracer(s) $C$ over time
+from initial condition(s)
+according to a degradation law that is assumed to be of 1$^{\rm{st}}$ order
+(i.e. a tracer decrease):
+
+\begin{equation}
+  F([C]) = -k_1 [C],
+\end{equation}
+
+where $k_1$ is the constant (or one of the constants) of tracer kinetic
+degradation $C$ (it can be given in h$^{-1}$ or d$^{-1}$).
+%\end{WarningBlock}
+
+
+\chapter{Conclusion}
+
+WAQTEL simulates the transport of several tracers in a river or the sea
+(by resolution of the advection-diffusion equation) possibly coupled
+(\textit{via} source terms of the equation).
+\waqtel offers a structure that allows programming further water quality modules.\\
+
+This technical manual first shows the method of resolving the convection-dispersion equation
+and its application to water quality.\\
+
+The water quality modules available in the WAQTEL tool library are described,
+namely:
+
+\begin{itemize}
+\item O2: a simplified module for dissolved oxygen,
+\item BIOMASS: a module for phytoplankton biomass,
+\item EUTRO: a module for river eutrophication (dissolved oxygen and algal biomass),
+\item MICROPOL: a module for heavy metals or radioelements,
+  taking into account their interaction with fine sediments (suspended particulate matter),
+\item THERMIC: a module for water temperature evolution under the influence of atmospheric fluxes,
+\item AED2: the water quality and aquatic ecology model,
+\item a degradation law.
+\end{itemize}
+
+%In the future, the following tasks are expected to be addressed:
+%\begin{itemize}
+%\item enabling simulation of tracer transport in a hydraulic network that involves floodways,
+%\item enabling a distinction to be made between minor riverbeds and major riverbeds
+%  in studies of water quality,
+%\item finally, taking account of the presence of dead zones (dead/storage zones).
+%  This may be useful for river applications during periods of low water.
+%\end{itemize}
+
+%===========================================================================
+% Bibliography
+%===========================================================================
+
+%\addcontentsline{toc}{section}{References}
+\bibliographystyle{plainnat}
+%\bibliography{latex/waqtel_theory_guide}
+
+\bibliography{../../data/biblio}
+
+%\printbibliography
+\end{document}

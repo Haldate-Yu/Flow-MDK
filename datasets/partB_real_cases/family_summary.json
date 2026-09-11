@@ -1,0 +1,35 @@
+{
+  "family_mdx": {
+    "ok": 37,
+    "failed": [],
+    "h_max_mean_m": 9.29
+  },
+  "family_zxh": {
+    "ok": 18,
+    "failed": [
+      "zxh_fam002",
+      "zxh_fam003",
+      "zxh_fam004",
+      "zxh_fam005",
+      "zxh_fam006",
+      "zxh_fam007",
+      "zxh_fam010",
+      "zxh_fam012",
+      "zxh_fam014",
+      "zxh_fam015",
+      "zxh_fam016",
+      "zxh_fam017",
+      "zxh_fam018",
+      "zxh_fam019",
+      "zxh_fam020",
+      "zxh_fam028",
+      "zxh_fam031",
+      "zxh_fam033",
+      "zxh_fam034",
+      "zxh_fam037",
+      "zxh_fam038",
+      "zxh_fam039"
+    ],
+    "h_max_mean_m": 4.33
+  }
+}

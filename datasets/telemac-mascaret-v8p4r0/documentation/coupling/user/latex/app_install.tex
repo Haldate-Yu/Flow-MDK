@@ -1,0 +1,84 @@
+\chapter{Installation of the python venv}\label{ann:venv_install}
+
+  You need to create a fresh virtual environment based on
+  \texttt{python3} and to activate it.
+  You have to provide a name for the dedicated
+environment: in the following instructions we arbitrarily chose
+\texttt{cpl\_py3}. The \texttt{VENVROOT} environment variable has to
+be defined beforehands and point to the location on your machine where
+the site packages will be installed. Make sure that there is enough
+room avalaible and, in case of clusters with different
+computational and front-end nodes, that the location can be accessed
+from both kinds of nodes.
+\begin{verbatim}
+xxx>python3 -m venv $VENVROOT/cpl_py3
+
+xxx>source $VENVROOT/cpl_py3/bin/activate
+\end{verbatim}
+
+If the virtual evironment has been correctly charged, the prompt will
+be modified and display the active venv name. You can check that the
+default \texttt{python} command now points to version 3.
+\begin{verbatim}
+(cpl_py3) xxx>python --version
+Python 3.6.5
+(cpl_py3) xxx>
+\end{verbatim}
+
+In order to access the most up to date view of the python packages we
+suggest to upgrade the \texttt{pip} package manager itself to its latest
+version
+\begin{verbatim}
+(cpl_py3) xxx>pip install --upgrade pip
+\end{verbatim}
+
+Since \texttt{pip} takes care of the dependencies, by installing a few
+packages we have a complete environment that can be used for the
+coupling, the data assimilation via Smurf and the Uncertainty
+Quantification studies.
+\begin{verbatim}
+(cpl_py3) xxx>pip install ot-batman
+(cpl_py3) xxx>pip install shapely
+(cpl_py3) xxx>pip install pyyaml
+\end{verbatim}
+
+An optional package which can be useful if the user needs to determine
+the number of physical cores (and not hyperthreaded processing units)
+on his machine is \texttt{cpu\_cores}
+\begin{verbatim}
+(cpl_py3) xxx>pip install cpu_cores
+\end{verbatim}
+
+\section{Installation of mpi4py}\label{ann:venv_mpi4py}
+The coupling communications being performed by MPI we need the
+\texttt{mpi4py} package, but the installation has to be coherent with
+the MPI flavour used for the compilation of telemac, if its parallel
+version has been compiled.
+
+Please, check that the commands \texttt{mpicc} and \texttt{mpirun}
+found by default in your environment (as determined by the
+\texttt{PATH} variable) are the same that you used to compile Open
+TELEMAC-MASCARET.
+
+In our case we check that
+\begin{verbatim}
+(cpl_py3) xxx>which mpicc
+/softs/local/openmpi400_gcc731/bin/mpicc
+
+(cpl_py3) xxx>mpicc --version
+gcc (GCC) 7.3.1 20180130 (Red Hat 7.3.1-2)
+\end{verbatim}
+and
+\begin{verbatim}
+(cpl_py3) xxx>which mpirun
+/softs/local/openmpi400_gcc731/bin/mpirun
+
+(cpl_py3) xxx>mpirun --version
+mpirun (Open MPI) 4.0.0
+\end{verbatim}
+
+Once the paths are correctly set, you can proceed to the installation
+\begin{verbatim}
+(cpl_py3) xxx>pip install mpi4py
+\end{verbatim}
+

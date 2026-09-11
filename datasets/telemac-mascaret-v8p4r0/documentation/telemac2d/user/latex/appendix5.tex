@@ -1,0 +1,283 @@
+\chapter{Defining friction by domains}
+\label{tel2d:app5}
+When a complex definition of the friction has to be used for a computation, this
+option can be chosen, which divides the domain in sub-domains (domains of friction)
+where different parameters of friction can be defined and easily modified.
+The procedure is triggered by the keyword \telkey{FRICTION DATA} = YES
+(default = NO) and the data are contained in a file \telkey{FRICTION DATA FILE}.
+
+The user has to:
+
+\begin{itemize}
+\item  define the domains of friction in the mesh,
+
+\item  define the parameters of friction for each domain of friction,
+
+\item  add the corresponding keywords in the steering file of \telemac{2D}
+in order to use this option.
+\end{itemize}
+
+\textbf{I -- Friction domains}
+
+In order to make a computation with variable coefficients of friction,
+the user has to describe, in the computational domain, the zones where the
+friction parameters will be the same.
+For that, a friction ID (code number), which represents a friction domain, has to be given to
+each node.
+The nodes with the same friction ID will use the same friction parameters.
+
+This allocation is done thanks to the \telfile{FRICTION\_USER} user subroutine.
+All nodes can be defined ''manually'' in this subroutine, or this subroutine can
+be used in order to read a file where the link between nodes and friction IDs is
+already generated (for example with the Janet software from the SmileConsult).
+This file is called \telkey{ZONES FILE} and will be partitioned in case of
+parallelism.
+
+\textbf{II -- Friction parameters}
+
+The frictions parameters of each friction domain are defined in the
+\telkey{FRICTION DATA FILE}.
+In this file we find, for each friction ID of friction domain:
+
+\begin{itemize}
+\item  a friction law for the bottom and their parameters,
+
+\item  a friction law for the vegetation and the parameters for vegetation (only if the option is used).
+\end{itemize}
+
+Example of friction data file:
+
+
+
+\begin{tabular}{|p{0.4in}|p{0.5in}|p{0.3in}|p{0.5in}|p{0.6in}|p{0.5in}|p{0.5in}|p{0.6in}|p{0.6in}|} \hline
+*Zone & Bottom &  &  & Vegetation &  &  &   \\ \hline
+*no & TypeBo & Rbo & MdefBo & TypeBo & Par1 & Par2 & Par3 ... - Par15  \\ \hline
+From 4 to 6 & NFRO &  &  & NULL & &  &   \\ \hline
+20 & NIKU & 0.10 &  & BAPT & 1.0 & 0.04 & 10.0  \\ \hline
+27 & COWH & 0.13 & 0.02 & LIND & 1.0 &  5.0 & \\ \hline
+END &  &  &  &  &  &  &   \\ \hline
+\end{tabular}
+
+
+\begin{itemize}
+\item The first column defines the friction ID of the friction domain.
+Here, there are 3 lines with the friction IDs: 4 to 6, 20, 27,
+
+\item The columns from 2 to 4 are used in order to define the bottom law:
+the name of the law used (\telkey{NFRO}, \telkey{NIKU} or \telkey{COWH} for this
+example, see below for the name of the laws),
+the roughness parameter used and the Manning's default value
+(used only with the Colebrook-White law).
+If the friction parameter (when there is no friction) or the Manning's default
+are useless, nothing has to be written in the column,
+
+\item The column 5 describes the law of the vegetation friction:
+in the example it is \telkey{NULL}, \telkey{BAPT} or \telkey{LIND}. 
+The columns 
+6 to max 20 should contain the parameters dedicated to the chosen vegetation 
+law in case of no vegetation (\telkey{NULL}) the columns should be empty. 
+
+
+\item The last line of the file must have only the word END, (or FIN or ENDE).
+\end{itemize}
+
+In order to add a comment in the \telkey{FRICTION DATA FILE},
+the line must begin with a star ''*''.
+
+Link between the bottom friction laws implemented and their names in the friction data file:
+
+\begin{tabular}{|p{1.0in}|p{0.5in}|p{0.8in}|p{1.0in}|} \hline
+Law &  Number & Name for data file & Parameters used \\ \hline
+No Friction & 0 & NOFR & No parameter \\ \hline
+Haaland & 1 & HAAL & Roughness coefficient \\ \hline
+Ch\'{e}zy & 2 & CHEZ & Roughness coefficient \\ \hline
+Strickler & 3 & STRI & Roughness coefficient \\ \hline
+Manning & 4 & MANN & Roughness coefficient \\ \hline
+Nikuradse & 5 & NIKU & Roughness coefficient \\ \hline
+Colebrook-White & 7 & COWH & Roughness coefficient\newline Manning coefficient \\ \hline
+\end{tabular}
+
+
+
+Link between the vegetation friction laws implemented and their names in the friction data file:
+
+\begin{tabular}{|p{1.0in}|p{0.5in}|p{0.8in}|p{1.0in}|} \hline
+ Law &  Number & Name for data file & Parameters used \\ \hline
+No Vegetation Friction & 0 & NULL & No parameter \\ \hline
+Jaervelae & 1 & JAER & Cdx, LAI, Uref, Vogel, Hp \\ \hline
+Lindner \& Pasche& 2 & LIND & D, sp \\ \hline
+Whittaker et al & 3 & WHIT & Cd0, Ap0, EI, Vogel, sp, Hp \\ \hline
+Baptist et al & 4 & BAPT & Cd, mD, Hp \\ \hline
+Huthoff et al & 5 & HUTH & Cd, mD, Hp, sp \\ \hline
+Van Velzen et al & 6 & VANV & Cd, mD, Hp \\ \hline
+Luhar \& Nepf & 7 & LUHE & Cd, Cv, a, Hp \\ \hline
+Vastila \& Jaervelae & 8 & VAST & Cdf, LAI, Ureff, Vogelf, CDs,  SAI, Vogels, Urefs, Hp \\ \hline
+Folke et al & 1 & HYBR & Cdx, LAI, Uref, Vogel, Hp \\ \hline
+\end{tabular}
+
+Explanation of the used parameters: 
+
+\begin{tabular}{p{0.5in}p{5.0in}} 
+Cd: & Vegetation bulk drag coefficient (Baptist)\\
+Cdx: & Vegetation drag coefficient specie specific (Jaervelae)\\
+Cd0: & Vegetation initial drag coefficient (WHittaker)\\
+Cdf: & Foliage drag coefficient \\
+Cds: & Stem drag coefficient \\
+Lai: & Leaf area index \\
+SAI: & Stem area index \\
+Uref: & Reference velocity (lowest velocity used to determine the Vogel exponent \\
+Ureff: & Foliage reference velocity \\
+Urefs: & Stem reference velocity \\
+Vogel: & Vogel exponent \\
+Vogelf: & Foliage Vogel exponent \\
+Vogels: & Stem Vogel exponent \\
+Hp: & Plant height \\
+D: & Vegetation diameter \\
+sp: & Vegetation spacing  \\
+NOTE: Huthoff et al defines sp as spacing between two trees (bark to bark)\\
+Ap0: & Initial projected area \\
+EI: & Flexural rigidity \\
+mD: & m: vegetation density (1/sp**2) D: vegetation diameter 0.5*LAI/Hp (Finnigan 2000) \\
+Cv: & Friction coefficient on top of the vegetation layer, for emerged case Cv=0\\
+a: & Frontal area of vegetation per volume (=mD) \\
+\end{tabular}
+
+
+
+
+\textbf{III -- Steering file}
+
+In order to use a friction computation by domains, the next keywords have to be
+added:
+
+For the friction data file:
+
+\telkey{FRICTION DATA} = YES.
+
+\telkey{FRICTION DATA FILE} = `name of the file where friction is given'.
+
+For the vegetation friction (if used):
+
+\telkey{VEGETATION FRICTION} = YES.
+
+By default, 10 zones are allocated, this number can be changed with the keyword:
+
+\telkey{MAXIMUM NUMBER OF FRICTION DOMAINS} = 80.
+
+Link between nodes and friction IDs of friction domains is achieved with:
+
+\telkey{ZONES FILE} = `name of the file'
+or \newline
+the friction IDs can be given as variable
+\telkey{FRIC\_ID} in the geometry file.
+
+\textbf{IV -- Advanced options}
+
+If some friction domains with identical parameters have to be defined,
+it is possible to define them only with one line thanks to the keyword:
+from... to... (it is also possible to use French de... a...
+or German von... bis...).
+
+The first friction ID of the domains and the last friction ID of the domains
+have to be set.
+All domains of friction with a friction ID between these two values will be
+allocated with the same parameters, except:
+\begin{itemize}
+\item If a friction domain is defined in two different groups,
+the priority is given to the last group defined,
+
+\item A single friction domain has ever the priority on a group even
+if a group with this domain is defined afterwards,
+
+\item If a single friction domain is defined twice, the priority is given to the
+last definition.
+\end{itemize}
+
+\textbf{V -- Programming}
+
+A new module, \telfile{FRICTION\_DEF}, has been created in order to save the
+data read in the friction file.
+This module is built on the structure of the \telfile{BIEF} objects.
+The domain of friction ''I'' is used as follows:
+\begin{lstlisting}[language=TelFortran]
+ TYPE(FRICTION_DEF) :: TEST_FRICTION
+
+ TEST_FRICTION%ADR(I)%P
+\end{lstlisting}
+ The components of the structure are:
+
+
+
+\begin{tabular}{|p{3.in}|p{2.5in}|} \hline
+%\telfile{TEST\_FRICTION\%ADR(I)\%P\%GNUM(1)} & 1$^{\rm{st}}$ friction ID of the friction domains \\ \hline
+%\telfile{TEST\_FRICTION\%ADR(I)\%P\%GNUM(2)} & Last friction ID of the friction domains \\ \hline
+%\telfile{TEST\_FRICTION\%ADR(I)\%P\%RTYPE} & Friction law used for the bottom \\ \hline
+%\telfile{TEST\_FRICTION\%ADR(I)\%P\%RCOEF} & Roughness parameters for the bottom \\ \hline
+%\telfile{TEST\_FRICTION\%ADR(I)\%P\%NDEF} & Default Manning for the bottom \\ \hline
+%\telfile{TEST\_FRICTION\%ADR(I)\%P\%VCOEF(1 ... 15)} & 1 to max. 15  parameters for the friction laws for vegetation \\ \hline
+\end{tabular}
+
+
+\telfile{TEST\_FRICTION\%ADR(I)\%P\%GNUM(1)} and \telfile{TEST\_FRICTION\%ADR(I)\%P\%GNUM(2)}
+have the same value if a single friction domain is defined.
+
+%\telfile{TEST\_FRICTION\%ADR(I)\%P\%RTYPE} is \telfile{KFROT} when there is only one domain.
+
+%\telfile{TEST\_FRICTION\%ADR(I)\%P\%RCOEF} is \telfile{CHESTR} when there is only one domain.
+
+
+
+The link between \telemac{2D} and the computation of the friction is done
+with the \telfile{FRICTION\_CHOICE} subroutine.
+It is used in order to initialize the variables for the option
+\telkey{FRICTION DATA} at the beginning of the program and/or in order to call
+the right friction subroutine for the computation at each iteration.
+
+\textbf{\underbar{Initializing:}}
+
+During the initialization, the parameters of the friction domains are saved
+thanks to the \telfile{FRICTION\_READ} subroutine and the friction ID of each nodes
+are saved thanks to \telfile{FRICTION\_USER} in the array \telfile{KFROPT\%I}.
+With the subroutine \telfile{FRICTION\_INIT}, the friction IDs for all nodes are
+checked and the arrays \telfile{CHESTR\%R} and \telfile{NKFROT\%I}
+(\telfile{KFROT} for each node) are built.
+\telfile{KFROT} is used in order to know if all friction parameters are null or
+not.
+This information is used during the computation.
+
+\textbf{\underbar{Computing:}}
+
+For the optimization, the computation of the friction coefficient is done
+in the \telfile{FRICTION\_CALC} subroutine for each node thanks to the loop
+\telfile{I = N\_START, N\_END}.
+When the option \telkey{FRICTION DATA} is not used, \telfile{N\_START} and
+\telfile{N\_END} are initialized to 1 and \telfile{NPOIN} in the subroutine
+\telfile{FRICTION\_UNIF}.
+Else, they take the same value and the loop on the node is done in the
+\telfile{FRICTION\_ZONES} subroutine (the parameters used for each node can be
+different).
+
+The choice of \telkey{VEGETATION FRICTION} is only possible together with
+ \telkey{FRICTION DATA}. Then one of the  routines 
+\telfile{FRICTION\_BAPTIST}, \telfile{FRICTION\_HUTHOFF}, \telfile{FRICTION\_JAERVELAE}, 
+\telfile{FRICTION\_LINDNER}, \telfile{FRICTION\_LUHARNEPF}, 
+\telfile{FRICTION\_VANVELZEN}, 
+\telfile{FRICTION\_VASTILA}, \telfile{FRICTION\_WHITTAKER},
+\telfile{FRICTION\_HYBRID}
+calculates the additional roughness due to vegetation. 
+
+\textbf{VI -- Accuracy}
+
+When the option \telkey{FRICTION DATA} is not used, \telfile{CHESTR} can be read
+in the \telkey{GEOMETRY FILE}.
+The values stored in this file can be in single precision if 
+\telkey{GEOMETRY FILE FORMAT} is not set to SERAFIND.
+However \telfile{CHESTR} is defined in double precision, then,
+the \telfile{CHESTR} value is not exactly the right value.
+
+With the option \telkey{FRICTION DATA}, \telfile{CHESTR} is set
+thanks to the \telkey{FRICTION DATA FILE} where the value of each domains
+are stored in double precision.
+
+Then when a comparison is done between both methods, the difference may come
+from the difference between single and double precision.

@@ -1,0 +1,55 @@
+[general]
+path: <root>|sources|utils|gretel
+module: gretel
+liborder: special hermes partel gretel
+name: grehis_autop
+
+[gretel]
+path: <root>|sources|utils|gretel
+files: merge_data_his.f
+  grehis_autop.f
+
+[hermes]
+path: <root>|sources|utils|hermes
+files: interface_hermes.f
+  hash_table.f
+  utils_cgns.F
+  hermes_index_file.f
+  utils_med.F
+  utils_serafin.F
+  lib_vtk_io.F
+  utils_vtk.F
+  close_mesh.f
+  get_data_ntimestep.f
+  get_data_nvar.f
+  get_data_var_list.f
+  get_mesh_connectivity.f
+  get_mesh_coord.f
+  get_mesh_date.f
+  get_mesh_l2g_numbering.f
+  get_mesh_nplan.f
+  get_mesh_npoin.f
+  get_mesh_npoin_per_element.f
+  get_mesh_title.f
+  add_data.f
+  get_data_time.f
+  get_data_value.f
+  open_mesh.f
+  set_header.f
+  set_mesh.f
+
+[partel]
+path: <root>|sources|utils|partel
+files: declarations_partel.f
+
+[special]
+path: <root>|sources|utils|special
+files: declarations_special.F
+  plante.F
+  check_allocate.f
+  write_error.f
+  check_call.f
+  get_free_id.f
+  get_nodes_per_element.f
+  blanc2uscore.f
+  extens.f

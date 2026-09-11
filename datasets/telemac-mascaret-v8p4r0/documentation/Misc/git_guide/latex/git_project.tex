@@ -1,0 +1,201 @@
+\chapter{Using \soft{Git} for TELEMAC-MASCARET}
+
+In this chapter, we will see how to start using \soft{Git} for development with
+TELEMAC-MASCARET.
+
+\section{Cloning the repository}
+
+The TELEMAC-MASCARET source code is currently hosted on a GitLab server
+maintained by EDF R\&D and available at
+\url{https://gitlab.pam-retd.fr/otm/telemac-mascaret}. 
+
+You have to \important{clone} this \soft{Git} repository, and by default the
+entire repository is cloned. Options to limit the size of the cloned repository
+on your local system are available and provided below.
+
+\subsection{Complete clone}
+From a terminal:
+\begin{small}
+\begin{lstlisting}
+$ git clone https://gitlab.pam-retd.fr/otm/telemac-mascaret.git
+  my_opentelemac
+$ cd my_opentelemac
+\end{lstlisting}
+\end{small}
+
+Here the clone will be made within the directory named
+\important{my\_opentelemac} but you can name it as you wish.
+
+\subsection{Single branch clone}
+It is possible to clone a single branch as follows:
+\begin{small}
+\begin{lstlisting}
+$ git clone -b feature_branch --single-branch
+  https://gitlab.pam-retd.fr/otm/telemac-mascaret.git
+  my_opentelemac/feature_branch
+\end{lstlisting}
+\end{small}
+
+The disadvantage of this process is that you can no longer recover another
+branch within \important{my\_opentelemac} without doing a low-level
+manipulation on the local repository. Therefore, cloning a single branch is not
+recommended, unless you work in a separate directory for each branch.
+
+\subsection{Shallow clone}
+It is also possible to make a “shallow clone” which consists in limiting the
+history to a certain number of commits. For example, to retrieve the last 20
+commits only:
+
+\begin{small}
+\begin{lstlisting}
+$ git clone --depth 20
+  https://gitlab.pam-retd.fr/otm/telemac-mascaret.git
+\end{lstlisting}
+\end{small}
+
+However, this method is not recommended either outside of a repository
+submodule or a continuous integration environment.
+
+\subsection{Partial clone}
+Finally, it is possible to make a “partial clone” by filtering the directories,
+which consists in recovering only part of the \soft{Git} repository. This
+process requires a recent version of \soft{Git} as well as the presence of a
+filter file on the system repository.\\
+\\
+For TELEMAC-MASCARET, such file has been included on the repository that
+ignores the examples. Other filter files can be added upon request. The
+\soft{Git} command is as follows:
+\begin{small}
+\begin{lstlisting}
+$ git clone --sparse --filter=sparse:oid=main:.gitfilterspec
+  https://gitlab.pam-retd.fr/otm/telemac-mascaret.git my_opentelemac
+$ cd my_opentelemac
+$ git config --local core.sparsecheckout true
+$ git show origin/main:.gitfilterspec >> .git/info/sparse-checkout
+$ git checkout main
+\end{lstlisting}
+\end{small}
+
+The above list of commands is quite heavy as \soft{Git} is not at all intended
+for partial clone, but it works.
+
+\section{Cloning the repository -- GUI users}
+All GUI clients provide a clone command located under the main menu, for
+example in ``Repository > Clone'' for \soft{SmartGit}, or
+``Start > Clone Repository…'' for \soft{Git Extensions}.\\
+\\
+Most interfaces provide you with direct access to single branch and/or shallow
+clone. You can do a partial clone using the command line description above.
+
+\section{Configuring developer credentials}
+People who requested a developer access should all have received an e-mail to
+access the GitLab server when their account was created.\\
+
+If the identifiers are not necessary to clone the repository, since it is
+public, it is obviously not the same to modify it. Access rights are required
+through a two-factor authentication (2FA). Both authentication factors are
+required every time you log on to GitLab.\\
+
+The first level authentication factor is your GitLab username and password. The
+second level factor is a code that is generated through an OTP (One-Time
+Password) application that you have to install on another device, such as your
+phone. Such applications include FreeOTP or Microsoft Authenticator, but many
+others are available for Android and iOS.\\
+
+Fortunately, this OTP is only necessary when accessing the GitLab web page. But
+when working with \soft{Git}, the access is stored locally on your system in
+the form of a personal \important{access token}.\\
+
+To generate this token, you need first to connect to the GitLab web interface.
+On that occasion, you will need your GitLab username and password as well as
+the OTP code. Once logged on, the access token is available through
+\important{Edit profile}, selecting \important{Access Tokens}.\\
+
+You must then generate the access token by filling in a name (of the
+application that uses \soft{Git}, for instance) and making sure that you have
+checked \important{read\_repository} and \important{write\_repository} at
+least.\\
+
+Then click on \important{Create personal access token} for the key to appear at
+the top of the page: note it down, copy/paste it, keep it, as you will lose it
+once you leave the web page.
+
+\subsection{Linux users}
+In order to avoid entering the token each time you push to the repository, you
+need to enter the following command to store your credentials:
+\begin{small}
+\begin{lstlisting}
+$ git config --global credential.helper store
+\end{lstlisting}
+\end{small}
+
+Then, the token is to be written to \$HOME/.git-credentials in the following
+form:\\
+\url{https://oauth2:<TOKEN>@gitlab.pam-retd.fr}\\
+Of course, you will need to replace \important{<TOKEN>} with your own token.\\
+
+From here you can work.
+
+\subsection{Windows users}
+Since \soft{Git} \important{Credential Manager Core} should have been enabled
+through the \soft{Git} setup, storing your credentials requires only to enter
+the token once and for all, for example when cloning the repository (or later
+on, when doing a push):
+
+\begin{small}
+\begin{lstlisting}
+$ git clone
+  https://oauth2:<TOKEN>@gitlab.pam-retd.fr/otm/telemac-mascaret.git
+  my_opentelemac
+\end{lstlisting}
+\end{small}
+
+\section{Configuring the repository}
+Before to start working with \soft{Git}, you need to indicate the username
+and e-mail address that will be associated with the commits.\\
+
+For TELEMAC-MASCARET, we recommend using your first and last name, by entering,
+from the repository directory:
+\begin{small}
+\begin{lstlisting}
+$ git config user.name "FirstName LastName"
+$ git config user.email firstname.lastname@mycompany.com
+\end{lstlisting}
+\end{small}
+
+You can also configure \soft{Git} to use the text editor of your choice for
+editing commit messages. Otherwise, the default \soft{Git} interface will be
+used. To set it (.e.g to use \soft{Emacs}), enter:
+\begin{small}
+\begin{lstlisting}
+$ git config core.editor emacs
+\end{lstlisting}
+\end{small}
+
+To use the same settings for all your \soft{Git} repositories, you need to pass
+the \important{global} option to the above commands, e.g.:
+\begin{small}
+\begin{lstlisting}
+$ git config --global core.editor emacs
+\end{lstlisting}
+\end{small}
+
+\subsection{Proxy settings}
+
+If your organization is behind a proxy you need to tell Git to use it as below:
+\begin{small}
+\begin{lstlisting}
+$ git config --global
+  http.proxyhttps://<username>:<password>@<proxy_address>:<proxy_port>
+$ git config --global
+  https.proxy https://<username>:<password>@<proxy_address>:<proxy_port>
+\end{lstlisting}
+\end{small}
+
+By replacing:
+\begin{itemize}
+  \item <proxy\_address>: by the address to your proxy;
+  \item <proxy\_port>: by the port of your proxy;
+  \item <username>: by the login to your proxy, if any;
+  \item <password>: by the password to your proxy, if any.
+\end{itemize}

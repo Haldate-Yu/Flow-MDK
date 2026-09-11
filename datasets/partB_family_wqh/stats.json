@@ -1,0 +1,322 @@
+{
+  "wqh_fam011": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7019999027252197,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 12.066814400001022
+  },
+  "wqh_fam027": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.3460001945495605,
+    "q_max": 74.94999694824219,
+    "wet_fraction": 1.0,
+    "runtime_s": 12.096313699999882
+  },
+  "wqh_fam004": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.74399995803833,
+    "q_max": 58.33599853515625,
+    "wet_fraction": 1.0,
+    "runtime_s": 12.21451320000051
+  },
+  "wqh_fam024": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7239999771118164,
+    "q_max": 57.560001373291016,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.391807100000733
+  },
+  "wqh_fam023": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7339999675750732,
+    "q_max": 59.196998596191406,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.4386654000009
+  },
+  "wqh_fam002": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.75,
+    "q_max": 56.25600051879883,
+    "wet_fraction": 1.0,
+    "runtime_s": 12.044320700002572
+  },
+  "wqh_fam003": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7070000171661377,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.97056639999937
+  },
+  "wqh_fam034": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.884000062942505,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.626383700000588
+  },
+  "wqh_fam018": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7269999980926514,
+    "q_max": 58.26100158691406,
+    "wet_fraction": 1.0,
+    "runtime_s": 12.035812899997836
+  },
+  "wqh_fam001": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.270999908447266,
+    "q_max": 74.7969970703125,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.326960999998846
+  },
+  "wqh_fam010": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.9159998893737793,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.214670299999852
+  },
+  "wqh_fam022": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7190001010894775,
+    "q_max": 60.301998138427734,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.396393499999249
+  },
+  "wqh_fam020": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.210999965667725,
+    "q_max": 75.39700317382812,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.946949099998164
+  },
+  "wqh_fam026": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.8540000915527344,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.960147199999483
+  },
+  "wqh_fam028": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7769999504089355,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 13.995113600001787
+  },
+  "wqh_fam030": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.825000047683716,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 12.018584699999337
+  },
+  "wqh_fam037": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.317999839782715,
+    "q_max": 74.36499786376953,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.812108599999192
+  },
+  "wqh_fam038": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7330000400543213,
+    "q_max": 59.17300033569336,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.404012400002102
+  },
+  "wqh_fam017": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.8329999446868896,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 12.014089899999817
+  },
+  "wqh_fam000": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.113999843597412,
+    "q_max": 75.20999908447266,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.238362899999629
+  },
+  "wqh_fam021": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.176000118255615,
+    "q_max": 72.15499877929688,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.071462900003098
+  },
+  "wqh_fam035": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.328000068664551,
+    "q_max": 75.95500183105469,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.86170299999867
+  },
+  "wqh_fam009": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.447999954223633,
+    "q_max": 79.44999694824219,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.947887999998784
+  },
+  "wqh_fam006": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.177000045776367,
+    "q_max": 74.30999755859375,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.241453999999067
+  },
+  "wqh_fam032": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7239999771118164,
+    "q_max": 57.54399871826172,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.357968599997548
+  },
+  "wqh_fam025": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.8550000190734863,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.789433600002667
+  },
+  "wqh_fam019": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7200000286102295,
+    "q_max": 56.81399917602539,
+    "wet_fraction": 1.0,
+    "runtime_s": 13.668257899997116
+  },
+  "wqh_fam036": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7260000705718994,
+    "q_max": 58.11399841308594,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.491513199998735
+  },
+  "wqh_fam008": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.802000045776367,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.423718400001235
+  },
+  "wqh_fam016": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.205999851226807,
+    "q_max": 74.9020004272461,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.631599300002563
+  },
+  "wqh_fam013": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.8480000495910645,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.913965600000665
+  },
+  "wqh_fam012": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.7679998874664307,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.237416199997824
+  },
+  "wqh_fam007": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.813999891281128,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.007838100002118
+  },
+  "wqh_fam039": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.765000104904175,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.31887529999949
+  },
+  "wqh_fam005": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.2170000076293945,
+    "q_max": 74.79900360107422,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.886483300000691
+  },
+  "wqh_fam014": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.123000144958496,
+    "q_max": 72.29499816894531,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.830093000000488
+  },
+  "wqh_fam029": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.249000072479248,
+    "q_max": 74.5719985961914,
+    "wet_fraction": 1.0,
+    "runtime_s": 14.08888830000069
+  },
+  "wqh_fam033": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.1579999923706055,
+    "q_max": 74.96199798583984,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.477942900000926
+  },
+  "wqh_fam015": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 4.47599983215332,
+    "q_max": 75.94300079345703,
+    "wet_fraction": 1.0,
+    "runtime_s": 11.65499490000002
+  },
+  "wqh_fam031": {
+    "num_nodes": 27,
+    "num_steps": 48,
+    "h_max": 3.864000082015991,
+    "q_max": 54.0,
+    "wet_fraction": 1.0,
+    "runtime_s": 10.863410599999042
+  }
+}

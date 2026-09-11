@@ -1,0 +1,67 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Telemac Documentation
+%  Example of the TelemacDoc class
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+\documentclass[Nestor]{../../data/TelemacDoc} % Default font size and left-justified equations
+%\documentclass[Telemac2D,french]{TelemacDoc} % Default font size and left-justified equations in french
+
+\begin{document}
+
+\let\cleardoublepage\clearpage
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title{\nestor}
+\subtitle{User Manual 
+\\ \huge{(identical with Validation Document)}}
+\version{\telmaversion}
+\date{\today}
+\maketitle
+\clearpage
+
+
+%----------------------------------------------------------------------------------------
+%	COPYRIGHT PAGE
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+\thispagestyle{empty}
+
+\TelemacCopyright{}
+
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+
+\pagestyle{empty} % No headers
+
+\tableofcontents% Print the table of contents itself
+
+%\cleardoublepage % Forces the first chapter to start on an odd page so it's on the right
+
+\pagestyle{fancy} % Print headers again
+
+%----------------------------------------------------------------------------------------
+%	Hereafter all the chapters
+%----------------------------------------------------------------------------------------
+
+%does not work...
+\subincludefrom {../../../examples/nestor/nestor1_Dig/doc/}{nestor1_Dig}
+\subincludefrom {../../../examples/nestor/nestor2_Dump/doc/}{nestor2_Dump}
+\subincludefrom {../../../examples/nestor/nestor3_critDigDump/doc/}{nestor3_critDigDump}
+\subincludefrom {../../../examples/nestor/nestor4_T2D_various-RefLev/doc/}{nestor4_T2D_various-RefLev}
+
+
+\bibliographystyle{plainnat}
+\bibliography{../../data/biblio}
+
+\end{document}

@@ -1,0 +1,212 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  COURLIS Documentation
+%  Theory guide
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+\documentclass[Courlis]{../../data/TelemacDoc} % Default font size and left-justified equations
+
+%%---------------------------------------------------------------------------
+%%Equations
+%%---------------------------------------------------------------------------
+\renewcommand{\Grad}{\vec \nabla}
+\renewcommand{\Div}{\nabla \cdot}
+\renewcommand{\Lap}{\nabla^2}%{\text{lap}\hspace{0.1em}}
+\newcommand{\BDiv}{\vec{\nabla} \cdot}
+\newcommand{\BLap}{\vec{\nabla}^2}
+\newcommand{\DivD}{\nabla_{2D} \cdot}
+\newcommand{\Divast}{\nabla^* \cdot}
+
+
+%%---------------------------------------------------------------------------
+%% Nomenclature
+%%---------------------------------------------------------------------------
+\usepackage{ifthen}
+\usepackage{nomencl}
+%
+\makenomenclature
+\renewcommand{\nompreamble}{\markboth{%
+                            \MakeUppercase\nomname}{\MakeUppercase\nomname}%
+                           }
+\newcommand{\nomunit}[1]{%
+\renewcommand{\nomentryend}{\hspace*{\fill}#1}}
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\let\cleardoublepage\clearpage
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title{\courlis}
+\subtitle{Theory guide}
+\version{\telmaversion}
+\date{\today}
+\maketitle
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	AUTHORS PAGE
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+\thispagestyle{empty}
+
+\chapter*{Authors and contributions}
+This theory guide was created by 
+
+\newpage
+
+\chapter*{Work under construction}\label{workunderconstruction}
+We would like to warn the reader that this document is still under construction and
+could be improved in many ways. Any remarks, suggestions, corrections, etc. are welcome
+and can be submitted to the TELEMAC developing team through the forum in the Documentation
+category: \url{http://www.opentelemac.org/index.php/kunena/10-documentation}.
+
+\newpage
+
+\chapter*{Abstract}\label{Abstract}
+This guide aims at providing a comprehensive overlook of the theory behind COURLIS. 
+
+
+%----------------------------------------------------------------------------------------
+%	COPYRIGHT PAGE
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+\thispagestyle{empty}
+
+\TelemacCopyright{}
+
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+
+\pagestyle{empty} % No headers
+
+\tableofcontents% Print the table of contents itself
+
+%\cleardoublepage % Forces the first chapter to start on an odd page so it's on the right
+
+\pagestyle{fancy} % Print headers again
+
+%----------------------------------------------------------------------------------------
+%	The whole thing
+%----------------------------------------------------------------------------------------
+%%===========================================================================
+%\section{Reminders and definition of variables}
+%%===========================================================================
+%
+%Bold variables will represent vectors and tensors, and plain font will represent scalars; i.e.:
+%
+%\begin{align}
+%\vec{A} = \left[\begin{array}{c}
+%		A_x
+%		\\
+%		A_y
+%		\\
+%		A_z
+%		\end{array}\right]
+%\end{align}
+%
+%Furthermore, the following operators are defined:
+%
+%\begin{subequations}
+%\begin{align}
+%\Grad\{A\}		= & \vec{\nabla} A
+%\\
+%\Grad\{\vec{A}\}		= & \vec{\nabla} \vec{A}^T
+%\\
+%\Div\{\vec{A}\}	= & \vec{\nabla} \cdot \vec{A}
+%\\
+%\Lap\{B,A\} =	& \vec{\nabla} \cdot \left( B\vec{\nabla} A\right)
+%\notag\\
+%			=	& \Div\{B\Grad\{A\}\}
+%\\
+%\BLap\{B,\vec{A}\} =	& \vec{\nabla} \cdot \left( B\vec{\nabla} \vec{A}^T\right)
+%\notag\\
+%						=	& \Div\{B\Grad\{\vec{A}\}\}
+%\end{align}
+%\end{subequations}
+%
+%Where $\vec{\nabla}$ is the nabla operator defined as:
+%
+%\begin{align}
+%\vec{\nabla} = \left[\begin{array}{c}
+%		\dfrac{\partial}{\partial x}
+%		\\[1em]
+%		\dfrac{\partial}{\partial y}
+%		\\[1em]
+%		\dfrac{\partial}{\partial z}
+%		\end{array}\right]
+%\end{align}
+%
+%In addition $\vec{A}^T$ is the transpose of vector $\vec{A}$.
+
+%===========================================================================
+% Nomenclature
+%===========================================================================
+
+\printnomenclature
+
+%----------------------------------------------------------------------------------------
+%	Introduction
+%----------------------------------------------------------------------------------------
+\addcontentsline{toc}{section}{Introduction}
+\chapter*{Introduction}\label{intro}
+\input{latex/introduction.tex}
+\newpage
+%----------------------------------------------------------------------------------------
+%	CHAPTER 1: General hypothesis
+%----------------------------------------------------------------------------------------
+
+\chapter{General hypothesis}\label{chap1}
+\input{latex/general_hypothesis.tex}
+\newpage
+%----------------------------------------------------------------------------------------
+%	CHAPTER 2: Modelling sediment transport
+%----------------------------------------------------------------------------------------
+
+\chapter{Modelling sediment transport}\label{chap2}
+\input{latex/modelling_sediment_transport.tex}
+\newpage
+%----------------------------------------------------------------------------------------
+%	CHAPTER 3: Coupling and discretisation
+%----------------------------------------------------------------------------------------
+
+\chapter{Coupling and discretisation}\label{chap3}
+\input{latex/coupling_and_discretisation.tex}
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	---------- APPENDICES ----------
+%----------------------------------------------------------------------------------------
+%\appendix
+%\chapter{Appendix B: Notes sur la transformation sigma}\label{appendixB}
+%\input{Appendix_B.tex}
+%\newpage
+%
+
+\nomenclature[D_U*]{$\vec{U}^*$}{Fluid velocity vector in the transformed domain \dotfill (m/s)}
+\nomenclature[D_U*_x]{$U^*$}{Fluid velocity along axis $x$ in the transformed domain; not that $U^*=U$ \dotfill (m/s)}
+\nomenclature[D_U*_y]{$V^*$}{Fluid velocity along axis $y$ in the transformed domain; not that $V^*=V$  \dotfill (m/s)}
+\nomenclature[D_U*_z]{$W^*$}{Fluid velocity along axis $z$ in the transformed domain \dotfill (m/s)}
+
+%===========================================================================
+% Bibliography
+%===========================================================================
+
+
+\bibliographystyle{plainnat}
+%\bibliography{latex/telemac3d_theory_guide} %% !! to check
+\bibliography{../../data/biblio}
+
+\end{document}

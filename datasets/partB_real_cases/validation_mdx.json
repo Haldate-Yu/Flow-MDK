@@ -1,0 +1,8 @@
+{
+  "case": "mdx",
+  "runtime_s": 56.14102520000233,
+  "rerun_frames": 120,
+  "abscissa_max_diff_m": 0.007499999999708962,
+  "depth_max_rerun_m": 8.369000434875488,
+  "passed": true
+}

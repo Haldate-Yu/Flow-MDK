@@ -1,0 +1,120 @@
+\chapter{MICROPOL Module}
+
+The MICROPOL module simulates the evolution of a micropollutant (radioelement or heavy metal)
+in the three compartments considered to be of major importance in a river ecosystem:
+water, Suspended Particulate Matter (SPM) and bottom material.
+
+It is activated by setting \telkey{WATER QUALITY PROCESS} = 7.\\
+
+Each of these compartments represents an homogeneous class:
+SPM and sediments represent the grain-size class of clay and silt
+(cohesive fine sediments, of diameter about less than 20 to 25 $\mu$m),
+likely to attach the majority of micropollutants.\\
+
+Due to adsorption and desorption of micropollutants,
+SPM is one of the first links in the chain of contamination.
+SPM is carried and dispersed in the water mass
+as a tracer and is also subject to the laws of sedimentary physics:
+it settles in calm waters and produces bottom sediments,
+and can be re-suspended by a high flow.
+Deposits cannot move. They are treated as tracers that can be neither advected
+nor dispersed by the water mass, but are likely to be re-suspended.\\
+
+The model considers 5 tracers:
+
+\begin{itemize}
+\item suspended matter (SS),
+\item bottom sediments (SF), neither advected nor dispersed,
+\item dissolved form of micropollutant,
+\item the fraction adsorbed by suspended particulate matter,
+\item the fraction adsorbed by bottom sediments, neither advected nor dispersed.
+\end{itemize}
+
+\subsubsection{Notes, and limitations of the MICROPOL module}
+
+\begin{itemize}
+\item whether in suspension or deposited on the bottom, the matter is considered
+  to be a passive tracer:
+  in other words, it does not influence the flow (no feedback).
+  This hypothesis involves that the deposits depth must be negligible compared
+  to the water depth (the bed is assumed to be unmodified).
+\item there is no direct adsorption/desorption of dissolved micropollutants
+  on the deposited matter, only on the SPM
+  (the model assumes a preponderance of water – SPM exchanges over direct water
+  – bottom sediment exchanges).
+  Bottom sediments only become radioactive by means of polluted SPM deposition. 
+\end{itemize}
+
+\section{Suspended matter}
+
+The model describing the evolution of SPM and bottom sediments involved in MICROPOL
+is a classic representation of the deposition laws and re-suspension
+of cohesive SPM, that are the laws of Krone \cite{krone_flume_1962}
+and Partheniades \cite{partheniades_erosion_deposition_1965}.\\
+
+Both processes require the knowledge of characteristic constants:
+
+\begin{itemize}
+\item deposition occurs when bottom shear stress $\tau_b$,
+  which varies according to the flow conditions, becomes lower than a threshold value $\tau_s$,
+  known as the critical shear stress for sedimentation
+  and which can be set with the keyword \telkey{SEDIMENTATION CRITICAL STRESS}
+  (default = 5~Pa) .
+  It is then assumed that the SPM settles at a constant velocity $w$
+  (known as the settling velocity or velocity of sedimentation)
+  with the keyword \telkey{SEDIMENT SETTLING VELOCITY}
+  (default = 6.10$^{-6}$~m/s),
+\item re-suspension occurs when a threshold $\tau_r$,
+  known as the critical shear stress for re-suspension, is exceeded.
+  It can be set with the keyword \telkey{CRITICAL STRESS OF RESUSPENSION}
+  (default = 1,000~Pa).
+  Its importance is weighted by a constant $e$, the rate of erosion characteristic
+  of deposited SPM (also known as the Partheniades constant),
+  which associated keyword is \telkey{EROSION RATE} (default = 0).
+\end{itemize}
+
+\section{Micropollutants}
+
+The model representing the evolution of micropollutants assumes
+that the transfers of micropollutants (radioelement, metal)
+between the dissolved and particulate phases correspond to either
+direct adsorption or ionic exchanges modeled by a reversible reaction,
+of 1$^{\rm{st}}$ kinetic order.
+%\cite{ciffroy_doubs_1995}.
+In the case of direct adsorption, the reaction can be represented in the form of
+a reversible reaction, controlled by adsorption ($k_1$ in l/g/s)
+and desorption velocities ($k_{-1}$ in s$^{-1}$)
+which last associated keyword is \telkey{CONSTANT OF DESORPTION KINETIC}
+(default = 2.5 10$^{-7}$s$^{-1}$).
+It leads to an equilibrium state, and then a distribution of micropollutants
+between the dissolved and particulate phase described
+by the distribution coefficient $K_d = \frac{k_1}{k_{-1}}$
+(set with the keyword
+\telkey{COEFFICIENT OF DISTRIBUTION}, default = 1,775~l/g).
+Once adsorbed, the fixed micropollutants act like SPM (deposition, re-suspension)
+and can also produce areas of polluted sediment.\\
+
+The model includes an exponential decay law (radioactive decay type) of micropollutant
+concentrations in each compartment of the modeled ecosystem,
+through a constant written $L$
+which can be set with the keyword
+\telkey{EXPONENTIAL DESINTEGRATION CONSTANT} (default = 1.13 10$^{-7}~\textrm{s}^{-1}$).
+
+\subsection{Two-step reversible model}
+
+Two successive-step reversible model is activated by setting the keyword \telkey{KINETIC EXCHANGE MODEL} = 2.\\
+
+This allows the model to consider two additional tracers:
+
+\begin{itemize}
+\item $C_{ss2}$: concentration of micropollutants adsorbed by SPM ``specific sites'',
+\item $C_{ff2}$: concentration of micropollutants adsorbed by bottom sediments
+  ``specific sites''.
+\end{itemize}
+
+Ionic exchanges are then modelled with one supplementary slower step, associated with
+keywords \telkey{CONSTANT OF DESORPTION KINETIC 2} (default = 2.5 10$^{-9}$~s$^{-1}$)
+and \telkey{COEFFICIENT OF DISTRIBUTION 2}, default = 1,775~g/g).
+Because of the slower exchange dynamics in the second reversible step, the default
+value of \telkey{CONSTANT OF DESORPTION KINETIC 2} is significantly smaller than the
+one of \telkey{CONSTANT OF DESORPTION KINETIC}.

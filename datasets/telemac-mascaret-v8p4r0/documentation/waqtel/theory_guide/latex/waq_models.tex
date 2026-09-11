@@ -1,0 +1,86 @@
+\chapter{Water quality models}
+\label{waq_models}
+For the sake of simplicity, the following operator $F(C)$ is defined:
+
+\begin{equation}
+  F(C) = \frac{\partial C}{\partial t} + \vec{U} \cdot \vec \nabla C
+       - \nabla \cdot \left( k \vec \nabla C \right),
+\end{equation}
+
+with $C(x,y,z,t)$ is the tracer concentration,
+$t$ is time, $(x,y,z)$ the coordinates,
+$k$ the diffusion coefficient (m$^2$/s),
+$\vec{U}$ the velocity vector (m/s).\\
+
+
+The studied substances are advected and dispersed in the water mass.
+The dispersion is due to the flow transport and to the flow turbulence.
+
+The concentration of a substance (e.g. pollutant, oxygen) is also influenced by:
+\begin{itemize}
+\item punctual contributions, caused by releases (industrial, sewage treatment plants, etc.)
+  called \emph{external sources},
+\item the presence of other substances in the water mass, with which the tracer
+  may react through biochemical transformations or the existence of forcings
+  linked to its own concentration (e.g. the reaeration phenomenon for oxygen).
+  These source terms for one tracer are called \emph{internal sources}
+  (because internal to the water mass) and they characterize the water quality module
+  (description of the interactions between the tracers).
+\end{itemize}
+
+Solving a water quality problem consists in solving a system of $N$ (number of tracers)
+advection-dispersion equations (one equation per tracer) considering the presence of
+external (e.g. releases) and internal sources.
+
+A water quality model is characterized in WAQTEL by the coupled treatment of different tracers
+and the description of the \emph{internal} source terms.\\
+
+The internal source term for a given tracer $i$ can be written through the following form:
+\begin{equation}
+  S_{intern_i} = \lambda_i^0 + \sum_{j=1}^{N} \lambda_i^j C_j + \frac{\mu_i^0}{h}
+               + \frac{\sum_{j=1}^{N}\mu_i^j C_j}{h}
+\end{equation}
+
+with $\lambda_i^0$ and $\mu_i^0$ are terms not depending on the tracer concentration $i$
+and $h$ is the water depth.
+The 1$^{\rm{st}}$ term represents the volumic internal sources
+(e.g. chemical reactions) whereas the 2$^{\rm{nd}}$ term represents the surface internal sources
+(e.g. deposition, re-suspension, evaporation).
+
+Depending on the water quality module, matrices [$\lambda$] and [$\mu$]
+containing the coefficients $\lambda_i^j$ and $\mu_i^j$ are written differently.
+The internal source terms are treated
+in an explicit way in the advection-diffusion equation,
+because they depend on the concentration of other tracers that remain
+unknown at the time step $n+1$.
+
+If there are interactions between tracers or specific evolution laws of tracers,
+a water quality module can be used to determine the internal sources of tracers
+that can be involved in the transport equation.
+
+Internal sources of tracers are computed in the water quality module \waqtel
+at each time step, with respect to physical parameters and
+the concentrations of different tracers.
+Then they are given to \telemac{2D} or \telemac{3D} for computing
+the tracer evolution (by advection and diffusion+dispersion) taking the
+external source terms into account.\\
+
+Several water quality modules are available in the \waqtel library:
+\begin{itemize}
+  \item O$_2$ module: simplified model of dissolved oxygen,
+  \item BIOMASS module: phytoplankton biomass model,
+  \item EUTRO module: eutrophication model (dissolved oxygen and algal biomass),
+  \item MICROPOL module: evolution of heavy metals or radioelements,
+    taking into account interactions with fine sediments (suspended matter).
+    However, no changes of the bed geometry is considered,
+  \item THERMIC module: evolution of water temperature under the influence
+    of atmospheric fluxes,
+  \item AED2 model: the water quality and aquatic ecology model,
+  \item degradation law.
+\end{itemize}
+
+The different modules and their features are described in the following chapters
+in which the internal source terms are also detailed.
+
+Note that the structure chosen for \waqtel enables to easily add new
+water quality modules, by implementing terms relating to internal sources.

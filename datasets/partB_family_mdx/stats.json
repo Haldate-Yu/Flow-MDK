@@ -1,0 +1,298 @@
+{
+  "mdx_fam004": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.420999526977539,
+    "q_max": 801.7880249023438,
+    "wet_fraction": 1.0,
+    "runtime_s": 51.400257400000555
+  },
+  "mdx_fam037": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.388999938964844,
+    "q_max": 852.5460205078125,
+    "wet_fraction": 1.0,
+    "runtime_s": 44.73847469999964
+  },
+  "mdx_fam022": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.595999717712402,
+    "q_max": 843.301025390625,
+    "wet_fraction": 1.0,
+    "runtime_s": 45.763624600000185
+  },
+  "mdx_fam020": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.236000061035156,
+    "q_max": 823.593994140625,
+    "wet_fraction": 1.0,
+    "runtime_s": 45.28662670000267
+  },
+  "mdx_fam002": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.414999961853027,
+    "q_max": 743.8629760742188,
+    "wet_fraction": 1.0,
+    "runtime_s": 46.46960810000019
+  },
+  "mdx_fam003": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.937999725341797,
+    "q_max": 835.1129760742188,
+    "wet_fraction": 1.0,
+    "runtime_s": 59.86795369999891
+  },
+  "mdx_fam038": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.319999694824219,
+    "q_max": 734.64501953125,
+    "wet_fraction": 1.0,
+    "runtime_s": 44.02704910000102
+  },
+  "mdx_fam026": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.432000160217285,
+    "q_max": 713.7239990234375,
+    "wet_fraction": 1.0,
+    "runtime_s": 53.54009229999792
+  },
+  "mdx_fam012": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.8100004196167,
+    "q_max": 811.2009887695312,
+    "wet_fraction": 1.0,
+    "runtime_s": 45.94551670000146
+  },
+  "mdx_fam039": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.168000221252441,
+    "q_max": 745.6749877929688,
+    "wet_fraction": 1.0,
+    "runtime_s": 47.41799180000089
+  },
+  "mdx_fam001": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.888999938964844,
+    "q_max": 856.8300170898438,
+    "wet_fraction": 1.0,
+    "runtime_s": 45.16368760000114
+  },
+  "mdx_fam000": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.527999877929688,
+    "q_max": 833.448974609375,
+    "wet_fraction": 1.0,
+    "runtime_s": 42.92315519999829
+  },
+  "mdx_fam024": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.366999626159668,
+    "q_max": 809.52001953125,
+    "wet_fraction": 1.0,
+    "runtime_s": 48.92724409999937
+  },
+  "mdx_fam032": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.442999839782715,
+    "q_max": 805.2579956054688,
+    "wet_fraction": 1.0,
+    "runtime_s": 46.56133939999927
+  },
+  "mdx_fam023": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.37600040435791,
+    "q_max": 770.4810180664062,
+    "wet_fraction": 1.0,
+    "runtime_s": 48.03258790000109
+  },
+  "mdx_fam011": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.562000274658203,
+    "q_max": 735.5689697265625,
+    "wet_fraction": 1.0,
+    "runtime_s": 47.09152560000075
+  },
+  "mdx_fam035": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.255999565124512,
+    "q_max": 720.0250244140625,
+    "wet_fraction": 1.0,
+    "runtime_s": 43.41646899999978
+  },
+  "mdx_fam010": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.414999961853027,
+    "q_max": 814.1649780273438,
+    "wet_fraction": 1.0,
+    "runtime_s": 47.42836030000035
+  },
+  "mdx_fam007": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.23799991607666,
+    "q_max": 826.8629760742188,
+    "wet_fraction": 1.0,
+    "runtime_s": 44.410408700001426
+  },
+  "mdx_fam028": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.449000358581543,
+    "q_max": 728.7100219726562,
+    "wet_fraction": 1.0,
+    "runtime_s": 47.95615220000036
+  },
+  "mdx_fam021": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.378999710083008,
+    "q_max": 827.27001953125,
+    "wet_fraction": 1.0,
+    "runtime_s": 45.76444999999876
+  },
+  "mdx_fam025": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.470999717712402,
+    "q_max": 840.2130126953125,
+    "wet_fraction": 1.0,
+    "runtime_s": 51.081655000001774
+  },
+  "mdx_fam009": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 20.006999969482422,
+    "q_max": 3254.59912109375,
+    "wet_fraction": 1.0,
+    "runtime_s": 45.53889479999998
+  },
+  "mdx_fam018": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.647000312805176,
+    "q_max": 809.8170166015625,
+    "wet_fraction": 1.0,
+    "runtime_s": 45.970358500002476
+  },
+  "mdx_fam029": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.531999588012695,
+    "q_max": 770.7979736328125,
+    "wet_fraction": 1.0,
+    "runtime_s": 44.613043800000014
+  },
+  "mdx_fam013": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 27.95599937438965,
+    "q_max": 3099.18310546875,
+    "wet_fraction": 1.0,
+    "runtime_s": 46.32695380000223
+  },
+  "mdx_fam030": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.338000297546387,
+    "q_max": 3119.64111328125,
+    "wet_fraction": 1.0,
+    "runtime_s": 44.41625750000094
+  },
+  "mdx_fam014": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.788999557495117,
+    "q_max": 815.2429809570312,
+    "wet_fraction": 1.0,
+    "runtime_s": 47.38763420000032
+  },
+  "mdx_fam008": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.824000358581543,
+    "q_max": 844.1430053710938,
+    "wet_fraction": 1.0,
+    "runtime_s": 45.29794530000072
+  },
+  "mdx_fam006": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.47700023651123,
+    "q_max": 755.4860229492188,
+    "wet_fraction": 1.0,
+    "runtime_s": 43.43485769999825
+  },
+  "mdx_fam019": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.138999938964844,
+    "q_max": 726.8469848632812,
+    "wet_fraction": 1.0,
+    "runtime_s": 47.38041840000005
+  },
+  "mdx_fam027": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.246000289916992,
+    "q_max": 738.60400390625,
+    "wet_fraction": 1.0,
+    "runtime_s": 50.81823279999662
+  },
+  "mdx_fam015": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.279999732971191,
+    "q_max": 804.0050048828125,
+    "wet_fraction": 1.0,
+    "runtime_s": 53.698335599998245
+  },
+  "mdx_fam031": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.310999870300293,
+    "q_max": 710.9710083007812,
+    "wet_fraction": 1.0,
+    "runtime_s": 43.42752340000152
+  },
+  "mdx_fam036": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.414999961853027,
+    "q_max": 783.1849975585938,
+    "wet_fraction": 1.0,
+    "runtime_s": 44.32322470000145
+  },
+  "mdx_fam016": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.470000267028809,
+    "q_max": 758.114990234375,
+    "wet_fraction": 1.0,
+    "runtime_s": 49.89872950000063
+  },
+  "mdx_fam033": {
+    "num_nodes": 73,
+    "num_steps": 120,
+    "h_max": 8.291999816894531,
+    "q_max": 801.4539794921875,
+    "wet_fraction": 1.0,
+    "runtime_s": 43.9669862999981
+  }
+}

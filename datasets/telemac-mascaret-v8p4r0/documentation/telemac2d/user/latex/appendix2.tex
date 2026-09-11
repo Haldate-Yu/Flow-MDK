@@ -1,0 +1,44 @@
+\chapter{List of user subroutines}
+\label{tel2d:app2}
+Even though all subroutines can be modified by the user, some subroutines have
+been specifically designed to define complex simulation parameters
+Here is a list of subroutines that can be included in the FORTRAN file
+and modified by the user:\\
+\begin{tabular}{p{2.in}p{4.0in}}
+BIEF\_VALIDA & Validation of a computation\\
+CORVIS & Modification of viscosities\\
+FLUXPR\_TELEMAC2D & Management of control sections\\
+LATITU & Computation of variables depending on latitude\\
+METEO and METEO\_TELEMAC & Atmospheric conditions (wind, pressure, etc.)\\
+PROPIN\_TELEMAC2D & Change of the type of boundary conditions\\
+TR & Imposition of a time-dependent boundary tracer value (function)\\
+USER\_BORD   & Imposition of particular boundary conditions\\
+USER\_CONDIN & Imposition of particular initial conditions\\
+USER\_CONDIN\_H & Management of the initial conditions for water depth\\
+USER\_CONDIN\_TRAC & Management of the initial conditions for tracer(s)\\
+USER\_CONDIN\_UV & Management of the initial conditions for velocity components\\
+USER\_CORFON & Modification of bottom elevations\\
+USER\_CORPOR & Modification of porosity\\
+USER\_CORRXY & Modification of mesh coordinates\\
+USER\_CORSTR & Space-dependent friction coefficient\\
+USER\_DEBSCE & Time-dependent tracer source flow rates (function)\\
+USER\_DEF\_ZONES & Definition of zones\\
+USER\_DRAGFO & Definition of vertical structures and adding drag force of vertical structures in the momentum equation\\
+USER\_FLOT  & Management of drogues\\
+USER\_LAGRAN & Lagrangian drifts\\
+USER\_MASKOB & Masking of elements\\
+USER\_MESURES & Reading of measurement data\\
+USER\_NOMVAR\_TELEMAC2D & Definition of names of additional variables\\
+USER\_PRERES\_TELEMAC2D & Computation of additional variables\\
+USER\_Q     & Imposition of a time-dependent boundary flowrate (function)\\
+USER\_SL    & Imposition of a time-dependent boundary free surface elevation (function)\\
+\end{tabular}
+\begin{tabular}{p{2.in}p{4.0in}}
+USER\_SOURCE\_TELEMAC2D & Redefinition of the characteristics of the sources without steering file\\
+USER\_STRCHE & Space-dependent friction coefficient\\
+USER\_TRSCE & Imposition of time-dependent tracer values at the sources (function)\\
+USER\_UTIMP\_TELEMAC2D & Additional variable writing\\
+USER\_VIT   & Imposition of a time-dependent boundary velocity (function)\\
+USER\_VUSCE & Variable velocity along $x$ of a source (function)\\
+USER\_VVSCE & Variable velocity along $y$ of a source (function)\\
+\end{tabular}

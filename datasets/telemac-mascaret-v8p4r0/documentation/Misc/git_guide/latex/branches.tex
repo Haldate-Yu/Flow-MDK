@@ -1,0 +1,315 @@
+\chapter{Working on branches with \soft{Git}}\label{sec:useGit}
+
+\section{Creating a branch}
+\soft{Git} saves snapshots of your project when you make commits, and
+\important{always} attributes them to the \important{branch} on which you are
+located. A branch is composed by a ``homogeneous'' set of commits: for example,
+you can have a branch containing all your stable version project, a branch
+containing the future stable version, development branches where you introduce
+a new feature in the code, etc.\\
+
+The branch \important{main} is created by default. We usually use it for stable
+versions of the code.\\
+
+To add a new branch, enter:
+\begin{lstlisting}
+$ git branch my_branch
+\end{lstlisting}
+To remove a branch, enter:
+\begin{lstlisting}
+$ git branch -d my_branch
+\end{lstlisting}
+
+To tell \soft{Git} you want to work on a specific branch, enter:
+\begin{lstlisting}
+$ git checkout my_branch
+\end{lstlisting}
+Then all the subsequent commits will be done in \important{my\_branch}.
+
+\section{Developing on branches}
+
+Once you have told \soft{Git} to position you on a branch, you can start to
+work on it by modifying the existing files or by adding new ones.\\
+
+\important{Important}: before committing, you need to specify which files will
+be committed by adding them to the \important{stage area}. Files which are not
+added to this space will not be part of the next commit.\\
+
+Therefore, to include a modified or created file in the next commit, you need
+to enter:
+\begin{lstlisting}
+$ git add filename.ext
+\end{lstlisting}
+You can also choose to only add part of the modifications that you have made to
+a file, using the \important{-p} option:
+\begin{lstlisting}
+$ git add -p filename.ext
+\end{lstlisting}
+Then \soft{Git} asks you directly from the terminal if you want to stage
+($\equiv$ to add) each part of your modifications (\soft{Git} identifies them
+as blocks of modifications). For each part that you want to add, type
+\important{y} and enter, otherwise \important{n} and enter.\\
+
+To remove a file versioned from the repository, you need to enter:
+\begin{lstlisting}
+$ git rm filename.ext
+\end{lstlisting}
+
+To remove files from the \important{stage area}, e.g. if you added a file by
+mistake, enter:
+\begin{lstlisting}
+$ git reset -- filename.ext
+\end{lstlisting}
+
+Once you have added and/or removed all the files you wanted, you can commit
+them:
+\begin{lstlisting}
+$ git commit -m "My commit message"
+\end{lstlisting}
+
+\important{The commit message should describe the changes and should not exceed
+72 characters.}\\
+
+You can also enter a more detailed message by using the text editor. To do so,
+do not specify a message when calling the \important{commit} command, as below:
+\begin{lstlisting}
+$ git commit
+\end{lstlisting}
+\soft{Git} then pops up a text editor window and asks you to enter a
+\important{commit message}. Enter the message, then save and close the
+editor.\\
+
+After a commit, \soft{Git} tells you a new commit has been made on the branch:
+\begin{footnotesize}
+\begin{lstlisting}
+[main 537e9e633] My commit message
+1 file changed, 0 insertions(+), 0 deletions(-)
+create mode 100644 sources/telemac2d/my_new_file.f
+\end{lstlisting}
+\end{footnotesize}
+
+\important{Note}: you can choose to commit all the modifications that have been
+made in the currently tracked files by doing as follows:
+\begin{lstlisting}
+git commit -a "My commit message"
+\end{lstlisting}
+However, this command will not include new files.
+
+\subsection{Commit messages}
+Commit messages are quite important so here are some tips to make them better:
+\url{http://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message}\\
+
+You should structure your commit message like this (from 
+\url{http://git-scm.com/book/ch5-2.html}):
+\begin{footnotesize}
+\begin{lstlisting}
+Short (50 chars or less) summary of changes
+
+More detailed explanatory text, if necessary.  Wrap it to about 72
+characters or so. In some contexts, the first line is treated as the
+subject of an email and the rest of the text as the body.  The blank
+line separating the summary from the body is critical (unless you omit
+the body entirely); tools like rebase can get confused if you run the
+two together.
+
+Further paragraphs come after blank lines.
+
+ \- Bullet points are okay, too
+
+ \- Typically a hyphen or asterisk is used for the bullet, preceded by a
+   single space, with blank lines in between, but conventions vary here
+\end{lstlisting}
+\end{footnotesize}
+
+\subsection{Best practices}
+Commit your developments very regularly.\\
+
+For each sub-development, a commit should be done: when you create a new
+function, a new variable, a new class, when you fix a bug, etc.\\
+
+Do not hesitate to do a lot of commits: once your development are finished,
+you can squash them to fewer and larger commits for better readability of the
+commit history (see below).\\
+
+A commit may only contain modifications of a few lines in one file as long as
+that modification has a significant impact.\\
+
+One useful thing is that you can navigate in the branch to find out where a bug
+was introduced (making a dichotomy is usually fast). Therefore, it is important
+that \important{for every commit you make, the code has to compile without
+errors}. Otherwise, bug tracking is made very difficult.
+
+\section{Useful commands}
+
+The command:
+\begin{lstlisting}
+$ git log
+\end{lstlisting}
+shows the history of your branches, where you can see that an ID was assigned
+to each commit. This ID is SHA-1 hash of every important thing about the
+commit. You can also get commit IDs from your GUI client, such as
+\soft{gitk}.\\
+
+You can revert the modifications introduced in a commit by entering:
+\begin{lstlisting}
+$ git revert commit_id
+\end{lstlisting}
+
+You can see the differences in a file between the current and a previous
+version by entering:
+\begin{lstlisting}
+git difftool commit_id filename.ext
+\end{lstlisting}
+where the diff tool may be \soft{vimdiff} or \soft{meld}, for instance.\\
+
+To set the tool used by git type:
+\begin{lstlisting}
+git config diff.tool meld
+\end{lstlisting}
+
+\section{Move inside or in between branches}
+
+You can always come back to any version of your project by coming back to the
+corresponding commit.\\
+
+To move to a given branch:
+\begin{lstlisting}
+$ git checkout branch_name
+\end{lstlisting}
+
+To position the repository at a given commit:
+\begin{lstlisting}
+$ git checkout commit_id
+\end{lstlisting}
+
+\soft{Git} will usually refuse to move if you have uncommitted changes in your
+project. To see the uncommitted changes, enter:
+\begin{lstlisting}
+$ git status
+\end{lstlisting}
+
+If you want to \important{move and erase the uncommitted changes} (which may be
+quite risky):
+\begin{lstlisting}
+$ git checkout -f commit_id
+\end{lstlisting}
+
+If you want to temporarily save your changes to be able to recover them later:
+\begin{lstlisting}
+$ git stash
+\end{lstlisting}
+
+The stash is a space for saving temporary changes that you may want to apply
+later.\\
+
+You may now move around in the history unhindered. You may have several sets of
+modifications in the stash, you can list them by entering:
+\begin{lstlisting}
+$ git stash list
+\end{lstlisting}
+Each stash has a number assigned to it (stash$\{0\}$, stash$\{1\}$, etc.).\\
+
+Apply the changes contained in one of the stashes (here the number 3):
+\begin{lstlisting}
+$ git stash apply stash{3}
+\end{lstlisting}
+Entering only \important{git stash apply} will apply the changes contained in
+stash$\{0\}$.\\
+
+Erase the content of given stash (here number 3):
+\begin{lstlisting}
+$ git stash drop stash{3}
+\end{lstlisting}
+Entering only \important{git stash drop} will drop the changes contained in
+stash$\{0\}$.\\
+
+Apply and erase the changes contained in one of the stashes (here number 3):
+\begin{lstlisting}
+$ git stash pop stash{3}
+\end{lstlisting}
+Entering only \important{git stash pop} will apply and erase the changes
+contained in stash$\{0\}$.
+
+\section{Merge developments in between branches}
+
+A very interesting feature of \soft{Git} is that it allows you to apply the
+changes made in one branch to another one quite easily. There are two commands
+for this, namely \important{git merge} and \important{git rebase}. Here we will
+focus on rebasing. The two techniques are quite equivalent, but rebasing is
+considered cleaner and as such, is used as a coding convention in
+TELEMAC-MASCARET.\\
+
+Let's say you have created a branch called \important{my\_branch} that you have
+used to develop a new feature. In the meanwhile, someone has made developments
+in the branch \important{other\_branch}, and you now want to apply your
+development to \important{other\_branch}.\\
+
+First, if \important{other\_branch} is a shared branch, you may not want to
+share all the commits you have done with such a degree of detail as for your
+personal use.
+Therefore, it is recommended to follow the process below:
+\begin{itemize}
+\item Backup your branch:
+\begin{lstlisting}
+$ git branch my_branch_backup
+\end{lstlisting}
+
+\item Modify the commit history by using an interactive rebase:
+\begin{lstlisting}
+$ git rebase -i HEAD~5
+\end{lstlisting}
+This command will prompt the text editor where the 5 latest commits (any number
+works of course) in the branch are displayed. You can then decide to squash
+some of them (put them together), reword the commit messages, edit the content
+of the commits.\\
+
+The way you can do it is explained in the text file that \soft{Git} prompted
+for the interactive rebase. If you change the position of the commit in the
+column, it will modify the order of the commit in the branch accordingly.
+Deleting a commit in the text editor also deletes it in your branch.\\
+
+Note that giving a commit ID for the interactive rebase also works:
+\begin{lstlisting}
+$ git rebase -i commit_id
+\end{lstlisting}
+
+\item Once you have cleaned the branch as you wish, rebase it on top of
+\important{other\_branch}:
+\begin{lstlisting}
+$ git rebase other_branch
+\end{lstlisting}
+This will move the branch \important{my\_branch} on top of
+\important{other\_branch}.\\
+
+In case the same file was modified at the same place in the two branches,
+\soft{Git} won't be able to automatically do the rebase and will notify a
+conflict in the file. It will stop the rebase and edit the conflictual files,
+leaving both versions unmodified to let you choose what you want to keep.
+Open the files in a text editor and modify them to remove all the conflicts.
+\important{Check that the code correctly compiles after your modifications.}\\
+
+After the files have been edited, you need to add them:
+\begin{lstlisting}
+$ git add conflictual_file_1 conflictual_file_2 ...
+\end{lstlisting}
+
+Then you can continue the rebase:
+\begin{lstlisting}
+$ git rebase --continue
+\end{lstlisting}
+
+In case you don't want to carry on with the rebase, enter:
+\begin{lstlisting}
+$ git rebase --abort
+\end{lstlisting}
+
+\item Once the rebase is done, and you have checked that everything works as
+expected (compilation, test-cases), update \important{other\_branch} and remove
+\important{my\_branch}:
+\begin{lstlisting}
+$ git checkout other_branch
+$ git merge my_branch
+$ git branch -d my_branch
+\end{lstlisting}
+
+\end{itemize}

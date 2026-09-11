@@ -1,0 +1,63 @@
+/**
+\mainpage Telemac Hydrodynamic Simulation System
+\anchor MainPageSection
+
+<table>
+ <tr>
+   <td>
+     \image html telemac_logo.png
+     \par Introduction
+            Welcome to the Telemac System
+
+     \par Telemac Architecture
+            The Telemac System is made of the following modules:
+            \li MASCARET
+            \li TELEMAC2D
+            \li TELEMAC3D
+            \li ARTEMIS
+            \li TOMAWAC
+            \li SISYPHE
+            \li GAIA
+            \li NESTOR
+            \li WAQTEL
+            \li KHIONE
+
+            Paragraph describing architecture goes here
+
+     \par Flow Modelling
+            Telemac provides four modules for water flow modelling:
+            \li MASCARET: solves the 1D shallow water equations
+            \li TELEMAC2D: solves the 2D shallow water equations
+            \li TELEMAC3D: solves the 3D Navier-Stokes equations
+            \li ARTEMIS: solves the Berkhoff equations for wave behaviour
+            \li TOMAWAC: spectral wave model
+
+    \par Additional physics
+            Beside the water flow computation, Telemac provides module for environmental physics
+            \li SISYPHE: sediment transport module, to be replaced by GAIA
+            \li GAIA: new sediment transport module, much improved compared to SISYPHE
+            \li NESTOR: dredging module for morphodynamics studies
+            \li WAQTEL: water quality module, can be linked to the AED2 library
+            \li KHIONE: frasil module
+
+     \par Building
+            Go to <a href="installation notes">http://wiki.opentelemac.org/doku.php?id=installation_notes_2_beta>installation_note</a>
+
+     \n \n
+
+   </td>
+   </tr>
+ <tr>
+   <td>
+   \par Malpasset Dam Break Example
+   \n \n
+   \image html malpa.gif
+   </td>
+ </tr>
+</table>
+  \n
+  Return to Main Page: \ref MainPageSection
+*/
+
+
+

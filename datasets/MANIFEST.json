@@ -1,0 +1,54 @@
+{
+  "created": "2026-09-11 17:31:28",
+  "repo": "D:\\Projects\\Flow-MDK",
+  "items": {
+    "telemac-mascaret-v8p4r0": {
+      "role": "TELEMAC-MASCARET v8p4r0 solver source snapshot (examples excluded, 1.4 GB regenerable from the upstream tree)",
+      "origin": "D:\\tmp\\telemac-wz-260529\\telemac-mascaret",
+      "files": 3718
+    },
+    "swegnn-official": {
+      "role": "Official SWE-GNN repository (RBTV1/SWE-GNN-paper-repository-) incl. raw_datasets (130 Delft3D-FM simulations)",
+      "origin": "D:\\tmp\\swegnn-official",
+      "files": 686
+    },
+    "real_projects": {
+      "role": "Raw real-basin Mascaret / TELEMAC-2D project templates (mdx/wqh/zxh 1D, mdxUpStream/mdxDownStream coupled legs, wqh/mdx 2D)",
+      "origin": "D:\\Projects\\wzzhsl-rest-subsystems-xd\\schinta-module-basin-flood-prevention\\schinta-module-basin-flood-prevention-start\\src\\main\\resources\\template",
+      "files": 183
+    },
+    "real_sources": {
+      "role": "Complete second-provider 1D projects vendored into the repo (wqh + zxh): launcher files, Abaques, historical .opt/.lis — both validated by exact rerun reproduction (RMSE=0)",
+      "origin": "D:\\Projects\\Flow-MDK\\data\\real_sources",
+      "files": 56
+    },
+    "partA_synthetic": {
+      "role": "Part A: synthetic 1D scenario family (SWE-GNN-style), diffusive-wave reference truth",
+      "files": 51
+    },
+    "partB_family_mdx": {
+      "role": "Part B1: real-master family (mdx geometry x synthetic hydrology), Mascaret docker truth",
+      "files": 2162
+    },
+    "partB_family_zxh": {
+      "role": "Part B1: real-master family (zxh geometry x synthetic hydrology), Mascaret docker truth",
+      "files": 1043
+    },
+    "partB_family_wqh": {
+      "role": "Part B1: real-master family (complete wqh geometry x synthetic hydrology), Mascaret docker truth (40/40 succeeded)",
+      "files": 1203
+    },
+    "partB_real_cases": {
+      "role": "Part B2: imported real cases (history .opt replay / rerun truth) + 2D meshes + inventory + validation reports",
+      "files": 12
+    },
+    "runs": {
+      "role": "training/evaluation results (configs, history, metrics, checkpoints)",
+      "files": 32
+    }
+  },
+  "totals": {
+    "files": 9146,
+    "bytes": 3329201457
+  }
+}

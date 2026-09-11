@@ -1,0 +1,10 @@
+#
+#  DEBIT A L'ENTREE ET SURFACE LIBRE A LA SORTIE
+#
+T       Q(2) Z(1)
+s       m3/s m      
+0.      100 280  
+18000.  3000 280
+19000.  300 280    
+36000.  100 280      
+100000. 100 280    

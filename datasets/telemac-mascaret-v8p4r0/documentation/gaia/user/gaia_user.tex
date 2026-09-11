@@ -1,0 +1,134 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Telemac Documentation
+%  Example of the TelemacDoc class
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+\documentclass[Gaia]{../../data/TelemacDoc} % Default font size and left-justified equations
+%\documentclass[Telemac2D,french]{TelemacDoc} % Default font size and left-justified equations in french
+
+\begin{document}
+
+\let\cleardoublepage\clearpage
+
+%noindent for the whole document
+\setlength\parindent{0pt}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title{\gaia}
+\subtitle{User Manual}
+\version{\telmaversion}
+\date{\today}
+\maketitle
+\clearpage
+
+
+%----------------------------------------------------------------------------------------
+%	COPYRIGHT PAGE
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+\thispagestyle{empty}
+
+\TelemacCopyright{}
+
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+
+\pagestyle{empty} % No headers
+
+\tableofcontents% Print the table of contents itself
+
+%\cleardoublepage % Forces the first chapter to start on an odd page so it's on the right
+
+\pagestyle{fancy} % Print headers again
+
+%----------------------------------------------------------------------------------------
+%	Contributors
+%----------------------------------------------------------------------------------------
+\pagebreak
+This manual was possible thanks to the contribution of Yoann Audouin, Tom Benson, Florian Cordier, Jacques Fontaine, Nicolas Huybrechts, Rebekka Kopmann, Agn\`es Leroy, Matthieu de Linares, Sara Pavan, Chi-Tu\^an Pham, Florent Taccone, Pablo Tassi \& R\'egis Walther. %complete accordingly...
+\pagebreak
+%----------------------------------------------------------------------------------------
+%	CHAPTER 1: Introduction
+%----------------------------------------------------------------------------------------
+
+\input{./latex/1-IntroductionGaia}
+% general introduction to the module
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 2: Sediment Transport Processes in the Water Column
+%----------------------------------------------------------------------------------------
+
+\input{./latex/2-SedimentTransportProcessesWaterColumn}
+\input{./latex/2_1-SedimentTransportProcessesWaterColumn_non_cohesive}
+\input{./latex/2_2-SedimentTransportProcessesWaterColumn_cohesive}
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 3: Sediment Transport Processes in the Bed and Stratigraphy
+%----------------------------------------------------------------------------------------
+
+\input{./latex/3-SedimentTransportProcessesBedAndStratigraphy}
+\input{./latex/3_1-SedimentTransportProcessesBedAndStratigraphy_bedload}
+\input{./latex/3_2-SedimentTransportProcessesBedAndStratigraphy_layers}
+\input{./latex/3_3-SedimentTransportProcessesBedAndStratigraphy_consolidation}
+\input{./latex/3_4-SedimentTransportProcessesBedAndStratigraphy_bed_evolution}
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 4: Sediment Exchanges at the Water-Bed Interface
+%----------------------------------------------------------------------------------------
+
+\input{./latex/4-SedimentExchangesWaterBedInterface}
+\input{./latex/4_1-SedimentExchangesWaterBedInterface_non_cohesive}
+\input{./latex/4_2-SedimentExchangesWaterBedInterface_cohesive}
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 5: Additional Physical Processes
+%----------------------------------------------------------------------------------------
+
+\input{./latex/5-AdditionalPhysicalProcesses}
+\input{./latex/5_1-AdditionalPhysicalProcesses_waves}
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 6: How-To?
+%----------------------------------------------------------------------------------------
+
+\input{./latex/HowTos}
+
+%\input{./latex/Citations}
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 8: API
+%----------------------------------------------------------------------------------------
+
+\input{./latex/api}
+
+%\input{./latex/Citations}
+%----------------------------------------------------------------------------------------
+%	CHAPTER 8: Appendices /// TO DO BETTER ///
+%----------------------------------------------------------------------------------------
+
+\input{./latex/Appendices}
+
+%----------------------------------------------------------------------------------------
+%	Documents using Gaia
+%----------------------------------------------------------------------------------------
+\input{./latex/WorksUsingGaia.tex}
+
+%---------------------------------------------------------------------------
+% Bibliography
+%---------------------------------------------------------------------------
+
+\bibliographystyle{plainnat}
+\bibliography{../../data/biblio}
+
+\end{document}

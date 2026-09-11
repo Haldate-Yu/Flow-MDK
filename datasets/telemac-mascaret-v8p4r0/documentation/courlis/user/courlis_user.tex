@@ -1,0 +1,210 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Telemac Documentation
+%  Example of the TelemacDoc class
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+\documentclass[Courlis]{../../data/TelemacDoc} % Default font size and left-justified equations
+%\documentclass[Courlis,french]{TelemacDoc} % Default font size and left-justified equations in french
+
+%%---------------------------------------------------------------------------
+%% Command for COURLIS names
+%%---------------------------------------------------------------------------
+\newcommand{\Cbedload}{{\scshape Courlis-bedload}\xspace}
+\newcommand{\Csuspension}{{\scshape Courlis-suspension}\xspace}
+\newcommand{\fudaa}{{\scshape Fudaa-Mascaret}\xspace}
+\newcommand{\precourlis}{{\scshape PreCourlis}\xspace}
+\newcommand{\cas}{\telfile{cas file}\xspace}
+\newcommand{\cass}{\telfile{cas files}\xspace}
+\newcommand{\xcas}{\telfile{xcas file}\xspace}
+\newcommand{\xcass}{\telfile{xcas files}\xspace}
+%%---------------------------------------------------------------------------
+%% Nomenclature
+%%---------------------------------------------------------------------------
+\usepackage{ifthen}
+\usepackage{nomencl}
+%
+\makenomenclature
+\renewcommand{\nompreamble}{\markboth{%
+                            \MakeUppercase\nomname}{\MakeUppercase\nomname}%
+                           }
+\newcommand{\nomunit}[1]{%
+\renewcommand{\nomentryend}{\hspace*{\fill}#1}}
+% \usepackage{subcaption} % Not compatible with subfig
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\lstdefinelanguage{TelemacCasRed}{
+  basicstyle=\ttfamily\footnotesize,
+  commentstyle=\color{PantoneRed},
+  morecomment=[f]{/},
+}
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\let\cleardoublepage\clearpage
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title{\courlis}
+\subtitle{User Manual}
+\version{\telmaversion}
+\date{\today}
+\maketitle
+\clearpage
+
+
+%----------------------------------------------------------------------------------------
+%	COPYRIGHT PAGE
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+\thispagestyle{empty}
+
+\TelemacCopyright{}
+
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+
+\pagestyle{empty} % No headers
+
+\tableofcontents% Print the table of contents itself
+
+%\cleardoublepage % Forces the first chapter to start on an odd page so it's on the right
+
+\pagestyle{fancy} % Print headers again
+
+\printnomenclature
+
+%----------------------------------------------------------------------------------------
+%	Introduction
+%----------------------------------------------------------------------------------------
+\addcontentsline{toc}{section}{Introduction}
+\chapter*{Introduction}\label{intro}
+\input{latex/introduction}
+\newpage
+%----------------------------------------------------------------------------------------
+%	CHAPTER 1: Theoretical aspects
+%----------------------------------------------------------------------------------------
+\chapter{Theoretical aspects}\label{chap1}
+\input{latex/theoretical_aspects}
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 2: Pre-treatment
+%----------------------------------------------------------------------------------------
+\chapter{Pre-treatment}\label{chap2}
+\input{latex/pre_treatment}
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 3: The inputs
+%----------------------------------------------------------------------------------------
+\chapter{The inputs}\label{chap3}
+\input{latex/inputs}
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 4: General Setup
+%----------------------------------------------------------------------------------------
+\chapter{General setup}\label{chap4}
+\input{latex/general_setup}
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 5: Physical parameters
+%----------------------------------------------------------------------------------------
+\chapter{Physical parameters}\label{chap5}
+\input{latex/physical_parameters}
+\newpage
+%----------------------------------------------------------------------------------------
+%	CHAPTER 6: Numerical parameters
+%----------------------------------------------------------------------------------------
+\chapter{Numerical parameters}\label{chap6}
+\input{latex/numerical_parameters}
+\newpage
+%----------------------------------------------------------------------------------------
+%	CHAPTER 7: Calculation run
+%----------------------------------------------------------------------------------------
+\chapter{Calculation run}\label{chap7}
+\input{latex/calculation_run}
+\newpage
+%----------------------------------------------------------------------------------------
+%	CHAPTER 8: The outputs
+%----------------------------------------------------------------------------------------
+\chapter{The outputs}\label{outputs}
+\input{latex/outputs}
+\newpage
+%----------------------------------------------------------------------------------------
+%	CHAPTER 9: Post-treatment
+%----------------------------------------------------------------------------------------
+\chapter{Post-treatment}\label{chap9}
+\input{latex/post_treatment}
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	---------- APPENDICES ----------
+%----------------------------------------------------------------------------------------
+\appendix
+%----------------------------------------------------------------------------------------
+%	APPENDIX A: Transport formulae
+%----------------------------------------------------------------------------------------
+\chapter{Transport formulae for \courlis-bedload}
+\label{app:formules_transport}
+\input{latex/apdx_formulae}
+\newpage
+%----------------------------------------------------------------------------------------
+%	APPENDIX B: Examples of cas and xcas files
+%----------------------------------------------------------------------------------------
+\chapter{Examples of cas and xcas files}
+\section{The \xcas}
+\label{app:xcas}
+\lstinputlisting[language=xml]{../../../examples/courlis/lefort_depot/depot_lefort_sarap.xcas}
+
+\section{The \cas}
+\label{app:cas}
+\subsection{\Cbedload example}
+\lstinputlisting[language=TelemacCasRed]{../../../examples/courlis/lefort_depot/depot_lefort_courlis_sarap.cas}
+\subsection{\Csuspension example}
+\lstinputlisting[language=TelemacCasRed]{../../../examples/courlis/Garonne/hydro_courlis.cas}
+\newpage
+%---------------------------------------------------------------------------
+% Bibliography
+%---------------------------------------------------------------------------
+
+\bibliographystyle{plainnat}
+%\bibliography{../../data/biblio}
+\bibliography{./latex/courlis_user_guide.bib}
+\end{document}

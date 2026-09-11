@@ -1,0 +1,90 @@
+\section{Sediment transport}
+\subsection{Transport mechanism}
+The modelling of either bedload or suspended load is done thanks to :
+\begin{itemize}
+	\item \telkey{OPTION CHARRIAGE} or \telkey{BEDLOAD OPTION} : Set to \telkey{TRUE} or \telkey{VRAI} for \Cbedload (default=\telkey{FALSE})
+	\item \telkey{OPTION SUSPENSION} or \telkey{SUSPENSION OPTION} : Set to \telkey{TRUE} or \telkey{VRAI} for \Csuspension (default=\telkey{FALSE})
+\end{itemize}
+
+If \Cbedload is chosen, the transport law is defined by \telkey{LOI DE TRANSPORT} :
+\begin{itemize}
+	\item \telkey{1} : Meyer-Peter and Müller (1948), value by default (\S \ref{app:MPM})
+	\item \telkey{2} : Lefort (2015) (\S \ref{app:lefort})
+	\item \telkey{3} : Recking (2013) (\S \ref{app:recking2013})
+	\item \telkey{4} : Recking (2015) (\S \ref{app:recking2015})
+\end{itemize}
+
+If \Csuspension is chosen, sand calculations can be disabled by setting \telkey{CALCUL AVEC SABLE} to \telkey{FALSE} (by default sand calculations are allowed).
+
+\subsection{Sediment properties}
+Sediment properties can be given in an external file (by default, \telkey{MODE D''ENTREE DES CARACTERISTIQUES SEDIMENTAIRES = 1}) or directly in the \cas : \telkey{MODE D''ENTREE DES CARACTERISTIQUES SEDIMENTAIRES = 2} (cf \S \ref{optional_inputs}). \\
+
+Using a \cas is recommanded.
+
+\section{Geometry set up}
+\label{geo_set_up}
+
+The \telfile{geoC file} name is given by \telkey{FICHIER DE GEOMETRIE COURLIS}.
+The corresponding number of sediment layers should be specified in \telkey{NOMBRE DE COUCHES}.\\
+
+The \telfile{geo file} name is given in the \xcas file to \mascaret. It is also indicated at the beginning of the \cas file :
+\begin{itemize}
+	\item \telkey{FICHIER DES MOT-CLES} = your \xcas between single quotation mark
+	\item \telkey{PROGRAMME PRINCIPAL} = \verb|'princi.f'|
+	\item \telkey{FICHIER DE GEOMETRIE} = your \telfile{geo file.geo} between single quotation mark
+\end{itemize}
+
+\section{Initial conditions}
+
+Initial bottom elevations are given in the \telfile{geoC and geo files} (see section above).
+Initial free surface elevation can be given in an external file or computed by \mascaret.
+
+Initial concentrations in \Csuspension can be given in an external file (cf \S \ref{optional_inputs}) or directly in the \cas (\telkey{MODE D'ENTREE DES CONCENTRATIONS INITIALES POUR COURLIS = 2}):
+\begin{itemize}
+	\item \telkey{NOMBRE DE POINTS DECRIVANT LES CONC INITIALES POUR COURLIS} : Number of points
+	\item \telkey{ABSCISSES DES CONC INI} : List of points' abscissae (along $x$), for example \verb|0.0;1.0;2.0|
+	\item \telkey{CONCENTRATION EN VASE INI} : List of points' silt concentrations in g/L, for example \verb|0.0;0.0;0.0|
+	\item \telkey{CONCENTRATION EN SABLE INI} : List of points' sand concentrations in g/L, for example \verb|0.0;0.0;0.0|
+\end{itemize}
+
+\section{Boundary conditions}
+
+Liquid boundary conditions are specified in the \xcas.
+
+Solid boundary conditions are specified in the \cas. Variations of sediment concentrations with time define boundary conditions laws which are given either in an external file (especially for large number of points, cf \S \ref{optional_inputs}) or directly in the \cas :
+\begin{itemize}
+	\item \telkey{NOMBRE DE LOIS DE CONCENTRATION } : Number of different laws
+	\item \telkey{LOI CONC NUMERO X} : Law ID, \telkey{X} is an integer from 1 to 15
+	\item \telkey{LOI CONC X NOM} : Law name of law \telkey{X} between single quotation mark, for example 'Constant concentration'
+	\item \telkey{LOI CONC X MODE D'ENTREE} : Input type for law \telkey{X}, external file \telkey{1} or directly in \cas \telkey{2} (cf \S \ref{optional_inputs})
+\end{itemize}
+
+If an external file is used, the corresponding file name should be written in :
+\begin{itemize}
+	\item \telkey{LOI CONC X FICHIER} : External file name for law \telkey{X} between single quotation mark (cf \S \ref{optional_inputs})
+\end{itemize}
+
+Otherwise, the law \telkey{X} should be define thanks to the following keywords :
+\begin{itemize}
+	\item \telkey{LOI CONC X NOMBRE DE POINTS} : Number of points
+	\item \telkey{LOI CONC X TEMPS} : List of points' time in seconds, for example \verb|0.0;3600.0|
+	\item \telkey{LOI CONC X CONCENTRATION} : List of points' concentrations in g/L. for example \verb|3.14;3.14|
+\end{itemize}
+
+Finally, laws affected to the upstream boundary are defined by :
+\begin{itemize}
+	\item \telkey{NUMERO LOI CONC AMONT VASE} : Law ID for silt upstream inflow
+	\item \telkey{NUMERO LOI CONC AMONT SABLE} : Law ID for sand upstream inflow
+\end{itemize}
+
+Similarly, it is possible to affect laws to lateral inflows (i.e. set a sediment inflow from affluents where a liquid inflow has already been added in \mascaret) in the same order as they have been given in the \xcas:
+\begin{itemize}
+	\item \telkey{NUMERO LOI CONC APPORT VASE} : Law IDs for silt lateral inflow, for example \verb|3;4| to refer to the third law for the first affluent and the fourth law for the second affluent.
+	\item \telkey{NUMERO LOI CONC APPORT SABLE}: Law IDs for sand lateral inflow, for example \verb|5;6|
+\end{itemize}
+
+With \Cbedload, it is possible to set the upstream solid discharge through an equilibrium slope. A law must still be given to the upstream boundary but it will not be taken into account. \\
+
+This option relies on the following keywords : \telkey{CONCENTRATION AMONT CALCULEE AVEC PENTE EQUILIBRE} set to \telkey{TRUE} to use an equilibrium slope instead of the values given by the law and \telkey{PENTE EQUILIBRE AMONT} to specify this equilibrium slope, by default this keyword is equal to 0.01 for a 1\% slope. \\
+
+By default, concentration are given without voids but by setting \telkey{CONCENTRATION AMONT SANS LES VIDES} to \telkey{FALSE}, voids will be taken into account for the upstream law.

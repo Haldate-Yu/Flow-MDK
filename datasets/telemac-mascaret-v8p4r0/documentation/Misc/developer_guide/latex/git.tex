@@ -1,0 +1,176 @@
+%----------------------------------------------------------------------------------------------------
+\chapter{Git}
+%----------------------------------------------------------------------------------------------------
+%
+Git is the name of the version control software that we use for the
+\telemacsystem. The link \url{https://en.wikipedia.org/wiki/Version_control}
+gives an explanation on what a version control is. The section below gives
+you a guide on how to perform a few actions using Git.
+%
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{graphics/gitlab-image.png}
+    \caption{GitLab principle}
+    \label{fig:svn-struct}
+\end{figure}
+If you are not into command line a few software give you a graphical interface
+to handle your repository: gitk, SmartGit...
+%
+%
+%----------------------------------------------------------------------------------------------------
+\section{Create a work copy}
+%----------------------------------------------------------------------------------------------------
+%
+%
+\begin{lstlisting}[language=bash]
+git clone https://gitlab.pam-retd.fr/otm/telemac-mascaret.git
+\end{lstlisting}
+Clone a local copy of GitLab's remote Git repository on your own computer.\\
+
+If you want a working copy of your branch just do:
+\begin{lstlisting}[language=bash]
+git clone --branch branchname --single-branch
+https://gitlab.pam-retd.fr/otm/telemac-mascaret.git
+\end{lstlisting}
+where $branchname$ is the name of your branch.\\
+%
+\begin{WarningBlock}{Warning:}
+If your are using an HTTP network proxy, you need to configure Git with:
+\begin{lstlisting}[language=bash]
+git config --global http.proxy
+http://username:password@proxy_server.com:port
+\end{lstlisting}
+\end{WarningBlock}
+%
+%
+%----------------------------------------------------------------------------------------------------
+\section{Git commands}
+%----------------------------------------------------------------------------------------------------
+%
+%
+Here is a list of a few useful Git commands:
+%
+\begin{lstlisting}[language=bash]
+git help [command]
+\end{lstlisting}
+You can get a detailed description of any command.
+%
+%
+\begin{lstlisting}[language=bash]
+git pull --rebase
+\end{lstlisting}
+Update your local repository with the changes that have been uploaded (pushed)
+by other developers to GitLab's remote repository.
+%
+\begin{lstlisting}[language=bash]
+git add --all
+\end{lstlisting}
+Add all new files to the ``staging area'', i.e. the place where you want to put
+all the new files that you want to save in your next commit.
+%
+\begin{lstlisting}[language=bash]
+git commit -m "message"
+\end{lstlisting}
+Commit the changes from the staging area on top of the current branch of your
+local repository. Committing roughly means saving your changes locally.\\
+The $-m$ option allows you to write the message
+directly associated with the commit instead of having a text editor opening.
+Those messages should summarise what the commit is adding.\\
+The message should respect the following template "[\textit{Type}]
+\textit{Text}" where:
+\begin{itemize}
+\item If you have a GitLab issue associated to the commit:
+\begin{itemize}
+\item Type = "fix \#\textit{id}" ,"feature \#id" or "vnv \#id" where id is the id of
+the GitLab issue
+\item Text = Title of the GitLab issue
+\end{itemize}
+\item Otherwise:
+\begin{itemize}
+\item Type = doc: If it concerns the documentation
+\item Type = scripts: If it concerns the system scripts
+\item Type = src: General action on the source code (code convention, removal
+  of white spaces...)
+\item Type = vnv: Verification \& Validation
+\item Text = Description of the commit
+\end{itemize}
+\end{itemize}
+If the commit contains more than one action, repeat the process on a new line.
+%
+\begin{lstlisting}[language=bash]
+git push
+\end{lstlisting}
+Push your local commits to GitLab's remote repository. This will upload all the
+commits that you have made on your local repository to the server repository.
+You should always do an update ($-pull$ command) before doing a push in case
+someone else has pushed changes before you. Anyway, if you are not up to date,
+Git will not allow the push.\\
+%
+\\
+Other useful commands are:
+\begin{lstlisting}[language=bash]
+git log
+\end{lstlisting}
+Display all the commit messages.
+%
+\begin{lstlisting}[language=bash]
+git status
+\end{lstlisting}
+Display the status on all the files in the local repository. If a file is
+modified, added, missing or deleted. See "git help status" for more
+information.
+%
+\begin{lstlisting}[language=bash]
+git add/rm/mv
+\end{lstlisting}
+Add/Delete/Move a folder/file to the Git repository.
+%
+\begin{lstlisting}[language=bash]
+git remote -v
+\end{lstlisting}
+Display the address of the server repository.
+%
+\begin{lstlisting}[language=bash]
+git checkout -- FILE
+\end{lstlisting}
+Cancel the local modifications on the file $FILE$. This cannot be undone so
+tread lightly with this command.
+%
+%----------------------------------------------------------------------------------------------------
+\section{Update your branch with the latest version of the main branch}
+%----------------------------------------------------------------------------------------------------
+%
+One of the conditions for validating a development is that it is up to date
+with the main branch. In order to ease that step that can be sometimes painful,
+it is recommended to do that action weekly. This way you do smaller updates
+instead of a massive one.
+\paragraph{The commands}
+\begin{enumerate}
+\item Switch to the main branch
+\begin{lstlisting}[language=bash]
+git checkout mybranch
+\end{lstlisting}
+Where $mybranch$ is the name of your branch.
+\item Update your branch with commits from the main branch
+\begin{lstlisting}[language=bash]
+git rebase main
+\end{lstlisting}
+\end{enumerate}
+%----------------------------------------------------------------------------------------------------
+\section{Merge a development into the main branch}
+%----------------------------------------------------------------------------------------------------
+%
+The person in charge of the integration will have to follow those steps:
+\begin{enumerate}
+\item Switch to the main branch.
+\begin{lstlisting}[language=bash]
+git checkout main
+\end{lstlisting}
+\item Launch the merge command with
+\begin{lstlisting}[language=bash]
+git merge mybranch
+\end{lstlisting}
+\end{enumerate}
+%
+If a GitLab merge request (MR) has been created (and it should), it is better
+to merge the branch from GitLab's MR interface.

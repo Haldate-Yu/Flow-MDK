@@ -1,0 +1,247 @@
+%----------------------------------------------------------------------------------------------------
+\chapter{Validation}
+%----------------------------------------------------------------------------------------------------
+
+This chapter explains how to use the Python validation scripts in order to
+define VnV (Verification and Validation) test cases.
+In particular, this describes what to run and what to do with the resulting
+data, such as the comparison of the results with a reference file, an
+analytical solution, measured data\ldots
+
+%----------------------------------------------------------------------------------------------------
+\section{Structure of Python script}
+\label{ref:descVnvStudy}
+%----------------------------------------------------------------------------------------------------
+
+Each test case is defined using a Python script that must start with
+"\verb!vnv_!" and looks like that when empty:
+
+% parameter for Python coloring
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+\lstset{language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={VnvStudy, AbstractVnvStudy,_init,_pre,_check_results,_post},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            %
+}
+
+\begin{lstlisting}
+"""
+Validation script for gouttedo
+"""
+from vvytel.vnv_study import AbstractVnvStudy
+from execution.telemac_cas import TelemacCas, get_dico
+from data_manip.extraction.telemac_file import TelemacFile
+
+class VnvStudy(AbstractVnvStudy):
+    """
+    Class for validation
+    """
+
+    def _init(self):
+        """
+        Defining general parameters
+        """
+        self.rank = 4
+        self.tags = ['telemac2d']
+
+    def _pre(self):
+        """
+        Defining the studies
+        """
+        pass
+
+    def _check_results(self):
+        """
+        Check on run results
+        """
+        pass
+
+    def _post(self):
+        """
+        Post-treatment processes
+        """
+        pass
+\end{lstlisting}
+
+This defines a class named "\verb!VnvStudy!" which inherits from
+"\verb!AbstractVnvStudy!", an abstract class which requires to fill the
+following 4 methods:
+\begin{itemize}
+\item \_init: this is where the rank, tags and other optional parameters must
+  be defined. Only rank and tags are mandatory.
+  \begin{itemize}
+    \item rank: defines the importance of the test case. The rule for the rank
+      is described below.
+    \item tags: the list of modules which will be used by the case. The list
+      of allowed tags can be found using \verb!validate_telemac.py! help.
+    \item listing: if set to True, force the -s option on the execution, in
+      order to write the listing to a file. This is necessary if there is a
+      need to do some post-treatment on the listing.
+    \item walltime: this can be used to force the value of runcode.py option
+      --walltime. It can be either a string or a dictionary. Using a string
+      applies the walltime to all the class studies. To assign a separate
+      walltime to each case, a dictionary must be used, using the study name as
+      the key and the walltime as the value. Note that this option is only
+      taken into account on cluster configurations.
+  \end{itemize}
+\item \_pre: this is where studies are declared. A study is defined by a
+  steering file and a module. It can also be given commands using a string that
+  will be executed by the shell.
+\item \_check\_results: this is were the results are checked against
+  measurements, analytical solutions, reference files\ldots
+\item \_post: this were the post-treatment is done. We recommand to use
+  functions from the Postel Python module, but you can use any Python code.
+\end{itemize}
+
+The rank follow the rules below:
+\begin{itemize}
+\item 0: minimal validation that should last less than an hour and check each
+  module.
+\item 1: more complete validation that should last less than 4 hours.
+\item 2: less than a day (daily validation).
+\item 3: additional tests launched over the week-end.
+\item 4: very specific cases that are only run on new releases.
+\end{itemize}
+
+%----------------------------------------------------------------------------------------------------
+\section{Where to look for examples}
+%----------------------------------------------------------------------------------------------------
+You can have a look at all the Python script in the examples but here is a
+small list of where to find examples on how to do specific actions:
+\begin{itemize}
+\item For a basic validation case (steering file run in sequential and parallel
+  and comparison of sequential vs reference, parallel vs reference and
+  sequential vs parallle) as well as a couple examples of post-treatment have a
+  look at \verb!examples/telemac2d/gouttedo/vnv_thompson.py!
+\item For an example of a validation against an analytical solutions and the
+  post-treatment to go with that have a look at
+    \verb!examples/telemac2d/thacker/vnv_thacker.py!
+\item For an example of the generation of multiple steering file to test a
+  range of options have a look at
+    \verb!examples/telemac3d/lock-exchange/vnv_lock_exchange_sensibility.py!
+\end{itemize}
+
+Examples of extractions and post-treatment can also be found in notebooks
+(located at the root of your \telemacsystem). To run them, use jupyter notebook
+and run \verb!jupyter notebook notebooks/index.ipynb!.
+
+%----------------------------------------------------------------------------------------------------
+\section{How to run a validation}
+%----------------------------------------------------------------------------------------------------
+
+To run a validation, use the script "\verb!validate_telemac.py!".
+To summarize what you have access to:
+\begin{itemize}
+\item if you pass the script Python file as argument it will run them otherwise
+  it will loop over the ones in the examples folder.
+\item if you add -k/--rank or --tags you can specify for which ranks, tags to
+  run validation.
+\item if you add --vnv-pre/--vnv-run/--vnv-post/--vnv-check-results you can run
+only those steps (you can have more than). Just beware that some are necessary
+for the others (for example you can not do post treatment if you have not run
+the case first). The pre-treatment phase is always run.
+\item if you add --report-name=toto it will generate a csv file at the root of
+  your \telemacsystem{} containing time informations for each step (pre,
+    check\_results) and the run of each study.
+\item if you add --clean or --full-clean instead of running it will delete the
+  files created by the validation script (this will delete the results of the
+    runs).
+\item all the options from \verb!runcode.py!. Those will be passed to each run.
+\end{itemize}
+
+When running "\verb!validate_telemac.py!" on an already ran VnV case the run
+part will not be done if none of the input files (files to read given in the
+steering file) or the steering file itself are newer than one the output files
+(a file that was generated by the run).
+
+To see all the options run \verb!validate_telemac.py -h!.
+
+%----------------------------------------------------------------------------------------------------
+\subsection{Validation on a cluster}
+%----------------------------------------------------------------------------------------------------
+
+Validation can also run on a cluster for more efficiency.
+It will follow this pattern:
+\begin{enumerate}
+  \item Clean up of the examples folder
+  \item Launch all the \telma runs via the job scheduler
+  \item Wait for the jobs to be finished
+  \item Launch the epsilons check and the post-treatment
+\end{enumerate}
+
+%----------------------------------------------------------------------------------------------------
+\subsubsection{Requirements}
+%----------------------------------------------------------------------------------------------------
+
+Running a validation on a cluster requires to have a configuration with the
+following points:
+\begin{itemize}
+  \item An HPC configuration (chech the website for more information).
+  \item The batch submission command must write in a file for each submission
+    the id of the submission and the case folder, separated by a ';'.
+\end{itemize}
+
+The procedure below will submit each of the \telma{} studies to the cluster
+scheduler. This means that in the best of case your whole validation will be as
+long as your longest \telma{} run.
+The "commands" with the argument hpc=True will be submetted as well.
+
+Here is an example for a cluster using SLURM (split in several lines for better
+readability, however it should be a one-liner):
+\begin{lstlisting}[language=bash]
+cp HPC_STDIN ../;
+cd ../;
+ret=`sbatch --wckey=<project> < HPC_STDIN`;
+id=`echo $ret|tr ' ' '\n'|tail -n 1`;
+dir=`readlink -f .`;
+echo "$id;$dir" >> <id_log>;
+echo $ret
+\end{lstlisting}
+
+\verb!<project>! will be replaced by the \verb!--project! option from
+\verb!validate_telemac.py! if given.
+
+\verb!<id_log>! will be replaced by the \verb!--id-log! option from
+\verb!validate_telemac.py! if given, otherwise it we be replaced by 'id.log'.
+
+Here is an extract of what the file containing the id looks like (paths have
+been shortened to be easier to find in the documentation):
+\begin{verbatim}
+30346528;.../examples/artemis/G8M/vnv_g8m/vnv_1/eole.intel.dyn
+30346529;.../examples/artemis/beach/vnv_beach/vnv_1/eole.intel.dyn
+30346531;.../examples/artemis/beach/vnv_beach/vnv_2/eole.intel.dyn
+30346534;.../examples/artemis/bj78/vnv_bj78/vnv_1/eole.intel.dyn
+30346535;.../examples/artemis/bj78/vnv_bj78/vnv_2/eole.intel.dyn
+30346537;.../examples/artemis/bosse/vnv_bosse/vnv_1/eole.intel.dyn
+38368703;cmd:.../examples/artemis/bj78/vnv_bj78.py:vnv_1_api
+38368704;cmd:.../examples/artemis/bj78/vnv_bj78.py:vnv_2_api
+\end{verbatim}
+
+%----------------------------------------------------------------------------------------------------
+\subsubsection{Run commands}
+%----------------------------------------------------------------------------------------------------
+
+The procedure to run is the following:
+\begin{enumerate}
+  \item Run '\verb!validate\_telemac.py! \textit{valid\_options} \verb!--clean!'.
+  \item Run '\verb!validate\_telemac.py! \textit{valid\_options}
+    \textit{hpc\_options}\verb! --vnv-mode=slurm!'.
+\end{enumerate}
+
+Replacing:
+\begin{itemize}
+  \item \textit{valid\_options} by the options for your validation (--tag, -k,
+    --bypass\ldots).
+  \item \textit{hpc\_options} by the options you would give an HPC \telma{} run
+    on your cluster (--queue, --nctile, --walltime, --jobname,
+    --project\ldots).
+\end{itemize}

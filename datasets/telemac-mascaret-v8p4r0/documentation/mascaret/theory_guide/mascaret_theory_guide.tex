@@ -1,0 +1,230 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Mascaret Documentation
+%  Theory guide
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+\documentclass[Mascaret]{../../data/TelemacDoc} % Default font size and left-justified equations
+
+%%---------------------------------------------------------------------------
+%%Equations
+%%---------------------------------------------------------------------------
+\renewcommand{\Grad}{\vec \nabla}
+\renewcommand{\Div}{\nabla \cdot}
+\renewcommand{\Lap}{\nabla^2}%{\text{lap}\hspace{0.1em}}
+\newcommand{\BDiv}{\vec{\nabla} \cdot}
+\newcommand{\BLap}{\vec{\nabla}^2}
+\newcommand{\DivD}{\nabla_{2D} \cdot}
+\newcommand{\Divast}{\nabla^* \cdot}
+
+%%---------------------------------------------------------------------------
+%% Tableaux
+%%---------------------------------------------------------------------------
+%\usepackage{booktabs,multirow}
+%\usepackage{lscape}
+%\usepackage{longtable}
+%\newcommand{\minitab}[2][1]{\begin{tabular}{#1}#2\end{tabular}}
+%%\usepackage{array}
+%%\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+%%\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+%%\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+%%---------------------------------------------------------------------------
+%% Nomenclature
+%%---------------------------------------------------------------------------
+\usepackage{ifthen}
+\usepackage{nomencl}
+%
+\makenomenclature
+\renewcommand{\nompreamble}{\markboth{%
+                            \MakeUppercase\nomname}{\MakeUppercase\nomname}%
+                           }
+
+\renewcommand{\nomgroup}[1]{
+\ifthenelse{\equal{#1}{C}}{\item[\textbf{In the continuous domain}]}{
+\ifthenelse{\equal{#1}{D}}{\item[\textbf{In the discrete domain}]}{
+{}
+}% matches discrete domain
+}% matches continuous domain
+}
+
+\begin{document}
+
+\let\cleardoublepage\clearpage
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title{\mascaret}
+\subtitle{Theory guide}
+\version{\telmaversion}
+\date{\today}
+\maketitle
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	AUTHORS PAGE
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+\thispagestyle{empty}
+
+\chapter*{Authors and contributions}
+This document was first created in French by Nicole GOUTAL (EDF) and Fabrice ZAOUI (EDF)
+
+The translation was done by HR Wallingford
+
+This version which comply with the official template of \telemacsystem{} was created by Christophe Coulet (ARTELIA).
+
+\newpage
+
+\chapter*{Work under construction}\label{workunderconstruction}
+We would like to warn the reader that this document is still under construction and
+could be improved in many ways. Any remarks, suggestions, corrections, etc. are welcome
+and can be submitted to the TELEMAC developing team through the forum in the Documentation
+category: \url{http://www.opentelemac.org/index.php/kunena/10-documentation}.
+
+\newpage
+
+\chapter*{Abstract}\label{Abstract}
+Developed for more than 20 years by Electricité De France (EDF) and the Centre d'Etudes et d'Expertise sur les Risques, l'Environnement, la Mobilité et l'Aménagement (CEREMA), \mascaret{} is a hydraulic modelling software dedicated to one-dimensional free-surface flow, based on the Saint-Venant equations.
+\mascaret{} includes three computational engines, all of which can be coupled to the \casier{} module in order to represent quasi-2D floodplain storage. The three engines can respectively represent the following flows:
+
+\begin{itemize}
+ \item Subcritical and Transcritical steady;
+ \item Subcritical unsteady;
+ \item Transcritical unsteady.
+\end{itemize}
+
+The \casier{} module represents water storage and movement on the floodplain with storage areas that can be connected to the river channel and connected to each other. Various relations can be used to represent these connections: weir, channel, siphon, orifice.
+\mascaret{} is suited for the following types of project:
+
+\begin{itemize}
+ \item River and floodplain inundation modelling;
+ \item Floodwave propagation after a hydraulic structure failure;
+ \item Discharge regulation in rivers and canals;
+ \item Wave propagation in canals (intumescence, lockage water, priming).
+\end{itemize}
+
+This report is the theoretical note for the software \mascaret{} and its algorithms. The principles of the mathematical modelling of one-dimensional free-surface flow used by the computational engines of \mascaret{} are presented here, as well as the numerical methods used to solve the equations for subcritical and transcritical flow. The principles of the storage areas module \casier{} and the methods for coupling it with \mascaret{} are also described, as well as the principles of the automatic calibration module.
+
+
+
+%----------------------------------------------------------------------------------------
+%	COPYRIGHT PAGE
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+\thispagestyle{empty}
+
+\TelemacCopyright{}
+
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+
+\pagestyle{empty} % No headers
+
+\tableofcontents% Print the table of contents itself
+
+\pagestyle{fancy} % Print headers again
+
+%----------------------------------------------------------------------------------------
+%	The whole thing
+%----------------------------------------------------------------------------------------
+%%===========================================================================
+%\section{Reminders and definition of variables}
+%%===========================================================================
+%
+%Bold variables will represent vectors and tensors, and plain font will represent scalars; i.e.:
+%
+%\begin{align}
+%\vec{A} = \left[\begin{array}{c}
+%		A_x
+%		\\
+%		A_y
+%		\\
+%		A_z
+%		\end{array}\right]
+%\end{align}
+%
+%Furthermore, the following operators are defined:
+%
+%\begin{subequations}
+%\begin{align}
+%\Grad\{A\}		= & \vec{\nabla} A
+%\\
+%\Grad\{\vec{A}\}		= & \vec{\nabla} \vec{A}^T
+%\\
+%\Div\{\vec{A}\}	= & \vec{\nabla} \cdot \vec{A}
+%\\
+%\Lap\{B,A\} =	& \vec{\nabla} \cdot \left( B\vec{\nabla} A\right)
+%\notag\\
+%			=	& \Div\{B\Grad\{A\}\}
+%\\
+%\BLap\{B,\vec{A}\} =	& \vec{\nabla} \cdot \left( B\vec{\nabla} \vec{A}^T\right)
+%\notag\\
+%						=	& \Div\{B\Grad\{\vec{A}\}\}
+%\end{align}
+%\end{subequations}
+%
+%Where $\vec{\nabla}$ is the nabla operator defined as:
+%
+%\begin{align}
+%\vec{\nabla} = \left[\begin{array}{c}
+%		\dfrac{\partial}{\partial x}
+%		\\[1em]
+%		\dfrac{\partial}{\partial y}
+%		\\[1em]
+%		\dfrac{\partial}{\partial z}
+%		\end{array}\right]
+%\end{align}
+%
+%In addition $\vec{A}^T$ is the transpose of vector $\vec{A}$.
+
+%===========================================================================
+% Nomenclature
+%===========================================================================
+
+\printnomenclature
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 1: Introduction and general hypothesis
+%----------------------------------------------------------------------------------------
+
+\input{latex/1_Introduction}
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 2: The F.D. Engines
+%----------------------------------------------------------------------------------------
+\input{latex/2_1_Engines_FD_Principles}
+\input{latex/2_2_Engines_FD_Resolution}
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 3: The F.V. Engines
+%----------------------------------------------------------------------------------------
+\input{latex/3_Engine_FV}
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 4: Casier
+%----------------------------------------------------------------------------------------
+\input{latex/4_StorageAreas}
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 5: Automatic calibration of the Strickler coefficient
+%----------------------------------------------------------------------------------------
+\input{latex/5_Calibration}
+
+%===========================================================================
+% Bibliography
+%===========================================================================
+\bibliographystyle{plainnat}
+\bibliography{latex/mascaret_theory_guide}
+
+\end{document}

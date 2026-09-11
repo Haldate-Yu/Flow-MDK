@@ -1,0 +1,485 @@
+% \renewcommand{\labelitemi}{$\blacktriangleright$}
+% \renewcommand{\labelitemi}{$\triangleright$}
+ \renewcommand{\labelitemi}{$\rhd$}
+% \renewcommand{\labelitemi}{$\centerdot$}
+
+~\newline
+%===============================================================================
+\chapter{Heat budget}
+\label{chapter:heat_exchanges}
+%===============================================================================
+The thermal regime of the surface in contact with the atmosphere (water or ice) affects the surface ice evolution from freeze-up to breakup. This section describes heat fluxes or exchanges at the interface atmosphere - ice/water, as programmed within \khione.
+
+%===============================================================================
+\section{Surface heat exchange models}
+
+There are two options provided to the user depending on the availability of atmospheric data: a comprehensive thermal budget (based on cloud cover, solar radiation, precipitation, winds, humidity, etc.) and a linearized formulation, the parameters of which should be calibrated.
+The model must be selected via the keyword \telkey{ATMOSPHERE-WATER EXCHANGE MODEL} (default = 0):
+\begin{lstlisting}
+0 : LINEARISED FORMULA
+1 : MODEL WITH COMPLETE BALANCE
+\end{lstlisting}
+
+%~\newline
+%\section{Meteorological data}
+
+%===============================================================================
+\subsection{Linear Approximation}
+
+The use of a simplified linearized formula has been popular in ice engineering since
+meteorological data necessary to compute full surface heat exchange may not be readily available.
+Since the diurnal variation of solar radiation and air temperature could be important to some of the ice processes such as frazil ice evolution, the linearized expression may include a component proportional to the difference between the surface temperature and the air temperature,
+and an independent short wave radiation component (Dingman and Assur 1969):
+\begin{equation} \label{eq:philin}
+\phi = \phi_R + \alpha + \beta ( T_{a} - T_{s} )
+\end{equation}
+in which,
+\begin{itemize}
+	\item $\phi$ is the total surface heat flux (from atmosphere to the surface), also noted $\phi_{aw}$ between air and water or $\phi_{ai}$ between air and ice (if there is ice cover)
+	\item $\phi_R$ is the net short wave radiation,
+	\item $\alpha$ a constant that can be set via the \telkey{WATER-AIR HEAT EXCHANGE CONSTANT} (default $=-50$ W.m$^{-2}$) in the case of water surface, or via  \telkey{ICE-AIR HEAT EXCHANGE CONSTANT} (default $=-32.547$ W.m$^{-2}$) in case of ice surface,
+	\item $\beta$ a constant that can be set via the \telkey{WATER-AIR HEAT EXCHANGE COEFFICIENT} (default $=20$ W.m$^{-2}$.K$^{-1}$) in the case of water surface, or via  \telkey{ICE-AIR HEAT EXCHANGE COEFFICIENT} (default $=12.189$ W.m$^{-2}$.K$^{-1}$) in case of ice surface,
+    \item $T_{a}$ is the air temperature,
+    \item $T_{s}$ is the surface temperature. If there is no ice cover, it is equal to the water temperature $T_{w}$ otherwise it is equal to ice surface temperature.
+\end{itemize}
+
+%===============================================================================
+\subsection{Comprehensive thermal budget formulation}
+
+A dominating part of the heat exchanges occurs at the surface in contact with the atmosphere (air-water or air-ice interfaces) and includes short and long wave radiation, evaporation~/ condensation, sensible heat exchange, and precipitation \cite{ashton1986river}, \cite{paily1974winter}. The total surface heat gain rate may be written as:
+
+\begin{equation} \label{eq:phi}
+\phi = \phi_R + C_B \phi_B + C_E \phi_E + C_H \phi_H + C_P \phi_P
+\end{equation}
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphicsmaybe{[width=\textwidth]}{./graphics/heat_exchanges.png}
+    \end{center}
+    \caption{Comprehensive thermal budget formulation}
+    \label{fig:full_budget}
+\end{figure}
+
+in which,
+\begin{itemize}
+	\item  $\phi$ is the total surface heat flux (from atmosphere to the surface), also noted $\phi_{aw}$ between air and water or $\phi_{ai}$ between air and ice (if there is ice cover)
+	\item  $\phi_R$ is the net short wave radiation, which is the difference between the incoming solar radiation $\phi_{ri}$ and the solar radiation reflected back to the atmosphere  $\phi_{rr}$,
+	\item  $\phi_B$ is the effective back radiation or terrestrial radiation, which is the net balance of the atmospheric long-wave radiation reaching the surface water $\phi_{ba}$, the fraction of the atmospheric radiation reflected back by the surface water $\phi_{br}$, and the long wave radiation emitted by the surface water $\phi_{bs}$,
+	\item  $\phi_E$ is the evaporation heat transfer,
+	\item  $\phi_H$ is the conductive or sensible heat transfer,
+	\item  $\phi_P$ is the heat transfer due to precipitation,
+    \item  $C_B$, $C_E$, $C_H$ and $C_P$ are calibration coefficient, with default values of $1$, that can be adjusted
+    via the following keywords:
+\begin{lstlisting}
+COEFFICIENT FOR CALIBRATION OF BACK RADIATION
+COEFFICIENT FOR CALIBRATION OF EVAPORATIVE HEAT TRANSFERT
+COEFFICIENT FOR CALIBRATION OF CONDUCTIVE HEAT TRANSFERT
+COEFFICIENT FOR CALIBRATION OF PRECIPITATION HEAT TRANSFERT
+\end{lstlisting}
+\end{itemize}
+
+\begin{WarningBlock}{Notes:}
+\begin{itemize}
+\item The same convention is chosen for the sign of the fluxes $\phi_R$ to $\phi_P$ relative to the water body. Therefore a positive value means a heat gain (heat transfert from the atmosphere to water) and a negative value means a heat loss (heat release from water to the atmosphere).
+\item In \waqtel with the THERMIC module, the short wave radiation is a user input as opposed to \khione in which in is computed from meteorological data.
+\item The conductive and evaporation heat transfer formulas in \telemac{2D} are different from the ones used in \khione, which uses formulas that are more suitable for cold winter applications.
+\end{itemize}
+\end{WarningBlock}
+
+%===============================================================================
+\section{Heat exchanges in presence of ice cover}
+
+The total surface heat flux (from atmosphere to the surface) depends on the type of surface and therefore varies
+depending on whether there is ice cover or not.
+The heat flux $\phi$ is noted $\phi_{aw}$ between the atmosphere and water and
+$\phi_{ai}$ between the atmosphere and the ice cover.
+Additionnally, when an ice cover is present, the heat exchange between water and the ice cover, noted $\phi_{wi}$ is modelled as well.
+A description of the heat exchanges in presence of ice cover is presented in Figure \ref{fig:heat_exchanges_icover}.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphicsmaybe{[width=0.85\textwidth]}{./graphics/heat_budget_icover.png}
+    \end{center}
+    \caption{Heat exchanges description for open water (left) partially ice covered (middle) or fully ice covered water surface (right)}
+    \label{fig:heat_exchanges_icover}
+\end{figure}
+
+The ice cover is characterized by a thickness $t_i$ and a surface fraction $C_i$, which both vary in space and time.
+The thickness evolution against time is a function of the heat fluxes on top and bottom of the ice sheet as presented in section \ref{section:thermal_growth_icover}.
+From the water perspective, when the water surface is fully covered, only the heat flux $\phi_{wi}$ is considered as opposed to the open water surface where only $\phi_{ai}$ affects water energy budget.
+In the case of a partially ice covered surface the heat flux affecting water temperature depends on $C_i$ as described in Equation \ref{heat_fluxes_water}.
+
+%===============================================================================
+\section{Computation of heat fluxes}
+
+The purpose of this section is to present how the heat fluxes are computed from $\phi_R$ (used in both atmosphere-water exchange models),
+to $\phi_B$, $\phi_E$, $\phi_H$ and $\phi_P$ (used only in the complete balance model).
+
+%===============================================================================
+\subsection{Solar radiation}
+
+The net solar radiation $\phi_R$ is the difference between
+the incoming short wave radiation $\phi_{ri}$ (function of the radiation under clear skies $\phi_{cl}$, and the cloud cover $C$ \cite{iqbal2012introduction})
+and the short wave radiation reflected back to the atmosphere $\phi_{rr}$ when reaching water or ice surface.
+It can be expressed as follows:
+
+\begin{equation} \label{eq:phir}
+  \begin{aligned}
+   \phi_R &= \phi_{ri} - \phi_{rr}, \\
+   \phi_{ri} &= \phi_{cl} ( 1-0.0065C^2 ), \\
+   \phi_{rr} &= R_t \phi_{ri},
+  \end{aligned}
+\end{equation}
+
+in which
+\begin{itemize}
+    \item $C$ is the cloud cover in tenths, with $C = 0$ for clear skies and $C = 10$ for overcast skies, which can be given in the \telemac{2D} steering file by the keyword \telkey{CLOUD COVER} if not given in the meteo file. If the cloud cover data is not available, an estimated value might be used.
+    \item $R_t$ is the albedo or reflectivity, which varies from $6$\% to $10$\% for a water surface.
+    The water albedo can be estimated as follows (Anderson 1954, \cite{anderson1954energy}):
+\end{itemize}
+
+\begin{equation} \label{eq:albedo}
+   R_t = A\alpha^B
+\end{equation}
+
+in which,
+\begin{itemize}
+   \item $\alpha$ is the solar altitude in degrees,
+   \item A and B are constants, depending on the amount of cloud cover,
+   which can be computed by the following relationships (\cite{brady1969surface}):
+\end{itemize}
+
+\begin{equation} \label{eq:ab}
+   \begin{aligned}
+     A &= 2.20+\frac{C^{0.7}_r}{4.0}-\frac{(C^{0.7}_r-0.4)^2}{0.16} \\
+     B &= -1.02+\frac{C^{0.7}_r}{16.0}+\frac{(C^{0.7}_r-0.4)^2}{0.64}
+   \end{aligned}
+\end{equation}
+
+in which,
+\begin{itemize}
+	\item $C_r=1-\phi_{ri}/\phi_{cl}$ is the cloudiness ratio, or the ratio of the difference between theoretical maximum solar radiation and the observed solar radiation, both for the same altitude of the sun, to the theoretical maximum solar radiation.
+\end{itemize}
+
+The ice albedo is directly set by the user with the keyword \telkey{ALBEDO OF ICE} (default = $0.2$).
+\cite{bolsenga1969total} reported values for various ice conditions on the Great Lakes, North America, as summarized in the table below.
+
+\begin{table}[h!]
+   \centering
+   \caption{Albedo of Great Lakes Ice (\cite{bolsenga1969total})}
+   \label{table:albedo}
+   \begin{tabular}{ c | c}
+      Ice type &  Albedo (\%) \\
+      \hline
+      Clear lake ice (snow free) & $10$ \\
+      Bubbly lake ice (snow free) & $22$ \\
+      Ball ice (snow free) & $24$ \\
+      Refrozen Pancake (snow free) & $31$ \\
+      Slush Curd (snow free) & $32$ \\
+      Slush ice (snow free) & $41$ \\
+      Brash ice (snow between blocks) & $41$ \\
+      Snow ice (snow free) & $46$ \\
+   \end{tabular}
+\end{table}
+
+The incoming short wave radiation under clear skies, $\phi_{cl}$, can be calculated as proposed by Iqbal (1983).
+$\phi_{cl}$ is computed as a function of the total extraterrestrial solar radiation per unit area incident on a horizontal surface $\phi_{so}$,
+and the optical air mass $m$, as follows:
+
+\begin{equation} \label{eq:phicl}
+  \begin{aligned}
+  \phi_{cl} &= ( 0.99-0.17m ) \phi_{so} \\
+  \phi_{so} &= \dfrac{12}{\pi}\ I_{so}\ E_0\Big[\ (\omega_1-\omega_2)\sin\delta\cos\psi\ +\ (\sin\omega_1-\sin\omega_2)\cos\delta\cos\psi \Big] \\
+   m &= m_0\frac{P_a}{P_0}
+  \end{aligned}
+\end{equation}
+with
+\begin{equation} \label{eq:phiso}
+  \begin{aligned}
+   m_0 &= \Big[\ \sin\alpha_z+0.15(\alpha_z+3.885)^{-1.253}\ \Big]^{-1} \\
+  \frac{P_a}{P_0} &= \exp ( -0.0001184\ z )
+  \end{aligned}
+\end{equation}
+and
+\begin{equation} \label{eq:phiso}
+  \begin{aligned}
+  \delta &= \frac{23.45\pi}{180}\sin\Big[\ \frac{360}{365}(d_a+284)\ \Big] \\
+  E_0 &= 1+0.033\cos\Big(\frac{2\pi d_a}{365}\Big)\\
+    \omega &= \frac{(12-h)\pi}{12}\\
+    h &= t - \frac{\eta(L_{SM}-L_{LM})}{15}+E_t\\
+    E_t &= 3.8197(0.000075 + 0.001868 \cos{r} - 0.032077 \sin{r} -0.014615 \cos{2r} - 0.04089 \sin{2r})\\
+    r &= \frac{2\pi(d_a-1)}{365}
+  \end{aligned}
+\end{equation}
+
+
+in which,
+\begin{itemize}
+   \item $I_{so}$ is a solar constant, which is by default 1380 W/m$^2$ for the winter season and can be modified with the keyword \telkey{SOLAR CONSTANT},
+   \item $d_a$ is the day number of the year from $1$ to $365$,
+   \item $E_0$ is the eccentricity correction factor of the earth’s orbit,
+   \item $h$ is the calculated hour and $t$ is the current time in hour,
+   \item $\eta$ is the longitudinal orientation, $-1$ for for west and $+1$ for east, which should be set with the keyword \telkey{EAST OR WEST LONGITUDE} (default = $-1$),
+   \item $L_{SM}$ is the global longitude from the standard meridean, set in the keyword \telkey{GLOBAL LONGITUDE, IN DEGREES} (default = $75$),
+   \item $L_{LM}$ is the longitude in the local meridean, set in the keyword \telkey{LOCAL LONGITUDE, IN  DEGREES} (default = $75.43$),
+   \item $E_t$ is the equation of time,
+   \item $r$ is the difference between true and mean solar time,
+   \item $P_0$ is the pressure at sea level,
+   \item $\alpha_z=90-\theta_z$ is the solar latitude, with $\cos\theta_z=\sin\delta\sin\psi+cos\delta\cos\psi\cos\omega$,
+   \item $\omega$ is the hour angle in radians,
+   \item $\delta$ is the solar declination, in radians,
+   \item $\psi$ is the latitude in degrees given by \telemac with the keyword \telkey{LATITUDE OF ORIGIN POINT}, north positive, south negative.
+\end{itemize}
+
+If \khione{} is coupled with \telemac{3D}, the net solar radiation is applied in the entire water column. The penetration of the flux is represented with the equation:
+
+\begin{equation}
+S=\dfrac{1}{\rho C_p}\dfrac{\partial Q(z,\phi_R)}{\partial z},
+\end{equation}
+
+where the function $Q(z, \phi_R)$ is the residual solar radiation at the elevation $z$ which writes:
+
+\begin{equation}
+Q(z,\phi_R) = \phi_R \exp\left(-K(z_{s}-z) \right),
+\end{equation}
+
+with $z_{s}$ the free surface elevation in m, and $K$ the light extension coefficient in m$^{-1}$ which can be set by the user through the keyword \telkey{LIGHT EXTINCTION COEFFICIENT}.
+
+$S$ is then treated as a source term in temperature advection-diffusion equation and writes:
+
+\begin{equation}
+  S=\dfrac{\phi_R K \exp\left(-K(z_{s}-z) \right)}{\rho C_p}.
+\end{equation}
+
+%===============================================================================
+~\newline
+\subsection{Effective back radiation}
+
+The effective back radiation can be expressed as
+
+\begin{equation} \label{eq:phib}
+   \phi_B=\phi_{ba}-\phi_{br}-\phi_{bs}
+\end{equation}
+
+in which,
+\begin{itemize}
+   \item $\phi_{bs}$ is the long wave radiation from the water or ice surface,
+   \item $\phi_{ba}$ is the atmospheric radiation,
+   \item $\phi_{br}$ is the reflected long wave radiation.
+\end{itemize}
+
+Among all the heat exchange components, the long wave radiation from the surface has the largest magnitude. The Stefan-Boltzmann law gives
+
+\begin{equation} \label{eq:phibs}
+   \phi_{bs}=\epsilon_s\sigma T_{sk}^4
+\end{equation}
+
+in which,
+\begin{itemize}
+	\item $\epsilon_s$ is the emissivity of the surface,
+    \item $\sigma$ is the Stefan-Boltzman constant, equal to $5.67\times10^{-8}$ W.m$^{-2}$.K$^{-4}$,
+	\item $T_{sk}$ is the surface temperature in the absolute scale (K).
+\end{itemize}
+
+The magnitude of the atmospheric radiation is generally larger than the net solar radiation reaching the ground, and is usually the second largest component among the various heat exchange processes. Under cloudy skies, the atmospheric radiation and the reflected long wave radiation can be computed by
+
+\begin{equation} \label{eq:phiba}
+\begin{aligned}
+\phi_{ba} &= \epsilon_a\sigma ( 1+kC^2 )T_{ak}^4 \\
+\phi_{br} &= r_s\phi_{ba}
+\end{aligned}
+\end{equation}
+
+in which,
+\begin{itemize}
+	\item $\epsilon_a$ is the emissivity of the atmosphere,
+	\item $k$ is an empirical constant which depends on the cloud condition, typically about $0.0017$,
+	\item $C$ is the cloud cover in tenth, already defined above
+	\item $r_s=(1-\epsilon_s)$ is the reflectivity of the surface, and
+	\item $T_{ak}$ is the air temperature at $2$ m above the surface, in the absolute scale (K).
+\end{itemize}
+
+The emissivity of atmosphere can be estimated by \cite{satterlund1979improved}:
+
+\begin{equation} \label{eq:ea}
+\begin{aligned}
+\epsilon_a &= 1.08\ \Big[\ 1-\exp\Big(-e_a^{(\frac{T_{ak}}{106})}\Big)\ \Big] \\
+e_a &= \frac{R_H}{100}\ e_s
+\end{aligned}
+\end{equation}
+
+in which,
+\begin{itemize}
+	\item $e_a$ is the vapor pressure in mbar,
+	\item $R_H$ is the relative humidity in percentage, and
+	\item $e_s$ is the saturated vapor pressure in mbar.
+\end{itemize}
+
+Vapor pressure can be determined by computing the saturated pressure at dew point. The Goff-Grath-Murray formula, \cite{goff1946low}, is used to compute saturated vapor pressure
+
+\begin{itemize}
+	\renewcommand{\labelitemi}{\textbullet}
+	\item over water surface
+\end{itemize}
+\begin{equation} \label{eq:esw}
+  \begin{split}
+e_s = 7.95357242\times 10^{10}
+     \ \exp \bigg[\ -18.1972839\frac{373.16}{T_{sk}} \qquad \qquad  \qquad \qquad \\
+ + 5.02808 \ln\Big(\ \frac{373.16}{T_{sk}}\ \Big) -20242.1852 \exp\Big(\ \frac{-26.1205253}{373.16/T_{sk}}\ \Big)  \qquad \\
+ + 58.0691913 \exp\Big(\ -8.039282\frac{373.16}{T_{sk}}\ \Big) \ \bigg]
+  \end{split}
+\end{equation}
+
+\begin{itemize}
+	\renewcommand{\labelitemi}{\textbullet}
+	\item over ice surface
+\end{itemize}
+\begin{equation} \label{eq:esi}
+   \begin{split}
+e_s = 5.75185606\times 10^{10}
+     \ \exp \bigg[\ -20.947031\frac{273.16}{T_{sk}}\qquad \qquad  \qquad \qquad \\
+      -3.56654 \ln\Big(\ \frac{273.16}{T_{sk}}\ \Big) - \frac{2.01889049}{273.16/T_{sk}}\ \bigg]
+   \end{split}
+\end{equation}
+
+in which,
+\begin{itemize}
+	\item $T_{sk}$ is the temperature in K
+\end{itemize}
+
+In summary, the effective back radiation, $\phi_B$, is as follows:
+
+\begin{equation} \label{eq:phiball}
+\phi_B=-0.97\sigma\Big[\ T_{sk}^4-\epsilon_a ( 1+kC^2 ) T_{sk}^4\ \Big]
+\end{equation}
+
+%===============================================================================
+~\newline
+\subsection{Evaporative heat transfer}
+
+The heat transfer associated with evaporation or condensation, $\phi_E$, when the vapor pressure in the air is greater than that at the surface, is given by the Rimsha-Donchenko 1957 formula, \cite{rimsha1957investigation}, as
+
+\begin{equation} \label{eq:phie}
+\phi_E = -\frac{4.1855}{8.64}\ ( 1.56K_n+6.08\nu_{a2} ) ( e_{so}-e_a )
+\end{equation}
+with
+\begin{equation}
+\begin{aligned}
+\nu_{a2} &= \nu_{az} \Big( \frac{2}{z} \Big)^{0.15} \\
+K_n &= 8.0+0.35(  T_s-T_a )
+\end{aligned}
+\end{equation}
+
+in which,
+\begin{itemize}
+  \item $T_a$ is the air temperature in $^{\circ}$C,
+	\item $T_s$ is the surface temperature (water or ice) in $^{\circ}$C,
+	\item $e_{so}$ is the saturated vapor pressure corresponding to the surface temperature, in mbar,
+	\item $e_a$ is the vapor pressure corresponding to air temperature at 2 m above the surface, in mbar,
+	\item $\nu_{a2}$ is the wind velocity at $2$ m above the surface.
+\end{itemize}
+
+%===============================================================================
+~\newline
+\subsection{Conductive heat transfer}
+
+The sensible heat transfer, $\phi_H$, is proportional to the difference between the surface temperature and the air temperature, and is related to $\phi_E$ by the Bowen ratio. Based on the Rimsha-Donchenko formula above, $\phi_H$ is
+
+\begin{equation} \label{eq:phih}
+\phi_H = \frac{4.1855}{8.64}\ ( K_n+3.9\nu_{a2} ) (T_{ak}-T_{sk} )
+\end{equation}
+
+%===============================================================================
+~\newline
+\subsection{Heat exchanges due to precipitation}
+
+The heat transfert due to snow falling on the water surface, $\phi_P$, can be estimated by
+
+\begin{equation} \label{eq:phip}
+\phi_P = A_s\ \Big[\ c_i( T_a-T_w ) -L_i \ \Big]
+\end{equation}
+
+in which,
+\begin{itemize}
+	\item $A_s$ is the rate of snowfall over a unit area of surface in kg.m$^{-2}$.s$^{-1}$, equal to $(78.5/86400)\hat{V}^{-2.375}$
+	\item $L_i$ is the latent heat of fusion of ice, equal to $3.3484 \times 10^5$ J.kg$^{-1}$,
+	\item $c_i$ is the specific heat of ice, equal to $4.1855\times10^3$ J.kg$^{-1}$.K$^{-1}$, and
+	\item $\hat{V}$ is the visibility in km.
+\end{itemize}
+
+When the precipitation is in the form of rainfall, the rate of heat gain can be calculated as
+
+\begin{equation} \label{eq:phipbis}
+\phi_P=A_p c_p(T_a-T_w)
+\end{equation}
+
+with
+
+\begin{itemize}
+	\item $A_p$ the rainfall rate,
+	\item $c_p=4.215\times10^3$ J.kg$^{-1}$.K$^{-1}$ the specific heat of water.
+\end{itemize}
+
+The rainfall effect is generally small because the only contribution is the due to the specific heat effect associated with the difference in temperature between the water and the rain.
+
+%===============================================================================
+~\newline
+\subsection{Heat exchange between water and ice cover}
+\label{heat_exchanges_icover_and_water}
+
+Similar to the thermal regime of the surface in contact with the atmosphere, the surface ice evolution from freeze-up to breakup depends also on the heat transfer under the cover. This section describes heat exchanges at the ice-water interface, as programmed within \khione.
+The heat transfer from water to ice under the surface ice, noted $\phi_{wi}$, depends on the water temperature and flow condition, which may be expressed as
+
+\begin{equation} \label{eq:phiwi}
+\phi_{wi} = h_{wi} ( T_w-T_f )
+\end{equation}
+in which,
+\begin{itemize}
+  \item $\phi_{wi}$ is the heat flux between river water and ice,
+	\item $h_{wi}$ is a heat transfer coefficient, and
+	\item $T_f$ is the freezing point of water.
+\end{itemize}
+
+The heat transfer coefficient $h_{wi}$ can be determined by formula for turbulent heat transfer in channels.
+Let us define the Reynolds number by:
+
+\begin{equation} \label{eq:re}
+Re = \dfrac{|\vec{u}| D_H}{ \nu}
+\end{equation}
+in which,
+\begin{itemize}
+	\item $|\vec{u}|$ is the depth-averaged flow velocity,
+	\item $D_H$ is the hydraulic diameter, defined by $D_H= 4A/P$ with $A$ the cross sectional area of the flow and $P$ the wetted perimeter,
+	\item $\nu$ is the kinematic viscosity of water.
+\end{itemize}
+
+For fully developed laminar flow, i.e. $Re < 2200$,
+the heat transfer coefficient can be calculated by:
+
+\begin{equation} \label{eq:hwi}
+h_{wi} = \frac{Nu K_w}{D_H}
+\end{equation}
+in which,
+\begin{itemize}
+	\item $K_w$ is the thermal conductivity of water,
+	\item $Nu$ is the Nusselt number, which varies with the shape of the channel cross section. The Nusselt number can be defined via the keyword \telkey{NUSSELT NUMBER FOR HEAT TRANSFER BETWEEN WATER AND ICE} (default = 7.541).
+\end{itemize}
+
+For fully developed turbulent flow i.e. $Re > 2200$, the following formulas can be used:
+
+\begin{equation} \label{eq:hwi}
+\begin{aligned}
+h_{wi} &= C_{iw}\frac{|\vec{u}|^{0.8}}{D_H^{0.2}}\quad & \text{for} \quad T_w \leq T_f \\
+h_{wi} &= C_{wi}\frac{|\vec{u}|^{0.8}}{D_H^{0.2}}\quad & \text{for} \quad T_w > T_f
+\end{aligned}
+\end{equation}
+
+in which,
+\begin{itemize}
+	\item $C_{iw}$ and $C_{wi}$ are two empirical constants that can be defined with the keywords:
+\telkey{WATER-ICE HEAT TRANSFER COEF. FOR SUPERCOOLED TURBULENT FLOW}  (default = $1118.0$ W.m$^{-2}$.K$^{-1}$)
+and \telkey{WATER-ICE HEAT TRANSFER COEF. FOR TURBULENT FLOW} (default = $1448.0$ W.m$^{-2}$.K$^{-1}$) respectively.
+
+\end{itemize}
+
+\clearpage

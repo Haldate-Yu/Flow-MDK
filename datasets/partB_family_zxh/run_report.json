@@ -1,0 +1,242 @@
+[
+  {
+    "scenario": "zxh_fam000",
+    "status": "ok",
+    "runtime_s": 30.01843949999966,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam001",
+    "status": "ok",
+    "runtime_s": 32.53912819999823,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam002",
+    "status": "ok",
+    "runtime_s": 30.741089500003,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam003",
+    "status": "ok",
+    "runtime_s": 32.30974559999959,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam004",
+    "status": "ok",
+    "runtime_s": 37.79990790000011,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam005",
+    "status": "ok",
+    "runtime_s": 31.50084770000103,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam006",
+    "status": "ok",
+    "runtime_s": 35.35897350000232,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam007",
+    "status": "ok",
+    "runtime_s": 37.263094900001306,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam008",
+    "status": "ok",
+    "runtime_s": 36.8263478000008,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam009",
+    "status": "ok",
+    "runtime_s": 29.740833799998654,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam010",
+    "status": "ok",
+    "runtime_s": 32.04358470000079,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam011",
+    "status": "ok",
+    "runtime_s": 31.930818000000727,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam012",
+    "status": "ok",
+    "runtime_s": 32.52759650000007,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam013",
+    "status": "ok",
+    "runtime_s": 32.75932710000052,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam014",
+    "status": "ok",
+    "runtime_s": 32.441018800000165,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam015",
+    "status": "ok",
+    "runtime_s": 31.127005900001677,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam016",
+    "status": "ok",
+    "runtime_s": 37.52918909999789,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam017",
+    "status": "ok",
+    "runtime_s": 34.32319880000068,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam018",
+    "status": "ok",
+    "runtime_s": 33.21327340000062,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam019",
+    "status": "ok",
+    "runtime_s": 34.86448010000095,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam020",
+    "status": "ok",
+    "runtime_s": 33.01384759999928,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam021",
+    "status": "ok",
+    "runtime_s": 34.50083799999993,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam022",
+    "status": "ok",
+    "runtime_s": 34.83301339999889,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam023",
+    "status": "ok",
+    "runtime_s": 32.934855999999854,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam024",
+    "status": "ok",
+    "runtime_s": 37.174973400000454,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam025",
+    "status": "ok",
+    "runtime_s": 34.733024100001785,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam026",
+    "status": "ok",
+    "runtime_s": 35.40475199999855,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam027",
+    "status": "ok",
+    "runtime_s": 41.62729810000019,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam028",
+    "status": "ok",
+    "runtime_s": 35.91024599999946,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam029",
+    "status": "ok",
+    "runtime_s": 34.92036270000244,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam030",
+    "status": "ok",
+    "runtime_s": 33.813089400002355,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam031",
+    "status": "ok",
+    "runtime_s": 34.09430969999812,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam032",
+    "status": "ok",
+    "runtime_s": 33.00169060000189,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam033",
+    "status": "ok",
+    "runtime_s": 32.757978299996466,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam034",
+    "status": "ok",
+    "runtime_s": 34.003462699998636,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam035",
+    "status": "ok",
+    "runtime_s": 33.099553000000014,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam036",
+    "status": "ok",
+    "runtime_s": 33.16493150000315,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam037",
+    "status": "ok",
+    "runtime_s": 34.73655359999975,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam038",
+    "status": "ok",
+    "runtime_s": 38.076912000004086,
+    "frames": 24
+  },
+  {
+    "scenario": "zxh_fam039",
+    "status": "ok",
+    "runtime_s": 38.93962889999966,
+    "frames": 24
+  }
+]

@@ -1,0 +1,386 @@
+% \renewcommand{\labelitemi}{$\blacktriangleright$}
+% \renewcommand{\labelitemi}{$\triangleright$}
+ \renewcommand{\labelitemi}{$\rhd$}
+% \renewcommand{\labelitemi}{$\centerdot$}
+
+%===============================================================================
+\chapter{Introduction}
+%===============================================================================
+
+~\newline
+
+\khione is a component of the \telemacsystem{}, which focuses on modeling ice processes.
+It takes its name from the Greek goddess of snow and ice, daughter of Borea (the god of the cold northern wind), and who had a son with Poseidon (the god of the sea).
+
+\section{Positioning \khione within the ice modeling history}
+
+Numerical modelling studies have played an important role in river and coastal engineering, particularly so with ice modelling. The complexity of the formation and evolution of an ice sheet, as a result of heat exchanges at the  air-ice-water interfaces, and its interaction with the underlying hydrodynamics, have restricted physical modelling studies to idealised experiments in flumes. Additionally, it is very difficult to scale ice structural dynamic processes such as accumulation of surface ice fragments in channels \cite{Kennedy1981}, \cite{ashton1986river}.\newline
+
+Mathematical models can be a useful tool to investigate the numerous processes that interact in river systems under different flow, weather, and operational conditions. Thermal-ice processes have been considered in mathematical models with increasing complexity in the past couple of decades \cite{shen2010mathematical}. \cite{lal1991mathematical} developed a one-dimensional river ice model, RICE, which has been improved by \cite{shen1995numerical}, and \cite{kandamby2010numerical}. The model is capable of simulating unsteady flow and ice processes in channel networks over a long winter period. Many river ice processes require two-dimensional analysis. A two-dimensional river ice dynamics model, DynaRICE, was developed by \cite{shen2000sph} and \cite{liu2003two}. The hydrodynamic model includes the treatment of transcritical flows and wet-dry bed transitions. The DynaRICE models were extended to incorporate thermal-ice processes (\cite{liu2006two}, \cite{shen2010mathematical}, \cite{huang2012modeling}). Simulation of water temperature with super-cooling, frazil ice concentration, surface ice transport, ice cover progression, undercover ice transport, thermal growth and decay of ice covers, and ice-cover stability were included.\newline
+
+\khione was developed to allow the users to study ice related problems coupled with hydrodynamics.
+It was initially developed through a collaboration project between EDF R\&D, HR Wallingford and Clarkson University and
+incorporated many components of the DynaRICE modeling software (like super-cooling and frazil ice) except for
+surface ice transport that was not fully integrated in \khione by then.
+Since this collaboration EDF R\&D maintained the module, developed and integrated new models like the multi-class frazil ice model.
+
+%===============================================================================
+~\newline
+\section{Overview of ice processes}
+%===============================================================================
+
+Various ice processes can occur in cold regions during winter periods. These include complex interactions between thermal exchanges and ice dynamics coupled with hydrodynamics. The presence of ice in water affects the design and operation of coastal and riverine infrastructures and have an impact on ecological and environmental conditions of the river.
+An overview of the several ice processes that occur during a freeze-up period are
+presented in Figure \ref{fig:river_ice_processes_schematic} from the supercooling phase
+to the formation of an ice cover. The purpose of \khione is to allow the modeling
+of most of these processes taking advantage of the quality and reliability of the \telemacsystem{}.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphicsmaybe{[width=\textwidth]}{./graphics/processes.png}
+    \end{center}
+    \caption{Overview of river ice processes}
+    \label{fig:river_ice_processes_schematic}
+\end{figure}
+
+Suspended frazil ice is the primary form of ice in water bodies.
+Modeling suspended frazil ice formation requires a good understanding of
+the physical processes that leads to the apparition of nuclei and thermal growth of the crystals
+(see \cite{daly_1984} and \cite{daly_1994}).
+That includes heat exchanges between water and the atmosphere which is a key aspect to properly
+predict the cooling rate of water and the supercooling phase that lead to the thermal growth
+of frazil disks (a typical supercooling curve is presented in Figure \ref{fig:supercooling}).
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphicsmaybe{[scale=0.6]}{./graphics/figure_supercooling.png}
+    \end{center}
+    \caption{Typical supercooling curve with and without the formation of frazil ice. }
+    \label{fig:supercooling}
+\end{figure}
+
+Turbulence is another physical process that may have a significant impact on the frazil formation
+and thus needs to be modeled as well.
+Once frazil nuclei start to grow, the evolution of suspended ice in water bodies
+can lead to various ice types and forms depending on where and how it accumulates i.e.
+at the bottom of the water column (anchor ice) to the water surface (ice floes, slush and border ice) but also
+on submerged structures (clogging of trash racks).
+Subsequently surface ice can evolve into a thick ice cover if winter conditions are harsh enough.
+To ease the comprehension of the models included in
+\khione, it can be divided into several modules as shown in Figure \ref{fig:khione_modules} and presented hereafter.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphicsmaybe{[width=\textwidth]}{./graphics/khione_modules.png}
+    \end{center}
+    \caption{\khione modules}
+    \label{fig:khione_modules}
+\end{figure}
+
+\begin{itemize}
+    \item A key component of \khione that both serve the frazil ice module and ice cover module is the heat budget module,
+presented in chapter \ref{chapter:heat_exchanges}.
+The module contains all the heat fluxes computations between the different media (atmosphere, water, ice cover) which includes the surface heat exchanges models as well as the heat exchange between the water column and the ice cover.
+
+    \item The second and most advanced module of \khione deals with suspended frazil ice related processes.
+It consists in a set of advection-diffusion equations with source terms which allow
+the modeling of water temperature (supercooling), salinity and suspended frazil ice evolution.
+In practice \khione uses the tracer transport components of \telemac{2D} and
+advection and diffusion operators are solved within the latter. Therefore only processes
+used to define each tracer source term are modeled within \khione.
+Balance equations and source terms for tracers are all presented in chapter \ref{chapter:tracers}.
+Besides suspended frazil ice can lead to clogging of
+submerged racks which can be modeled with \khione, see section \ref{chapter:clogging} for more details.
+    \item The last and more complex module deals with ice cover related models. It includes the formation and transport of
+ice cover as well as thermal expansion (or decay) of the ice cover. Additionally the mass exchanges with the suspended frazil ice and the impact on hydrodynamics is also taken into consideration. Ice cover related models are presented in the chapter \ref{chapter:ice_cover}.
+
+\end{itemize}
+
+
+\begin{WarningBlock}{Note:}
+    The modeling of ice cover processes is still a work in progress in \khione.
+    Ice cover dynamics is not yet fully implemented. The coupling with external ice cover models is advised for ice cover related applications.
+\end{WarningBlock}
+
+%===============================================================================
+\section{Running a simulation with \khione}
+%===============================================================================
+
+\subsection{\khione's steering file}
+%===============================================================================
+This file contains the necessary information for running a simulation with \khione, it also must include the values of parameters that are different from the default values (as specified in the dictionary file \texttt{khione.dico}):
+\begin{itemize}
+\item Input and output files
+\item Ice processes
+\item Physical and numerical parameters
+\end{itemize}
+
+\paragraph{Sketch of the \khione's steering file (\texttt{*.cas})}
+
+\lstset{language=TelemacCas,
+        basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+/----------------------------------------------------------------------
+/
+/ Steering file for: KHIONE
+/
+/----------------------------------------------------------------------
+/  FILES
+/----------------------------------------------------------------------
+/
+ GEOMETRY FILE                = 'geo_longflume.slf'
+ BOUNDARY CONDITIONS FILE     = 'geo_longflume.cli'
+/
+/----------------------------------------------------------------------
+/  ICE PROCESSES
+/----------------------------------------------------------------------
+/
+ HEAT BUDGET = YES
+ SALINITY = YES
+ BORDER ICE COVER = YES
+ CLOGGING ON BARS = YES
+...
+/----------------------------------------------------------------------
+/  METEOROLOGY
+/----------------------------------------------------------------------
+/
+ ATMOSPHERE-WATER EXCHANGE MODEL = 1
+...
+/----------------------------------------------------------------------
+/  FRAZIL ICE
+/----------------------------------------------------------------------
+/
+ NUMBER OF CLASSES FOR SUSPENDED FRAZIL ICE = 1
+ FRAZIL CRYSTALS RADIUS = 1.E-4
+...
+\end{lstlisting}
+
+%===============================================================================
+~\newline
+\subsection{Activation of ice processes}
+\label{ice_processes_activation}
+
+\subsubsection{Heat budget module}
+
+
+\begin{itemize}
+    \item When setting \telkey{HEAT BUDGET=YES} (default = YES) the heat exchanges with the atmosphere
+are activated (See chapter \ref{chapter:heat_exchanges}) as well as the heat exchanges between
+water and the ice cover. This is activated by default as
+the heat fluxes computations are required to describe the evolution of water
+temperature (and frazil ice) as well as the evolution of the ice cover thickness.
+\end{itemize}
+
+\subsubsection{Suspended Frazil ice module}
+\begin{itemize}
+    \item When setting \telkey{HEAT BUDGET=YES} (default = YES) two tracers are defined, the first one being
+the water temperature, noted $T$ and the second one being the suspended frazil ice volume fraction, noted $C$
+ (See chapter \ref{chapter:tracers}).
+Multiple classes of frazil can be selected, noted $C_k$, as described later on, in which case the number of tracer will
+be the number of frazil classes $+1$.
+    \item If \telkey{SALINITY=YES} (default = NO) in the \khione steering file, one additional tracer
+is added to model salinity. This also affects the computation of the freezing temperature and include
+salt rejection effect due to frazil ice formation (See chapter \ref{chapter:tracers}).
+Consequently the tracers are water temperature ($T$), salinity ($S$) and frazil ice volume fractions ($C_k$)
+respectively.
+    \item If \telkey{CLOGGING ON BARS=YES} (default = NO) in the frazil ice accumulation on trash racks is activated.
+See chapter \ref{chapter:tracers} for additional details.
+\end{itemize}
+
+\subsubsection{Ice cover module}
+
+\begin{itemize}
+	\item When setting \telkey{DYNAMIC ICE COVER=YES} (default = NO) a simple dynamic ice cover model is activated, which consists in two conservation equations on the ice cover surface fraction noted $C_i$ and the ice cover thickness noted $t_i$
+(See chapter \ref{section:dynamics_ice_cover}).
+    \item When setting \telkey{BORDER ICE COVER=YES} (default = NO) a static border ice model is activated, in which the evolution of the ice cover thickness $t_i$ is computed when a set of empirical formation criteria are met
+(See chapter \ref{section:static_ice_cover}).
+    \item If \telkey{HEAT BUDGET=YES} (default = YES) the thermal expansion and decay of the ice cover
+is modeled depending on heat exchanges with the atmosphere (See chapter \ref{chapter:ice_cover}).
+    \item  The effect of ice cover on hydrodynamics can be set with \telkey{ICE COVER IMPACT ON HYDRODYNAMIC=YES} (default = NO) in which case the under cover friction as well as the surface ice pressure gradient effects are taken into account (See chapter \ref{chapter:ice_cover}).
+\end{itemize}
+
+%===============================================================================
+\subsection{Coupling with \telemac{2D}}
+
+\khione, unlike other components of the \telemacsystem{}, cannot be run in a stand-alone mode because ice processes are intertwined with hydrodynamic processes. Instead, a simulation using \khione, is carried out through \telemac{2D} coupled
+with \khione and the \telemac{2D} steering file should include \telkey{COUPLING WITH='KHIONE'} and the keyword
+\telkey{KHIONE STEERING FILE} to indicate the name of the \khione steering file:
+
+\lstset{language=TelemacCas,
+        basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+...
+/----------------------------------------------------------------------
+/  COUPLING WITH KHIONE
+/----------------------------------------------------------------------
+/
+ COUPLING WITH                = 'KHIONE'
+ KHIONE STEERING FILE         = 'ice_frazil_growth.cas'
+/
+/ METEO DATA FILE (OPTIONAL)
+ ASCII ATMOSPHERIC DATA FILE  = 't2d_frazil_growth_meteo.lqd'
+/
+...
+\end{lstlisting}
+
+
+%===============================================================================
+%\subsection{Coupling with \telemac{3D}}
+% TODO
+
+
+%===============================================================================
+\subsection{Managing tracers}
+
+Depending on ice processes selected in the \khione steering file multiple tracers
+are included in the simulation (see section \ref{ice_processes_activation}).
+Tracers are always stored in the same order, starting from
+\telkey{TEMPERATURE} followed by \telkey{SALINITY} and then by frazil volume fractions \telkey{FRAZIL k} where $k$ is the class (frazil classes being stored from the lowest to the widest radius).
+If the number of class is equal to $1$, then the name of the frazil tracer is simply: \telkey{FRAZIL}. Last, the tracers representing the dynamic ice cover are listed: \telkey{ICE COVER FRAC.} and \telkey{ICE COVER THICK.}.
+
+\
+
+Tracer initial and boundary conditions must be defined within the \telemac{2D} or \telemac{3D}
+steering file with as well as the associated numerical parameters for the \telkey{TEMPERATURE} and \telkey{SALINITY} tracers.
+
+On the other hand, all ice related tracers are managed whithin the \khione steering file.
+The numerical tracers properties are set in the \khione streering file, with the following keywords:
+
+\begin{itemize}
+  \item \telkey{SCHEME FOR ADVECTION OF TRACERS}, one value for all classes (default = 5),
+    \begin{itemize}
+      \item 0 = no advection
+      \item 1 = characteristics
+      \item 2 = explicit SUPG
+      \item 3 = explicit Leo Postma
+      \item 4 = explicit MURD Scheme N
+      \item 5 = explicit MURD Scheme PSI
+      \item 13 = N-scheme for tidal flats LP
+      \item 14 = N-scheme for tidal flats
+      \item 15 = ERIA scheme only for 2D
+    \end{itemize}
+  \item \telkey{SCHEME OPTION FOR ADVECTION OF TRACERS}, one value for all classes, only for PSI or N schemes (default = 4),
+    \begin{itemize}
+      \item 1 = explicit
+      \item 2 = predictor-corrector
+      \item 3 = predictor-corrector second-order
+      \item 4 = implicit
+    \end{itemize}
+  \item \telkey{SCHEME FOR DIFFUSION OF FRAZIL IN 3D} not used yet, %TODO update when used by the code
+  \item \telkey{SOLVER FOR DIFFUSION OF TRACERS}, one value for all classes (default = 1),
+    \begin{itemize}
+      \item 1: conjugate gradient,
+      \item 2: conjugate residual,
+      \item 3: conjugate gradient on a normal equation,
+      \item 4: minimum error,
+      \item 5: squared conjugate gradient,
+      \item 6: CGSTAB,
+      \item 7: GMRES,
+      \item 8: direct solver.
+    \end{itemize}
+  \item \telkey{SOLVER OPTION FOR DIFFUSION OF TRACERS}, one value for all classes (default = 5),
+  \item \telkey{MAXIMUM NUMBER OF ITERATIONS FOR SOLVER FOR TRACERS}, one value for all classes (default = 60),
+  \item \telkey{ACCURACY FOR DIFFUSION OF TRACERS}, one value for all classes (default = 10$^{-8}$),
+  \item \telkey{PRECONDITIONING FOR DIFFUSION OF TRACERS}, one value for all classes (default = 2),
+    \begin{itemize}
+      \item 0: no preconditioning,
+      \item 2: diagonal,
+      \item 3: diagonal with the condensed matrix in 3D,
+      \item 5: diagonal with absolute values in 3D,
+      \item 7: Crout,
+      \item 11: Gauss-Seidel EBE in 3D,
+      \item 13: matrix defined by the user in 3D,
+      \item 14: diagonal and Crout,
+      \item 17: direct solver on the vertical in 3D,
+      \item 21: diagonal condensed and Crout in 3D,
+      \item 34: diagonal and direct solver on the vertical in 3D.
+    \end{itemize}
+  \item \telkey{COEFFICIENT FOR HORIZONTAL DIFFUSION OF FRAZIL} not used yet, %TODO update when used by the code
+  \item \telkey{COEFFICIENT FOR VERTICAL DIFFUSION OF FRAZIL} not used yet. %TODO update when used by the code
+\end{itemize}
+
+The physical properties of the tracers are then set individually in the \khione steering file, with the following keywords:
+
+\begin{itemize}
+  \item \telkey{INITIAL FRAZIL CONCENTRATION VALUES}, one value by frazil class (default = 0 for all classes),
+  \item \telkey{PRESCRIBED FRAZIL CONCENTRATION VALUES}, one value by frazil class and by liquid boundary, first set all prescribed values for the first boundary, then all values for the second, etc...,
+  \item \telkey{COEFFICIENT FOR DIFFUSION OF FRAZIL}, one value by frazil class (default = 10$^{-6}$ for all classes)
+  \item \telkey{INITIAL COVER CONCENTRATION VALUE} (default = 0),
+  \item \telkey{PRESCRIBED COVER CONCENTRATION VALUES}, one value by liquid boundary,
+  \item \telkey{COEFFICIENT FOR DIFFUSION OF COVER CONCENTRATION} (default = 0),
+  \item \telkey{INITIAL THICKNESS CONCENTRATION VALUE} (default = 0),
+  \item \telkey{PRESCRIBED THICKNESS CONCENTRATION VALUES}, one value by liquid boundary,
+  \item \telkey{COEFFICIENT FOR DIFFUSION OF COVER THICKNESS} (default = 0).
+\end{itemize}
+
+
+\subsection{Meteorological data}
+
+Atmospheric drivers are a key part of any ice modeling study.
+There are two ways to provide atmospheric data to your simulations.
+If not provided via an \telkey{ASCII ATMOSPHERIC DATA FILE},
+meteorological variables are considered constant during the simulation and can be defined in
+both the \telemac{2D} steering file for the following keywords:
+\lstset{language=TelemacCas,
+        basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+/----------------------------------------------------------------------
+/  METEOROLOGY PARAMETERS (IN T2D)
+/----------------------------------------------------------------------
+/
+ AIR TEMPERATURE       =  -10.0
+ CLOUD COVER           =    0.0
+ RAIN OR EVAPORATION   =    0.0
+ WIND VELOCITY ALONG X =    0.
+ WIND VELOCITY ALONG Y =    0.
+/
+...
+\end{lstlisting}
+and the \khione steering file for the following keywords:
+\lstset{language=TelemacCas,
+        basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+/----------------------------------------------------------------------
+/  METEOROLOGY PARAMETERS (IN KHIONE)
+/----------------------------------------------------------------------
+/
+ VISIBILITY            = 1000.0
+ DEWPOINT TEMPERATURE  =    0.0
+ RELATIVE MODEL ELEVATION FROM MEAN SEA LEVEL = 0.
+/
+...
+\end{lstlisting}
+
+If provided in the \telemac{2D} steering file with the keyword \telkey{ASCII ATMOSPHERIC DATA FILE},
+the atmospheric data file should contain all the meteorological data required by the chosen
+atmosphere-water heat exchange model.
+If missing, the parameters are assumed to be constant with default values given by their keyword.
+An example of atmospheric data file is given below.
+
+\lstset{language=TelemacCas,
+        basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+# Meteo File
+#
+# Columns order:
+# TIME : Time (in seconds)
+# TAIR : Air Temperature (in oC)
+# WINDS: Wind Speed (m/s)
+# CLDC : Cloud Cover (in tenths)
+# PATM : Atmospheric Pressure (in Pa)
+# RAIN : Rain (in m)
+#
+T         TAIR     CLDC      TDEW      VISBI     SNOW      RAINI     WINDS
+s         degC     tenths    degree               mm        mm        m/s
+0.        -10.       0.        0.       1000.      0         0         0.
+3600.     -11.       1.        0.       1000.      0         0         0.
+7200.      -9.       2.        0.       1000.      0         0         0.
+10800.     -8.       0.        0.       1000.      0         0         0.
+\end{lstlisting}
+
+%TODO
+%\subsection{Output files}
+%\subsubsection{\telemac{2D} output file}
+%\subsubsection{\khione output file}
+
+\clearpage

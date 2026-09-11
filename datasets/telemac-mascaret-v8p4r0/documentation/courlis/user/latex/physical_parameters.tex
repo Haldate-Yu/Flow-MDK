@@ -1,0 +1,57 @@
+\section{Sediment layers}
+
+According to the geometrical set up given in \S \ref{geo_set_up}, the sediment layers are described by the following keywords :
+\begin{itemize}
+	\item \telkey{NOM DES COUCHES} : List of layers names, for example \verb|'Silt deposition';| \verb|'Sand deposition';'Mixed sediment layer'| or \verb|'Gravel bed'|
+	\item \telkey{CONCENTRATION DES COUCHES} : List of layers concentration, for example \verb|1000.0;|\verb|1000.0;1000.0| or \verb|2650|
+\end{itemize}
+
+\subsection{\Cbedload}
+Several grain diameters can be defined accordingly to the beload formula used :
+\begin{itemize}
+	\item \telkey{D84} : Diameter for which 84\% of grains are smaller (coarse fraction) in meters
+	\item \telkey{DIAMETRE MOYEN} : Mean diameter in meters
+	\item \telkey{D16} : Diameter for which 16\% of grains are smaller (fine fraction) in meters
+	\item \telkey{D50 DES SABLES} : Median diameter in meters
+	\item \telkey{POROSITE} : Porosity, by default 0.25.
+\end{itemize}
+
+\begin{CommentBlock}{Uknown grain sizes}
+  If \telkey{D84}, \telkey{DIAMETRE MOYEN} or \telkey{D16} are set to 0.0, the following formulae are used to dertermine there values automatically:
+  \begin{itemize}
+    \item $d_{84}=2.1 d_{50}$,
+    \item $d_{m}=1.1 d_{50}$,
+    \item $d_{16}=0.5 d_{50}$.
+  \end{itemize}
+\end{CommentBlock}
+
+\subsection{\Csuspension}
+\begin{itemize}
+	\item \telkey{POURCENTAGE DE SABLE} : List of layers sand proportion from 0 to 100, for example
+\verb| 0.0;100.0;50.0|
+	\item \telkey{D50 DES SABLES} : List of median diameters for sands in meters in each layers, for example \verb|1.0;700.E-6;700.E-6|
+	\item \telkey{VITESSE DE CHUTE DES SABLES} : List of settling velocity for sands in each layers
+	\item \telkey{VITESSE DE CHUTE DES VASES} : Settling velocity for silts
+	\item \telkey{CONTRAINTE CRITIQUE D'EROSION DES VASES} : List of critical shear stresses for silt erosion $\tau_{c, erosion}$ for each layer, for example \verb|5.0;5.0;5.0|
+	\item \telkey{CONTRAINTE CRITIQUE DE DEPOT DES VASES} : Critical shear stress for silt deposition $\tau_{c, deposition}$
+	\item \telkey{COEFFICIENT DE PARTHENIADES} : List of Partheniades coefficient for each layers
+\end{itemize}
+
+\section{Friction parameters}
+
+The friction coefficients (cf \S \ref{sediment_transport_th}) are given by the following keywords :
+\begin{itemize}
+	\item \telkey{STRICKLER DE PEAU} : List of skin friction coefficient per layer
+	\item \telkey{STRICKLER TOTAL} : List of bottom friction coefficient per layer
+\end{itemize}
+
+\section{Slope stability model}
+
+The slope stablility model is described in \S \ref{talus_th}. The corresponding keywords are :
+\begin{itemize}
+  \item \telkey{SEDIMENT SLIDE OPTION} : option to activate the option when it set to \telkey{TRUE} (by default, it is set to \telkey{FALSE})
+  \item \telkey{MODELE DE RUPTURE DES TALUS} : 1 (this keyword should always define to this value)
+	\item \telkey{PENTE DE STABILITE DES TALUS IMMERGES} : Equilibrium slope for underwater sediment $I_{stab, UN}$ in \%, for example 0.8
+	\item \telkey{PENTE DE STABILITE DES TALUS EMERGES} : Equilibrium slope for emerged sediment $I_{stab, EM}$ in \%, for example 0.5
+\end{itemize}
+

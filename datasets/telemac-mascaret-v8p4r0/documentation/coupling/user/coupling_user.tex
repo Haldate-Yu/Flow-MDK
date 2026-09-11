@@ -1,0 +1,51 @@
+%----------------------------------------------------------------------------------------
+%        PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+\documentclass[Coupling]{../../data/TelemacDoc} % Default font size and left-justified equations
+%\documentclass[Telemac2D,french]{TelemacDoc} % Default font size and left-justified equations in french
+
+\usepackage{verbatim}
+\usepackage[toc,page]{appendix}
+\usepackage{fancyhdr}
+\usepackage{color}
+\usepackage{url}
+
+\begin{document}
+
+\let\cleardoublepage\clearpage
+
+\title{\mascaret{} - \telemac{2D}\\longitudinal coupling}
+\subtitle{User Manual}
+\version{\telmaversion}
+\date{\today}
+\maketitle
+\clearpage
+
+\newpage
+\thispagestyle{empty}
+\TelemacCopyright{}
+
+\pagestyle{empty}
+\tableofcontents
+
+\pagestyle{fancy}
+
+\input{latex/corpus.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{appendices}
+\input{latex/app_install.tex}
+\input{latex/app_install_conda.tex}
+\input{latex/app_cpl_desc.tex}
+\input{latex/app_driven_cpl.tex}
+\input{latex/app_json.tex}
+
+\end{appendices}
+
+%\scriptsize
+\bibliographystyle{plainnat}
+\bibliography{../../data/biblio.bib}
+
+\end{document}

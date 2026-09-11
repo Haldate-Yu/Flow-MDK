@@ -1,0 +1,544 @@
+% \renewcommand{\labelitemi}{$\blacktriangleright$}
+% \renewcommand{\labelitemi}{$\triangleright$}
+ \renewcommand{\labelitemi}{$\rhd$}
+% \renewcommand{\labelitemi}{$\centerdot$}
+
+
+~\newline
+%===============================================================================
+\chapter{Ice cover}
+\label{chapter:ice_cover}
+%===============================================================================
+
+%===============================================================================
+\section{Introduction on ice cover processes}
+%===============================================================================
+
+
+Ice accumulating on the surface of a water body can take many forms from slush ice in its early 
+stage of formation to rigid ice floes.
+Eventually it can significantly grow to form a thick solid ice cover.
+Initially, the ice cover can result from the buoyancy of frazil flocs reaching 
+and accumulating at free surface or
+result from a direct growth from river banks also known as border ice growth.
+This wide zoology of ice types and processes offers a large variety of approaches 
+when it comes to model the ice cover formation and dynamics.
+The ice cover can be characterized by the several physical variables which are:
+\begin{itemize}
+    \item the thickness, noted $t_i$,
+    \item the surface fraction, noted $C_i$, describing the horizontal distribution of ice cover,
+    \item the horizontal velocity $\vec{u}_i = [u_i,v_i]^T$, describing the ice cover dynamics.
+\end{itemize}
+
+To model an ice cover, one might want to predict its formation (evolution of $C_i$), 
+its evolution in thickness (evolution of $t_i$) but also its motion ($\vec{u}_i$).
+One might also want to assess its impact on hydrodynamics to properly model the hydrodynamic flows 
+underneath the ice layer as well as all other interactions the ice cover has with other tracers such as temperature (heat exchanges between ice cover and water, see section \ref{heat_exchanges_icover_and_water}) 
+and suspended frazil ice (mass exchanges between ice cover and suspended frazil ice,
+ see section \ref{section:precipitation}).
+
+\
+
+In \khione two main types of ice cover are considered depending on wether it moves or is static.
+The models that are used to describe $t_i$, $C_i$ and $\vec{u}_i$ are either conservation equations
+in the dynamic case or a mix of empirical relations and deterministic equations in the static case.
+The models are described in the following sections:
+\begin{itemize}
+\item Dynamic ice cover (see section \ref{section:dynamics_ice_cover})
+\item Static ice cover (see section \ref{section:static_ice_cover})
+\end{itemize}
+Note that both type of ice cover can be activated in a simulation at the same time,
+in which case the different types of ice are considered to form distinct layers.
+The total ice thickness is then computed as the sum of all ice layers' thicknesses
+and the total surface fraction is considered as the max of all layers' surface fraction
+in first approximation.
+
+%For both dynamic and static ice covers, several processes are still handled in a similar way, such as:
+%\begin{itemize}
+%\item Mass exchanges between suspended frazil ice and ice cover (see section \ref{section:mass_exchanges}) 
+%\item Thermal growth of ice cover (see section \ref{section:thermal_growth_icover}) 
+%\item Ice cover impact on hydrodynamics (see section \ref{section:impact_on_hydro})
+%\end{itemize}
+
+
+~\newline
+%===============================================================================
+\section{Dynamic ice cover}
+\label{section:dynamics_ice_cover}
+%===============================================================================
+
+%\subsection{Simple ice cover model (Slush ice model)}
+
+A simple dynamic ice cover model can be activated with the keyword
+ \telkey{DYNAMIC ICE COVER} = YES (default = NO).
+The model consist in making the assumption that the ice cover is convected
+with the same velocity as the water column. 
+This model rely on two conservation equations to describe the ice cover.
+One on the surface ice fraction and the second on the ice thickness.
+This model is best suited for the early stage of ice cover formation when it is mainly formed by slush ice or grease ice.
+The governing equations for ice cover surface fraction and ice cover thickness read:
+
+\begin{equation}
+  \frac{\partial C_i}{\partial t} + \vec{u}_i . \nabla C_i = \dfrac{1}{h} \nabla . \left( h \nu_i  \nabla C_i \right) +  S_{M}^c + S_{\phi}^c,
+\end{equation}
+and
+\begin{equation}
+  \frac{\partial t_i}{\partial t} + \vec{u}_i . \nabla t_i = \dfrac{1}{h} \nabla . \left( h \nu_i  \nabla t_i \right) +  S_{M}^t + S_{\phi}^t,
+\end{equation}
+in which
+\begin{itemize}
+\item $\vec{u}_i$ (m/s) is the velocity of the ice layer, supposed to be equal to the water velocity $\vec{u}$,
+\item $C_i$ (-) is the surface fraction of ice at the surface,
+\item $t_i$ (m) is the ice cover thickness,
+\item $\nu_i$ is the ice cover diffusivity,
+\item $S_{M}^c$ and $S_{M}^t$ are the ice cover fraction and thickness mass exchange sources respectively (which come from erosion and deposition), defined as functions of the mass exchange sources $S_{MI}^k$ which are defined in section \ref{section:mass_exchanges},
+\item $S_{\phi}^c$ and $S_{\phi}^t$ are the ice cover fraction and thickness thermal expansion sources respectively,
+defined as functions of the thermal expansion source $S_{\phi}$ defined in section \ref{section:thermal_growth_icover}.
+\end{itemize}
+
+The total volume of ice per surface area can therefore be computed as $C_i \times t_i$ (m$^3$/m$^2$).
+To compute the sources $S_{M}^c$ and $S_{M}^t$ from $S_{MI}^k$,
+as well as the sources $S_{\phi}^c$ and $S_{\phi}^t$ from $S_{\phi}$,
+two phases are considered is the ice cover evolution process:
+\begin{itemize}
+\item first, the ice cover thickness is supposed to be constant and equal to $t_{imin}$ (m) which can be set with the keyword \telkey{MINIMAL THICKNESS OF ICE COVER} (default = 0.001). The ice cover sources are therefore supposed to only increase the surface fraction of ice $C_i$ until it reaches its maximum value of $1$.
+\item Once $C_i=1$, slush ice can no longer accumulate horizontally, and therefore starts to accumulate underneath the ice layer, increasing the ice cover thickness.
+\end{itemize}
+
+Finally, the deposition/erosion source term $S_{M}^c$ reads:
+\begin{equation}
+  S_{M}^c=
+\left\{
+    \begin{array}{l}  
+  (\sum^{N_c}_{k=1} S_{MI}^k)/ t_{imin} \text{ if } C_i < 1 \\
+  0 \text{ else}
+    \end{array}
+    \right. ,
+\end{equation}
+in which,
+\begin{itemize}
+  \item $t_{imin}$ (m) is the minimal ice cover thickness which can be set with the keyword \telkey{MINIMAL THICKNESS OF ICE COVER} (default = 0.001).
+  \item this source term is consistent with the definition of $S_M^k$, as defined in section \ref{section:precipitation}, to ensure the mass conservation of ice.
+\end{itemize}
+
+The deposition/erosion source term $S_{M}^t$ reads:
+\begin{equation}
+  S_{M}^t=\left\{
+    \begin{array}{l}
+      \sum^{N_c}_{k=1} S_{MI}^k  \text{ if } C_i \geq 1 \\
+      0 \text{ else}
+    \end{array}
+    \right..
+\end{equation}
+
+The sources $S_{\phi}^c$ and $S_{\phi}^t$ are defined similarly, adding the assumption
+that $S_{\phi}^c$ is only taken into account if melting i.e. if $S_{\phi}<0$.
+Finally, flux limiters are introduced to prevent the source terms from leading to $C_i > 1$, $C_i < 0$ or $t_i < t_{imin}$. 
+
+
+~\newline
+%===============================================================================
+\section{Static ice cover (border ice) } 
+\label{section:static_ice_cover}
+%===============================================================================
+
+%\subsection{Border ice}
+
+As its name suggests, border ice is a type of ice that grows from the banks of a river, coastline or lake.
+This type of ice is always supposed to be stucked to the border of the computational domain, such that
+ice velocity is neglected i.e. $\vec{u}_i = 0$.
+This process can be activated with the keyword \telkey{BORDER ICE COVER} = YES (default = NO).
+Ice cover usually first appears as static border ice along banks. Static border ice growth is computed by proximity to border edges of the finite element mesh (either mesh boundaries or by accumulation of border ice where border ice has formed already).\newline
+
+If the thermal and mechanical conditions for static border ice growth are met on a node adjacent to the border ice boundary, ice growth will proceed from the boundary toward that node. The growth continues from node to node until the conditions exceed the thresholds for static border ice growth.
+\cite{matousek1984types} proposed the following thresholds for static border ice formation:
+\begin{enumerate}
+  \item the water surface temperature, $T_{ws}$ ($^{\circ}$C), is less than a critical value, $T_{cr}$ ($^{\circ}$C), for static border ice formation. The critical temperature is $-1.1^{\circ}$C by default based on data from River Ohre but can be modified through the keyword \telkey{CRITICAL WATER TEMPERATURE FOR STATIC BORDER ICE},
+  \item the buoyant velocity of frazil, $v_b$ (m/s), is greater than the vertical turbulence velocity, $v'_z$ (m/s),
+  \item the local depth-averaged velocity, $\vec{u}$ (m/s), is less than the critical velocity for static border ice formation, $V_{cr}$ (m/s). $V_{cr}$ can be set with the keyword \telkey{CRITICAL VELOCITY FOR STATIC BORDER ICE} (default = 0.07).
+\end{enumerate}
+
+The first condition is a thermal consideration and the second and third are hydrodynamic considerations. It is noted that the presence of frazil ice is not used as a threshold.\newline
+
+The water surface temperature is computed from the depth-averaged water temperature using an empirical relationship \cite{matousek1984types} \cite{matousek1984regularity}.
+
+\begin{equation} \label{eq:surf_temp}
+T_{ws} = T_w - \dfrac{\phi_{wa}}{1130 |\vec{u}|+bW}
+\end{equation}
+
+in which,
+\begin{itemize}
+    \item $T_w$ is the depth-averaged water temperature ($^{\circ}$C),
+    \item $\phi_{wa}$ is the rate of net heat loss from the water to the atmosphere (W/m$^{2}$) calculated in \eqref{eq:phi},
+    \item $W$ is the wind velocity (m/s), and
+    \item $b$ is the wind coefficient related to channel surface width $B$ in the wind direction:
+\end{itemize}
+\begin{equation} \label{eq:wind_util_coeff}
+  \left\{
+  \begin{aligned}
+  b &= \quad B\quad & if \quad b \leq B \\
+  b &= -0.9+5.87 \log B & if \quad b > B
+  \end{aligned}
+\right.
+\end{equation}
+The value of $B$ (m) is given with the keyword \telkey{CHANNEL WIDTH FOR THE COMPUTATION OF SURFACE TEMPERATURE} (default = 15).\newline
+
+The buoyancy velocity of the frazil particles was given by \cite{matousek1984types}:
+
+\begin{equation} \label{eq:buoy_vel}
+v_b = -0.025 T_{ws} + 0.005
+\end{equation}
+
+The expression for the vertical turbulence velocity, including the effect of wind-generated turbulence was developed by \cite{lal1989mathematical}:
+
+\begin{equation} \label{eq:vert_turb_vel}
+v'_z = \Bigg[ \bigg( C_T^{0.5} g^{0.5} \frac{un_b}{h^\frac{1}{6}} \bigg) ^{3}+C_{w^*} \bigg(  C_D\frac{\rho_a}{\rho} \bigg) ^\frac{3}{2}W^3 \Bigg]^{^1/_3}
+\end{equation}
+
+in which,
+\begin{itemize}
+    \item $C_T$ is a coefficient which relates bed shear stress to turbulent fluctuation velocity, which was found to lie between 0.2 and 0.3 \cite{rodi1980turbulence} and fixed to 0.25,
+    \item $n_b$ is the bed Manning's coefficient,
+    \item $h$ is the water depth (m),
+    \item $C_{w^*}$ is a constant explaining the efficiency of wind energy utilization, which was selected based on experimental observations, assumed to be 1.0, and
+    \item $C_D$ is the wind drag coefficient equal to $1.3 \times 10^{-3}$.
+\end{itemize}
+
+\renewcommand{\labelitemi}{\textbullet}
+Based on past ice modelling studies (for instance the freeze up of the upper St. Lawrence River, Canada), the critical water surface temperature and depth-averaged water velocity were calibrated:
+\begin{itemize}
+    \item The critical water surface temperature given by \cite{matousek1984types} $T_{cr} = -1.1$ $^{\circ}$C was found to work well.
+    \item \cite{michel1982formation} found that when $V/V_c < 0.167$, static border ice or skim ice will grow. $V_c$ is the maximum depth-averaged velocity for border ice formation, i.e.\ when $V>V_c$ no border ice will grow.\newline
+    Later, \cite{shen1984field} found $V_c$ = 1.2 ft/s. Based on this, the critical velocity for static border ice formation is set by default at $V_{cr} = 0.07$ m/s.
+\end{itemize}
+\renewcommand{\labelitemi}{$\triangleright$}
+
+Once the conditions are met for the formation of border ice, the surface concentration of the border ice cover is set to $C_i =1$. Additionally, the evolution of the ice cover thickness is governed by the following equation:
+
+\begin{equation}
+  \frac{\partial t_i}{\partial t} = S_{\phi} + \sum_{k=1}^{N_c} S_{MI}^k,
+\end{equation}
+in which
+\begin{itemize}
+\item $t_i$ (m) is the ice cover thickness,
+\item $\nu_i$ is the ice cover diffusivity,
+\item $S_{\phi}$ is the ice cover thermal expansion source term defined in section \ref{section:thermal_growth_icover}.
+\item $S_{MI}^k$ are the mass exchanges with suspended frazil ice defined in section \ref{section:mass_exchanges}
+\end{itemize}
+
+%~\newline
+%\subsubsection{Dynamic border ice}
+%%TODO: NOT YET IMPLEMENTED
+
+%Dynamic border ice growth is due to the accretion of surface ice on the edge of static border ice. The formulation of \cite{michel1982formation} is used in the present model, with modifications on the value of the critical velocity. Michel et al. developed a dimensionless relationship for the lateral growth rate of dynamic border ice:
+
+%\begin{equation} \label{eq:dyn_bord_ice}
+%\frac{\rho_w L_i \Delta W}{\Delta \phi} = 14.1 V_*^{-0.93} N^{1.08}
+%\end{equation}
+
+%in which,
+%\begin{itemize}
+%    \item $L_i$ is the latent heat of fusion of ice $(J/kg)$,
+%    \item $\Delta W$ is the growth rate of dynamic border ice $(m/s)$,
+%    \item $\Delta\phi = h_{wa}(t_w-t_a)$ is the linear heat loss through the water-air interface $(W/m^2)$,
+%    \item $V_* = \dfrac{\vec{u}}{V_c}$ is the velocity criteria for dynamic border ice growth,
+%    \item $V_c$ is the maximum water velocity where a surface ice parcel can adhere to border ice, and $N$ is the areal concentration of surface ice.
+%\end{itemize}
+
+%\cite{michel1982formation} found that the critical velocity for dynamic border ice formation was $V_c = 1.2~[m/s]$. \cite{matousek1984types} found the critical velocity to be $V_c = 0.4~[m/s]$. \cite{shen1984field} also found the critical velocity for dynamic border ice formation to be $V_c = 0.4~[m/s]$ for the upper St. Lawrence River.\newline
+
+%\cite{michel1982formation} found that \eqref{eq:dyn_bord_ice} is valid for $0.167<V_*<1.0$. When $V_*<0.167$ static border ice or skim ice will grow. When $V_*>1.0$ no border ice will grow. The lower limit is used
+%for the limiting condition for static border ice growth $\vec{u} \le V_{cr} = V_*V_c = 0.167*0.4 = 0.07~[m/s]$ \cite{shen1984field}. Dynamic border ice growth is also limited by areal concentration of surface ice \cite{michel1982formation}. Only static border ice can grow if $N<0.1$ and \eqref{eq:dyn_bord_ice} should be used for dynamic border ice growth only if $N>0.1$.\newline
+
+%The thermal growth of border ice thickness is determined using the following equation, neglecting snow and white ice thickness and assuming the initial border ice thickness is very small:
+
+%\begin{equation} \label{eq:therm_bord_ice}
+%\frac{dh_i}{dt} = \frac{-\phi_R+\alpha+\beta(T_f-T_a)}{\rho_iL}
+%\end{equation}
+
+%===============================================================================
+\section{Thermal growth and decay of ice floes and ice cover}
+\label{section:thermal_growth_icover}
+%===============================================================================
+
+The thickness of an ice floe or an ice cover changes due to thermal growth and decay as a result of heat exchange with the atmosphere and the river water. The rate of ice thickness growth or decay is governed by heat exchanges at the top and bottom surfaces, and heat conduction in the ice cover \cite{Shen&Chiang1984}. The effect of water accumulation over melting ice on the
+dissipation rate is insignificant \cite{Wake1979}. Ice cover thickness can affect the flow cross-sectional area, and hence velocity of flow. Ice cover thickness is also an important parameter in determining the stability of an ice cover and its breakup. The formulation for both ice floe and ice cover thickness growth and decay are essentially the same. Ice floes can be viewed as a moving ice cover from the point of view of thermal growth and decay.
+%The keyword ITHERMOICESWITCH determines if the freeze up simulation is included. Thermal growth and decay of Ice floes and ice cover is in the part of freeze up simulation.
+
+~\newline
+The equation governing the temperature distribution over the thickness of an ice cover is
+
+\begin{equation} \label{eq:temp_distibrution}
+\rho_i c_i \dfrac{\partial T}{\partial t} = -\dfrac{\partial}{\partial z} \Big(k_i \dfrac{\partial T}{\partial z}\Big) + \phi_v(z,t)
+\end{equation}
+
+in which
+\begin{itemize}
+    \item $z$ is the vertical distance measured downward from the top surface,
+    \item $T$ is the temperature in the cover,
+    \item $k_i$ is the thermal conductivity of ice,
+    \item $\phi_v$ is the rate of internal heating of the cover due to absorption of penetrated short wave radiation.
+\end{itemize}
+
+~\newline
+For a solid ice cover of thickness $t_i$, boundary conditions at the top and bottom surfaces of the cover are
+
+\begin{equation} \label{eq:bdy_top}
+\begin{aligned}
+\rho_i L_i \dfrac{dt_i}{dt} &= -\phi_{ai} - k_i \dfrac{\partial T}{\partial z} \quad & \text{at} \quad z=0 \\
+\rho_i L_i \dfrac{dt_i}{dt} &= -\phi_{wi} + k_i \dfrac{\partial T}{\partial z} \quad & \text{at} \quad z=t_i
+\end{aligned}
+\end{equation}
+
+At steady state, \eqref{eq:temp_distibrution} gives a linear temperature distribution if the internal heating $\phi_v(z,t)$ is neglected. This quasi-steady state assumption has been shown to be acceptable for river ice covers because of the relatively small thickness \cite{Greene1981}.
+
+~\newline
+Time dependent ice thickness growth and decay can be determined by assuming one-dimensional quasi-steady state calculations at each time step. The thickness of the ice cover is supposed to be small compared to the horizontal dimensions of the ice sheet so that the heat exchanges at the boundaries can be neglected. The ice sheet is also supposed to grow from the bottom where its temperature is equal to $T_f$ at steady state. The rate of change of ice cover thickness can be calculated by
+
+\begin{equation} \label{eq:ice_snow}
+\rho_i L_i S_{\phi} = - \dfrac{\hat{\phi} + \beta (T_a-T_f) }{\beta r_{th}}  -\phi_{wi}
+\end{equation}
+
+in which,
+\begin{itemize}
+    \item $\beta$ is the heat exchange coefficient at the surface of the ice cover,
+    \item $\hat{\phi}$ is the total heat flux from atmosphere to the the free surface minus the convective flux i.e. $\hat{\phi}$ = $\phi_{ai} - \beta (T_a-T_s)$, in which $T_s$ is the surface temperature of the ice cover,
+    \item $\phi_{wi}$ is the heat flux between water and the ice cover,
+    \item $r_{th}$ is the equivalent thermal resistance of the ice cover and the convective boundary layer at the surface.
+\end{itemize}
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphicsmaybe{[width=\textwidth]}{./graphics/icover_growth.png}
+    \end{center}
+    \caption{Thermal growth of the ice cover illustration}
+    \label{fig:icover_growth}
+\end{figure}
+
+The thermal resistance depends on the vertical layering of the different types of ice composing the ice cover. If the ice cover is only composed of black ice, the thermal resistance is given by:
+\begin{equation} \label{eq:icover_thermal_resistance}
+r_{th} = \dfrac{t_i}{k_i} + \dfrac{1}{\beta}
+\end{equation}
+in which,
+\begin{itemize}
+    \item $k_i$ is the thermal conductivity of black ice.
+\end{itemize}
+
+In some meteorological conditions, snow can accumulate on top of the ice cover, which therefore impacts
+the thermal resistance of the ice cover, which is given by:
+\begin{equation} \label{eq:icover_thermal_resistance}
+r_{th} = \dfrac{t_i}{k_i} + \dfrac{t_s}{k_s} + \dfrac{1}{\beta}
+\end{equation}
+in which,
+\begin{itemize}
+    \item $k_s$ is the thermal conductivity of snow.
+    \item $t_s$ is the thickness of the snow layer on top of the ice cover.
+\end{itemize}
+
+\begin{WarningBlock}{Note:}
+\begin{itemize}
+    \item The accumulation of snow is not yet taken into account in \khione and the ice cover is supposed to be only composed of black ice.
+    \item The surface temperature of the ice cover $T_s$ being unkown, the convective heat flux $\beta (T_a-T_s)$ is never computed.
+\end{itemize}
+\end{WarningBlock}
+
+
+%===============================================================================
+\section{Mass exchange between suspended frazil ice and ice cover}
+\label{section:mass_exchanges}
+%===============================================================================
+
+The frazil deposition/erosion source term can be activated with the keyword \telkey{MODEL FOR MASS EXCHANGE BETWEEN FRAZIL AND ICE COVER} (default = 0).
+\begin{lstlisting}
+0 : NO MASS EXCHANGE
+1 : DEPOSITION ONLY
+2 : DEPOSITION AND EROSION
+\end{lstlisting}
+
+\begin{enumerate}
+\item If \telkey{MODEL FOR MASS EXCHANGE BETWEEN FRAZIL AND ICE COVER=1} only a net deposition flux is considered.
+The total volume of ice in m$^3$ that accumulate at the free surface, on an elementary area $\Delta S$ during a time step $\Delta t$ noted $\Delta V_i$, is expressed as a function of the buoyancy velocity and suspended frazil ice volume fractions, such that:
+\begin{equation}
+\Delta V_i = \sum_{k=1}^{N_c} D_k w_k C_k  \Delta t \Delta S 
+\end{equation}
+in which,
+\begin{itemize}
+  \item $N_c$ is the number of frazil class,
+  \item $C_k$ is the frazil volume fraction of class $k$,
+  \item $w_k$ is the buoyancy velocity of class $k$ in m.s$^{-1}$, as defined in section \ref{buoyancy},
+  \item $D_k$ is the probability of deposition of frazil particles reaching the surface for the class $k$ (between 0 and 1), which can be set via the keyword \telkey{FRAZIL UNDER COVER DEPOSITION PROBABILITY} (default = 1).
+\end{itemize}
+
+Noting $\Delta V_i = \Delta (C_i t_i) \Delta S$, the evolution of the ice cover due to deposition/erosion 
+can therefore be expressed as:
+\begin{equation}
+\dfrac{\partial C_i t_i}{\partial t} = \sum_{k=1}^{N_c} S_{MI}^k
+\label{eq:prec}
+\end{equation}
+in which,
+\begin{itemize}
+  \item $C_i$ is the ice cover surface fraction,
+  \item $t_i$ is the ice cover thickness,
+  \item $S_{MI}^k$ is the ice cover deposition/erosion source term defined as 
+\begin{equation}
+S_{MI}^k = \min \left( D_k w_k C_k, \dfrac{C_k h}{\Delta t} \right)
+\end{equation}
+\end{itemize}
+The threshold in the definition of $S_{MI}^k$ is designed such that the amount of frazil accumulating under the ice cover cannot be greater than the total suspended frazil volume in the water column at that time. Note that the frazil deposition/erosion source term $S_{M}^k$ is derived from $S_{MI}^k$ such that $S_{M}^k = -S_{MI}^k / h$ (see section \ref{section:precipitation}).
+
+\item If \telkey{MODEL FOR MASS EXCHANGE BETWEEN FRAZIL AND ICE COVER=2} erosion and deposition are both considered.
+The total volume of ice in m$^3$ that accumulate at the free surface, on an elementary area $\Delta S$ during a time step $\Delta t$ noted $\Delta V_i$, can be expressed as:
+\begin{equation}
+\Delta V_i = \sum_{k=1}^{N_c} \left( D_k w_k C_k - E_k C_i t_i \right) \Delta t \Delta S 
+\end{equation}
+in which,
+\begin{itemize}
+  \item $N_c$ is the number of frazil class,
+  \item $C_k$ is the frazil concentration of class $k$,
+  \item $w_k$ is the buoyancy velocity of class $k$, as defined in section \ref{buoyancy},
+  \item $D_k$ is the probability of deposition of frazil particles reaching the surface for the class $k$ (between 0 and 1), which can be set via the keyword \telkey{FRAZIL UNDER COVER DEPOSITION PROBABILITY} (default = 1),
+  \item $E_k$ is the coefficient of re-entrainment rate of surface ice per unit area in s$^{-1}$ for the class $k$, which can be set via the keyword \telkey{FRAZIL UNDER COVER REENTRAINMENT COEFFICIENT} (default = 1.E-4).
+\end{itemize}
+The source term $S_{MI}^k$ is then defined as previously explained. 
+%The evolution of the ice cover due to precipitation 
+%can therefore be expressed as:
+%\begin{equation}
+%\dfrac{\partial C_i t_i}{\partial t} = \sum_{k=1}^{N_c} S_{MI}^k
+%\label{eq:prec}
+%\end{equation}
+%in which,
+%\begin{itemize}
+%  \item $C_i$ is the ice cover surface fraction,
+%  \item $t_i$ is the ice cover thickness,
+%  \item $S_{MI}^k$ is the ice cover precipitation source term defined as 
+%\begin{equation}
+%S_{MI}^k = -\min \left( D_k w_k C_k, \dfrac{C_k h}{\Delta t} \right) + 
+%\min \left(  E_k C_i t_i, \dfrac{C_i t_i}{N_{c} \Delta t} \right)
+%\end{equation}
+%\end{itemize}
+
+\end{enumerate}
+
+
+
+~\newline
+%===============================================================================
+\section{Ice cover impact on hydrodynamics}
+\label{section:impact_on_hydro}
+%===============================================================================
+
+The presence of an ice cover leads to a increase in the surface pressure due to the weight of the ice cover.
+As for the atmospheric pressure, the gradient of ice cover thickness produces a moment source term that need to be taken into account.
+Additionally, the water column is affected by an under cover friction which also requires proper modeling.
+In this section, these two effects of ice cover on the hydrodynamics are addressed. These processes can be activated in \khione with the keyword \telkey{ICE COVER IMPACT ON HYDRODYNAMIC} = YES (default = NO).
+
+\subsection{Friction source term}
+
+Two under cover friction models can be chosen, using the keyword \telkey{MODEL FOR UNDER COVER FRICTION} (default = 2), with the following choices:
+
+\begin{lstlisting}
+1 : FRICTION ON THE ENTIRE WATER COLUMN
+2 : FRICTION COMPUTED WITH RATIO
+\end{lstlisting}
+
+\begin{enumerate}
+\item When \telkey{MODEL FOR UNDER COVER FRICTION=1} the under cover friction is solved in a similar fashion as for the bottom friction considering the whole water column has an effect on both bottom and ice cover friction terms. 
+The friction coefficient of the ice cover $n_i$ can be set with the keyword \telkey{ICE FRICTION COEFFICIENT} (default = 0.04) and is associated to the friction law set with the keyword \telkey{LAW OF ICE COVER FRICTION}. This is an interger between 0 and 5 to compute the following friction source terms:
+
+\begin{itemize}
+ \item 0: no friction,
+ \item 1: Haaland friction law writes $S_{fi}=\dfrac{\vec{u}|\vec{u}|}{8h\left(-0.6\log_{10}\left(\left(\frac{6.9\cdot10^{-6}}{4h\vec{u}}\right)^3+\left(\frac{n_i}{14.8h}\right)^{3.33}\right)\right)^2}$,
+ \item 2: Chézy friction law writes $S_{fi}=\dfrac{g\vec{u}|\vec{u}|}{n_i^2h}$,
+ \item 3: Strickler friction law writes $S_{fi}=\dfrac{g\vec{u}|\vec{u}|}{n_i^2h^{4/3}}$,
+ \item 4: Manning friction law writes $S_{fi}=\dfrac{n_i^2g\vec{u}|\vec{u}|}{h^{4/3}}$,
+ \item 5: Nikuradse friction law writes $S_{fi}=\dfrac{k^2\vec{u}|\vec{u}|}{h\log^2\left(\frac{11.036h}{n_i}\right)}$.
+\end{itemize}
+
+in which:
+
+\begin{itemize}
+ \item $\vec{u}$ is the water depth averaged velocity (m/s),
+ \item $h$ is the water depth (m),
+ \item $g$ is the gravity constant (m/s$^2$),
+ \item $k$ is the von Karman constant (-).
+\end{itemize}
+
+The total friction force is then computed as:
+\begin{equation}
+S_f=S_{fi}+S_{fb}.
+\end{equation} 
+
+
+\item When \telkey{MODEL FOR UNDER COVER FRICTION=2} the under cover friction as well as the bottom friction
+ are computed with ratios corresponding to the fraction of water depth that is affected by the ice or the bottom respectively.
+ For a static ice cover, or for an ice cover with a velocity $\vec{u}_i = 0$, the ratio of the depth affected by the bottom friction $\alpha_b$ reads:
+
+\begin{equation}
+  \alpha_b = \dfrac{1}{1+\left(\frac{n_i^2}{n_b^2}\right)^{3/4}},
+\end{equation}
+
+with $n_i$ the under cover Manning's coefficient and $n_b$ the bottom Manning's coefficient, and the ratio affected by the under cover friction $\alpha_i$ is then deduced with the relation:
+
+\begin{equation}
+  \alpha_i=(1-\alpha_b).
+\end{equation}
+
+The Manning law then becomes:
+\begin{equation}
+  S_{fk}=\dfrac{n_k^2g\vec{u}|\vec{u}|}{(\alpha_k h)^{4/3}},
+\end{equation}
+
+where $k=i$ for under cover friction and $k=b$ for bottom friction. The total friction force is then computed as:
+\begin{equation}
+S_f=S_{fi}+S_{fb}.
+\end{equation} 
+
+\begin{WarningBlock}{Note:}
+  If MODEL FOR UNDER COVER FRICTION = 2:
+\begin{itemize}
+    \item Only Manning and Strickler laws are avaliable for under cover friction and bottom friction.
+    \item In presence of ice cover, the bottom friction is computed in \khione and not in \telemac{2D}.
+\end{itemize}
+\end{WarningBlock}
+
+\end{enumerate}
+
+In most cases the undercover roughness of ice is not constant an may vary depending on many factors, one of which being the ice cover thickness.
+In \khione it is possible to increase linearly the roughness with the thickness of the ice cover with the keyword \telkey{LAW FOR FRICTION COEFFICIENT} = 1 (default = 0). The effective roughness coefficient becomes:
+
+\begin{equation}
+ n_{ieff}=\frac{t_i n_i}{t_{ic}},
+\end{equation}
+
+with $t_i$ the ice cover thickness (in m), $t_{ic}$ the critical ice thickness (in m) which can be set with the keyword \telkey{EQUIVALENT SURFACE ICE THICKNESS} (default = 0.001). The range $n_{ieff}$ is kept between the prescribed value of $n_i$ and a value of $n_{max}$ set with the keyword \telkey{MAXIMAL FRICTION COEFFICIENT}. This formula can only be used with a Manning friction law.
+
+
+\subsection{Ice cover thickness gradient source term}
+
+The weight of the ice cover leads to an increase of the pressure at the top of the water column.
+As a consequence, a moment source term is created which depends on the ice cover 
+pressure gradient. The momentum source term due to the ice cover pressure,
+noted $S_{pi}$ can be expressed as:
+\begin{equation}
+  S_{pi}= - \dfrac{1}{\rho} \nabla p_i
+\end{equation}
+in which $p_i$ is the surface pressure increase due to the weight of the ice sheet.
+Supposing the ice cover density is constant, $S_{pi}$ reads
+\begin{equation}
+  S_{pi}= - g \dfrac{\rho_i}{\rho} \nabla t_i.
+\end{equation}
+In \khione, this source term is either not taken into account or treated explicitly or implicitly 
+depending on the value of the keyword \telkey{MODEL FOR THE ICE COVER PRESSURE GRADIENT } (default = 2):
+\begin{itemize}
+ \item 0: no ice pressure gradient source term,
+ \item 1: explicit ice pressure gradient source term,
+ \item 2: implicit ice pressure gradient source term.
+\end{itemize}
+
+\begin{WarningBlock}{Note:}
+Only the explicit formulation is available when using the finite volume framework of \telemac{2d}.
+\end{WarningBlock}
+
+\renewcommand{\labelitemi}{\textbullet}
+
+\clearpage

@@ -1,0 +1,47 @@
+\chapter{List of user subroutines}
+\label{sec:usrsub}
+Even though all subroutines can be modified by the user, some subroutines have
+been specifically designed to define complex simulation parameters. They are
+listed below:\\
+\begin{tabular}{p{2.5in}p{4.0in}}
+CALCOT       & Preparation of the array of mesh elevations between the bottom and the free surface\\
+%CONDIN       &  Management of the initial conditions\\
+CONDIS       &  Initialization of the arrays of the physical sedimentological quantities\\
+DECLARATIONS\_TELEMAC3D & Statement of the \telemac{3D} structures\\
+DRSURR       &  Computation of density (equation of state)\\
+NOMVAR\_TELEMAC3D & Definition of the names of variables for the graphic printouts\\
+%PRERES\_TELEMAC3D & Computation of the output variables (free surface, flow rate\dots )\\
+%SCOPE  &  Creation of 1D sections\\
+SOURCE\_TRAC & User source term in the equations of tracers\\
+TRISOU &  Source terms for the velocity components\\
+USER\_BORD3D &  Management of the boundary conditions\\
+USER\_CONDI3D\_H    &  Management of the initial conditions for water depth\\
+USER\_CONDI3D\_KEP  &  Management of the initial conditions for $k$ and $\epsilon$\\
+USER\_CONDI3D\_P    &  Management of the initial conditions for pressure\\
+USER\_CONDI3D\_TRAC &  Management of the initial conditions for tracer(s)\\
+USER\_CONDI3D\_UVW  &  Management of the initial conditions for velocity components\\
+USER\_CORRXY & Modification of the mesh node coordinates\\
+USER\_CORSTR & Correction of the bottom friction coefficient when it is time-variable\\
+USER\_DRIUTI &  User damping function\\
+USER\_FLOT3D &  Management of drogues\\
+USER\_KEPINI &  Management of the initial conditions for $k$ and $\epsilon$\\
+USER\_LIMI3D &  Management of the boundary conditions\\
+USER\_MESH\_TRANSF &  Definition of the mesh transformation (distribution of the horizontal planes)\\
+USER\_PRERES\_TELEMAC3D &  Computation of variables which will be written in the results file or listing\\
+USER\_Q3     &  Management of the flow rates in a boundary condition (may be time-dependent)\\
+USER\_SL3    &  Management of the free surface elevation in a boundary condition (may be time-dependent)\\
+USER\_SOURCE &  User source term in the hydrodynamic equation\\
+\end{tabular}
+\begin{tabular}{p{2.5in}p{4.0in}}
+USER\_STRCHE &  Management of space-dependent friction coefficient\\
+USER\_T3D\_CORFON  &  Modification of bottom elevations\\
+USER\_T3D\_DEBSCE  &  Management of discharge at source points (possible time dependent)\\
+USER\_T3D\_TRSCE  &  Management of tracers at source points (possible time dependent)\\
+USER\_TR3    & Management of the tracers in a time-dependent boundary condition\\
+USER\_TRA\_PROF\_Z & Definition of the vertical tracer profile\\
+USER\_UTIMP  &  Additional variable writing\\
+USER\_VEL\_PROF\_Z & Definition of the vertical velocity profile\\
+USER\_VIT3   &  Management of the velocities in a time-dependent boundary condition\\
+VISCLM  & Computation of the viscosity in the mixing length models\\
+VISCOS  &  Computation and initialization of the constant viscosity\\
+\end{tabular}

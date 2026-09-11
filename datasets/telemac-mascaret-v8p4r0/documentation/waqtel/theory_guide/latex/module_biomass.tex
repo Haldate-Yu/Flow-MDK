@@ -1,0 +1,278 @@
+\chapter{BIOMASS Module}
+
+The BIOMASS module is a water quality module which allows the calculation of algal biomass.
+It estimates the extent of vegetal colonization in terms of various parameters:
+sunlight, water temperature, fertilization degree, water renewal ratio,
+water turbidity and toxicity \cite{gosse_biomass_1983}.
+The BIOMASS module takes into account five tracers:
+
+\begin{itemize}
+\item phytoplankton biomass PHY,
+\item the principal nutrients influencing its production (phosphorus, nitrogen)
+  as well as the associated mineral forms, namely:
+
+\begin{itemize}
+\item dissolved mineral phosphorus assimilable by phytoplankton PO$_4$,
+\item degradable phosphorus not assimilable by phytoplankton POR,
+\item dissolved mineral nitrogen assimilable by phytoplankton NO$_3$,
+\item degradable nitrogen not assimilable by phytoplankton NOR.
+\end{itemize}
+\end{itemize}
+
+These variables are all expressed in mg/l except biomass that is expressed in $\mu$g(Chlorophyl a)/l.\\
+
+We assume these substances acting as tracers,
+i.e. they are carried and dispersed in the water mass.
+In addition, they react with each other through biochemical processes.\\
+
+The following sections explain the internal source terms.
+
+\section{Phytoplankton}
+
+\subsection{Algal growth}
+
+The algal growth rate $CP$ (d$^{-1}$) is given by:
+
+\begin{equation}
+  CP = C_{max} RAY g_1 LNUT \alpha_1,
+\end{equation}
+
+with $C_{max}$ = algal growth maximum rate at 20$^{\circ}$C; one can take $C_{max}$ = 2.
+$RAY$ represents the effect of sunlight on algal growth;
+this dimensionless parameter ranges between 0 and 1;
+$g_1$ represents the effect of temperature on algal growth;
+$g_1 = T/20$, where $T$ is the water temperature ($^{\circ}$C) (valid for 5$^{\circ}$C < $T$ < 25$^{\circ}$C).
+$LNUT$ represents the effects of phosphoric and nitric nutrients on algal growth.
+$\alpha_1$ = water toxicity coefficient for algae ($\alpha_1$ = 1 in the absence of toxicity).\\
+
+In 2D, $RAY$ is calculated by the Smith formula averaged over the vertical:
+
+\begin{equation}
+  RAY = \frac{1}{k_e h} \log \left( \frac{I_0 + \sqrt{IK^2+I_0^2} }{ I_h + \sqrt{IK^2+I_h^2} }  \right),
+\end{equation}
+
+where $k_e$ is the extinction coefficient of solar rays in water (m$^{-1}$).
+It is calculated either by the Secchi depth $Z_s$ using the Atkins formula: $k_e$ = 1.7/$Z_s$, or,
+if $Z_s$ is unknown, by the Moss relation: $k_e$ = $k_{pe}$+$ \beta $ [PHY],
+where $k_{pe}$ is the coefficient of vegetal turbidity without phytoplankton (m$^{-1}$)
+and $ \beta $  the Moss coefficient ($ \beta \approx$ 0.015).
+$IK$ is a calibrating parameter (W/m$^2$), of an order of magnitude 100.
+$I_0$ is the flux density of solar radiation on the surface (W/m$^2$)
+and $I_h$ is the flux density of solar radiation at the bed bottom (W/m$^2$), calculated as:
+
+\begin{equation}
+  I_h = I_0 \exp (-k_e h).
+\end{equation}
+
+In 3D, $RAY$ is calculated by a generalisation of the Smith formula
+over the vertical:
+
+\begin{equation}
+  RAY = \frac{1}{k_e \Delta z} \log \left( \frac{I_0 + \sqrt{IK^2+I_0^2} }{ I_{\Delta z} + \sqrt{IK^2+I_{\Delta z}^2} }  \right),
+\end{equation}
+
+with everything like in 2D except $\Delta z$ the height of the prism in 3D and
+$I_{\Delta z}$ is the flux density of solar radiation at the considered depth
+(W/m$^2$), calculated as:
+
+\begin{equation}
+  I_{\Delta z} = I_0 \exp (-k_e \Delta z),
+\end{equation}
+
+
+$LNUT$ is calculated by the formula:
+
+\begin{equation}
+  LNUT = \min \left( \frac{[PO_4]}{KP+[PO_4]}, \frac{[NO_3]}{KN+[NO_3]} \right),
+\end{equation}
+
+with $KP$ = phosphate half-saturation constant (mg/l) (about 0.005 mgP/l),
+and $KN$ = nitrate half-saturation constant (mg/l) (about 0.03 mgN/l).\\
+
+Note: Nutrients affect phytoplankton growth PHY only by limiting the factor $LNUT$.
+When [PO$_4$] and [NO$_3$] are high enough, $LNUT$ is close to 1 and
+phytoplankton evolution no longer depends on nutrients.
+In this case, there is no need to model the cycles of phosphorus and nitrogen
+for simulating the evolution of phytoplankton.
+
+\subsection{Algal disappearance}
+
+The algal disappearance rate $DP$ (d$^{-1}$) is given as:
+
+\begin{equation}
+  DP = (RP+MP) g_2,
+\end{equation}
+
+with $RP$ = algal biomass respiration rate at 20$^{\circ}$C (d$^{-1}$),
+$MP$ = algal biomass disappearance rate at 20$^{\circ}$C (d$^{-1}$).
+$g_2$ represents the effect of temperature on algal disappearance.
+$g_2 = T/20$ (valid for 5$^{\circ}$C < $T$ < 25$^{\circ}$C).
+$MP$ is given by the following relation:
+
+\begin{equation}
+  MP = M_1 + M_2 [PHY] + \alpha_2,
+\end{equation}
+
+with $M_1$ and $M_2$ = algal mortality coefficients at 20$^{\circ}$C,
+$\alpha_2$ = water toxicity coefficient for algae.
+
+\section{Nitric and phosphoric nutrients}
+
+The following physical and biochemical parameters are used
+to describe the processes influencing the evolution of nitric and phosphoric nutrients:
+
+\begin{itemize}
+\item $fp$: average proportion of phosphorus in the cells of living phytoplankton (mgP/$\mu$gChlA),
+\item $dtp$: proportion of directly assimilable phosphorus in dead phytoplankton ($\%$),
+\item $k_1$: transformation rate of POR into PO$_4$ through bacterial mineralization (d$^{-1}$),
+\item $k_2$: transformation rate of NOR into NO$_3$ through heterotrophic
+  and autotrophic bacterial mineralization (d$^{-1}$),
+\item $fn$: average proportion of directly assimilable nitrogen in living phytoplankton (mgN/$\mu$gChlA),
+\item $dtn$: proportion of directly assimilable nitrogen in dead phytoplankton ($\%$),
+\item $F_{POR}$: deposition flux of non-algal organic phosphorus (g/m$^2$/s).
+  $F_{POR} = W_{POR} [POR]$, $W_{POR}$ is the sedimentation velocity of non-algal organic phosphorus (m/s),
+\item $F_{NOR}$: deposition flux of non-algal organic nitrogen (g/m$^2$/s).
+  $F_{NOR} = W_{NOR} [NOR]$, $W_{NOR}$ is the sedimentation velocity of non-algal organic nitrogen (m/s).
+\end{itemize}
+
+Note: sediment transport and resulting bed changes are not modeled in the BIOMASS model.
+Deposition is only represented by the deposition flux and,
+once organic matter is deposited,
+it no longer appears in the equations and can no longer be resuspended.
+These deposition fluxes therefore correspond to a definitive loss of mass.
+
+\section{Solved equations in 2D}
+
+The BIOMASS model equations are described below, detailing the internal source terms $S_{intern\_i}$.\\
+
+Tracer $\#$1: phytoplankton biomass
+
+\begin{equation}
+  F([PHY]) = (CP-DP) [PHY].
+\end{equation}
+
+Tracer $\#$2: assimilable mineral phosphorus
+
+\begin{equation}
+  F([PO_4]) = fp(dtp DP - CP) [PHY] + k_1 g_2 [POR].
+\end{equation}
+
+Tracer $\#$3: non-assimilable phosphorus
+
+\begin{equation}
+  F([POR]) = fp(1-dtp) DP [PHY] - k_1 g_2 [POR] - \frac{F_{POR}}{h}.
+\end{equation}
+
+Tracer $\#$4: assimilable mineral nitrogen
+
+\begin{equation}
+  F([NO_3]) = fn (dtn DP - CP) [PHY] + k_2 g_2 [NOR].
+\end{equation}
+
+Tracer $\#$5: non-assimilable nitrogen
+
+\begin{equation}
+  F([NOR]) = fn (1- dtn) DP [PHY] - k_2 g_2 [NOR] - \frac{F_{NOR}}{h},
+\end{equation}
+
+with $C_1$ = [PHY], $C_2$ = [PO$_4$], $C_3$ = [POR], $C_4$ = [NO$_3$] and $C_5$ = [NOR],
+the matrices (5 $\times$ 5) $[\lambda]$ and $[\mu]$
+%containing the coefficients $\lambda_i^j$ and $\mu_i^j$
+are written as (only non-zero terms are included):
+
+\begin{equation}
+\lambda_i^j = \frac{1}{86400}
+\left(
+%  \begin{array}{c;{2pt/2pt}c;{2pt/2pt}c;{2pt/2pt}c;{2pt/2pt}c}
+  \begin{array}{ccccc}
+    CP-DP & 0 & 0 & 0 & 0 \\ %\hdashline[2pt/2pt]
+    fp (dtp DP -CP) & 0 &  k_1 g_2 & 0 & 0 \\ %\hdashline[2pt/2pt]
+    fp (1-dtp) DP   & 0 & -k_1 g_2 & 0 & 0 \\ %\hdashline[2pt/2pt]
+    fn (dtn DP -CP) & 0 &        0 & 0 &  k_2 g_2 \\ %\hdashline[2pt/2pt]
+    fn (1-dtn) DP   & 0 &        0 & 0 & -k_2 g_2
+  \end{array}
+\right)
+\end{equation}
+
+$$
+  \mu_i^j =
+  \begin{pmatrix}
+   0 & 0 & 0 & 0 &  0 \\
+   0 & 0 & 0 & 0 &  0 \\
+   0 & 0 & -W_{POR} & 0 & 0 \\
+   0 & 0 & 0 & 0 &  0 \\
+   0 & 0 & 0 & 0 & -W_{NOR}
+  \end{pmatrix}
+$$
+
+The terms $\lambda_i^0$ and $\mu_i^0$ are zero for every $i$.\\
+
+Divisions by 86,400 are performed to scale down time to one second.
+
+\section{Solved equations in 3D}
+
+The BIOMASS model equations are described below, detailing the internal source terms $S_{intern\_i}$.\\
+
+Tracer $\#$1: phytoplankton biomass
+
+\begin{equation}
+  F([PHY]) = (CP-DP) [PHY].
+\end{equation}
+
+Tracer $\#$2: assimilable mineral phosphorus
+
+\begin{equation}
+  F([PO_4]) = fp(dtp DP - CP) [PHY] + k_1 g_2 [POR].
+\end{equation}
+
+Tracer $\#$3: non-assimilable phosphorus
+
+\begin{equation}
+  F([POR]) = fp(1-dtp) DP [PHY] - k_1 g_2 [POR] - F_{POR}.
+\end{equation}
+
+Tracer $\#$4: assimilable mineral nitrogen
+
+\begin{equation}
+  F([NO_3]) = fn (dtn DP - CP) [PHY] + k_2 g_2 [NOR].
+\end{equation}
+
+Tracer $\#$5: non-assimilable nitrogen
+
+\begin{equation}
+  F([NOR]) = fn (1- dtn) DP [PHY] - k_2 g_2 [NOR] - F_{NOR},
+\end{equation}
+
+with $C_1$ = [PHY], $C_2$ = [PO$_4$], $C_3$ = [POR], $C_4$ = [NO$_3$] and $C_5$ = [NOR],
+the matrices (5 $\times$ 5) $[\lambda]$ and $[\mu]$
+%containing the coefficients $\lambda_i^j$ and $\mu_i^j$
+are written as (only non-zero terms are included):
+
+\begin{equation}
+\lambda_i^j = \frac{1}{86400}
+\left(
+%  \begin{array}{c;{2pt/2pt}c;{2pt/2pt}c;{2pt/2pt}c;{2pt/2pt}c}
+  \begin{array}{ccccc}
+    CP-DP & 0 & 0 & 0 & 0 \\ %\hdashline[2pt/2pt]
+    fp (dtp DP -CP) & 0 &  k_1 g_2 & 0 & 0 \\ %\hdashline[2pt/2pt]
+    fp (1-dtp) DP   & 0 & -k_1 g_2 -W_{POR} & 0 & 0 \\ %\hdashline[2pt/2pt]
+    fn (dtn DP -CP) & 0 &        0 & 0 &  k_2 g_2 \\ %\hdashline[2pt/2pt]
+    fn (1-dtn) DP   & 0 &        0 & 0 & -k_2 g_2 - W_{NOR}
+  \end{array}
+\right)
+\end{equation}
+
+$$
+  \mu_i^j =
+  \begin{pmatrix}
+   0 & 0 & 0 & 0 & 0 \\
+   0 & 0 & 0 & 0 & 0 \\
+   0 & 0 & 0 & 0 & 0 \\
+   0 & 0 & 0 & 0 & 0 \\
+   0 & 0 & 0 & 0 & 0
+  \end{pmatrix}
+$$
+
+The terms $\lambda_i^0$ and $\mu_i^0$ are zero for every $i$.\\
+
+Divisions by 86,400 are performed to scale down time to one second.

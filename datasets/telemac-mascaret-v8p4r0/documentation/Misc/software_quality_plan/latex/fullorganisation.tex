@@ -1,0 +1,197 @@
+\chapter{Organisation of the \telemacsystem{} activity}
+\label{fullorga}
+\section{Organisation}
+
+The general organisation of the \telemacsystem{} activity is described in
+Figure~\ref{figOrga}.
+\begin{center}
+\begin{figure}[H]
+\begin{tikzpicture}
+  % Defining style for boxes
+  \tikzstyle{task} = [draw, very thick, fill=white, rectangle]
+  \tikzstyle{bigbox} = [draw, thin, rounded corners, rectangle,
+                        dash pattern=on 1pt off 4pt on 6pt off 4pt]
+  % Defining nodes
+  \node (PM) [task]{PM};
+  \node (CH) [task, below of=PM] {CHs};
+  \node (TDT) [task, below of=CH]{\telemacsystem{} Developing team};
+  \node (SPA) [below of=TDT] {};
+  \node (DA) [task, below of=SPA]{\minibox{Development activities\\(See development plan)}};
+  \node (WP) [task, left of=DA, node distance=6cm] {Work project};
+  \node (DIS) [below of=DA] {Distribution};
+  \node (TUC) [task, right of=CH, node distance=6cm] {TUC};
+  \node (UNIT) [task, below of=TUC, node distance=2cm]
+               {\minibox{EDF units\\Partners\\Work project\\Open-source}};
+  \node (USA) [below of=UNIT, node distance=2cm]{Usage};
+  % box arounf development
+  \node (BOX) [bigbox, fit= (TDT) (DA) (DIS)] {};
+
+  \draw[-] (PM) -- (CH);
+  \draw[-] (TUC) -- (CH);
+  \draw[-] (TUC) -- (UNIT);
+  \draw[->] (UNIT) -- (USA);
+  \draw[->] (UNIT) -- (SPA.center);
+  \draw[-] (WP) -- node [above, yshift=-.1cm] {\small{Development}} (DA);
+  \draw[-] (CH) -- (TDT);
+  \draw[-] (TDT) -- node [right, xshift=1cm, yshift=-.1cm] {\small{Forum, GitLab}} (SPA.center);
+  \draw[-] (SPA.center) -- (DA);
+  \draw[->] (DA) -- (DIS);
+
+\end{tikzpicture}
+\caption{\label{figOrga}General Organisation of the \telemacsystem{} activity}
+\end{figure}
+\end{center}
+
+The development activities are described in the development plan in
+Appendix~\ref{devplan}.
+
+\section{Quality handler}
+
+In Table~\ref{aqTable} the level 1 and level 2 Quality handler for every
+\telemacsystem{} activities. The nominative list is given in the ``Nominative
+list of people in \telemacsystem'' in~\ref{peopleoftelma}.
+
+\begin{landscape}
+\begin{table}[H]
+\begin{tabular}{*{8}{c}}
+\toprule
+Level & \minibox{Quality\\Handling} & \minibox{Configuration\\Handling} & Integration & Maintenance & \minibox[c]{Verification\\and\\Validation} & Documentation & Diffusion\\
+\midrule
+N1 & PM  & Chain hand. & Kernel hand. & Chain hand. & V\&V hand. & Doc hand. & Chain hand.\\
+N2 & CHs & CHs         & CHs          & CHs         & CHs        & CHs       & CHs        \\
+\bottomrule
+\end{tabular}
+\caption{\label{aqTable}Quality Handlers for each activity}
+\end{table}
+\end{landscape}
+
+\section{Coordination}
+
+\begin{table}[h!]
+\begin{tabular}{cc}
+\toprule
+Job & Roles \\
+\midrule
+PM &
+\begin{minipage}[l]{14cm}
+\begin{itemize}
+\itemsep-5pt
+\item Project Manager.
+\item Handles the project team in coordination with the CHs.
+\item Establishes the annual action plan from the statement made by the
+  Referring and project following committee.
+\item Defines with the group chief the repartition of resources to complete the
+  objectives.
+\item In charge of the reporting (communication on the project evolution to the
+  Strategy Handler and the resources manager). For example organises the COPIL
+  (Steering committee) of the project where are shown the technical and budget
+  advancements of the project.
+\item In charge of the quality aspect of the project. Prepares at the end of
+  the project the instrumentation of a new cycle.
+\end{itemize}
+\end{minipage}\\
+\bottomrule
+\end{tabular}
+\caption{\label{coord} Role of each actor in the coordination of \telemacsystem}
+\end{table}
+
+\section{\telemacsystem{} activities for each role}
+
+\begin{table}[h!]
+\begin{tabular}{cc}
+\toprule
+Job & Roles \\
+\midrule
+\minibox[c]{EDF Units\\(i.e. EDF Groups)\\Work project} &
+\begin{minipage}[l]{12cm}
+\begin{itemize}
+\itemsep-5pt
+\item Apply the Quality process defined in the SQP\@.
+\item In charge of the implementation and the corrective maintenance of their
+  development.
+\item In charge of the Verification and Validation of their development.
+\end{itemize}
+\end{minipage}\\
+\midrule
+PM &
+\begin{minipage}[l]{12cm}
+\begin{itemize}
+\itemsep-5pt
+\item Organises and dispatches the tasks between the developers, in accordance
+  with their hierarchy.
+\item Dispatches the corrective actions coming from the Issues tickets.
+\item In charge of the ADEPHE meetings.
+\item Has the final decision on the integration of developments.
+\item Delegates those tasks to the CHs if necessary.
+\end{itemize}
+\end{minipage}\\
+\midrule
+\minibox[c]{CHs} &
+\begin{minipage}[l]{12cm}
+\begin{itemize}
+\itemsep-5pt
+\item Level 2 handlers of the coherence of integrated developments.
+\item In charge of the configuration and the documentation.
+\item In charge of the creation of branches and of the release and
+stabilisation of versions.
+\item Has the final decision on the integration of developments.
+\item Certifies the quality of the released versions.
+\end{itemize}
+\end{minipage}\\
+\midrule
+Chain hand. &
+\begin{minipage}[l]{12cm}
+\begin{itemize}
+\itemsep-5pt
+\item In charge of the full chain of execution of \telemacsystem.
+\item In charge of the coherence and evolution of the data structure, the
+  parallelism, the coupling, the pre/post-treatment, scripts and tools.
+\item In charge of the installation of the released versions.
+\end{itemize}
+\end{minipage}\\
+\midrule
+Kernel hand. &
+\begin{minipage}[l]{12cm}
+\begin{itemize}
+\itemsep-5pt
+\item In charge of the integration of new development and of their coherence.
+\item In charge of the Issue, of its application and its good use.
+\item In charge of the source code and its coherence.
+\end{itemize}
+\end{minipage}\\
+\midrule
+V\&V hand. &
+\begin{minipage}[l]{12cm}
+\begin{itemize}
+\itemsep-5pt
+\item In charge of the Verification and Validation of the \telemacsystem{} code.
+\item Verifies the usefulness of test cases and their redundancies.
+\item Defines the list of test cases to be used.
+\item In charge of the content of the Validation Manual.
+\end{itemize}
+\end{minipage}\\
+\midrule
+Doc hand. &
+\begin{minipage}[l]{12cm}
+\begin{itemize}
+\itemsep-5pt
+\item Establishes the content of the \telemacsystem{} documentation.
+\item Controls the modifications made to the documentation.
+\item Insures the coherence of the documentation.
+\end{itemize}
+\end{minipage}\\
+\midrule
+Salome hand. &
+\begin{minipage}[l]{12cm}
+\begin{itemize}
+\itemsep-5pt
+\item In charge of the integration of the \telemacsystem{} module in the SALOME
+  platform.
+\item Makes the link with the SALOME community, goes to the ADS (Salome
+  developer meetings).
+\end{itemize}
+\end{minipage}\\
+\bottomrule
+\end{tabular}
+\caption{\label{rea} Role of each actor in the conducting of \telemacsystem{} activities}
+\end{table}

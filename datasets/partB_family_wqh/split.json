@@ -1,0 +1,48 @@
+{
+  "train": [
+    "wqh_fam000",
+    "wqh_fam001",
+    "wqh_fam002",
+    "wqh_fam003",
+    "wqh_fam004",
+    "wqh_fam006",
+    "wqh_fam009",
+    "wqh_fam010",
+    "wqh_fam011",
+    "wqh_fam017",
+    "wqh_fam018",
+    "wqh_fam019",
+    "wqh_fam020",
+    "wqh_fam021",
+    "wqh_fam022",
+    "wqh_fam023",
+    "wqh_fam024",
+    "wqh_fam025",
+    "wqh_fam026",
+    "wqh_fam027",
+    "wqh_fam028",
+    "wqh_fam030",
+    "wqh_fam032",
+    "wqh_fam034",
+    "wqh_fam035",
+    "wqh_fam036",
+    "wqh_fam037",
+    "wqh_fam038"
+  ],
+  "val": [
+    "wqh_fam007",
+    "wqh_fam008",
+    "wqh_fam012",
+    "wqh_fam013",
+    "wqh_fam016",
+    "wqh_fam039"
+  ],
+  "test": [
+    "wqh_fam005",
+    "wqh_fam014",
+    "wqh_fam015",
+    "wqh_fam029",
+    "wqh_fam031",
+    "wqh_fam033"
+  ]
+}

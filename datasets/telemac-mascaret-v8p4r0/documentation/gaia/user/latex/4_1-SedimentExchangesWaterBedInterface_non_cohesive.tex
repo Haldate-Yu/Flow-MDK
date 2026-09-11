@@ -1,0 +1,115 @@
+\section{Non-cohesive sediment}\label{sec:ExcNCOH}
+
+The non-cohesive deposition rate is $D = w_s C_{z_{ref}}$, where $w_s$ is the settling velocity and $C_{z_{ref}}$ is the near-bed concentration, evaluated at the interface between the bed load
+and the suspended load, $z=z_{ref}$.\\
+
+In 2D cases, the near-bed concentration is computed assuming a Rouse profile for the vertical concentration distribution,
+which is theoretically valid in uniform steady flow conditions:
+\begin{equation}\label{eq:Rouseprofile}
+C(z)=C_{z_{ref}}\left(\frac{z-h}{z}\frac{a}{a-h}\right)^R,
+\end{equation}
+where $R$ is the Rouse number defined by
+\begin{equation}\label{eq:R}
+R=\frac{w_s}{\kappa u_*},
+\end{equation}
+with $\kappa$ the von Karman constant ($\kappa = 0.4$), $u_*$ the
+friction velocity corresponding to the total bed shear stress, and $a$ the reference elevation above the bed elevation. The distance $a$, defined variously by
+various authors, is taken to be very close to the bed.
+
+By depth-integration of the Rouse profile (\ref{eq:Rouseprofile}), the following relation
+can be established between the depth-averaged concentration and the reference concentration (near-bed concentration):
+\begin{equation*}
+  C_{z_{ref}} = F C,
+\end{equation*}
+where:
+\begin{equation}\label{eq:Rouseprofile}
+F^{-1} = \left(\frac{z_{ref}}{h}\right)^R\int_{z_{ref}/h}^1\left(\frac{1-u}{u}\right)^R du.
+\end{equation}
+In \gaia{}, the following expression is used to compute $F$:
+
+\begin{equation*}
+F^{-1}=\left\{\begin{array}{ll}
+\frac{1}{\left(1-Z\right)} B^R\left( 1-B^{(1-R)} \right) & \text{if}\,R \neq 1\\
+-B \log B &  \text{if}\,R = 1
+\end{array}
+\right.
+\end{equation*}
+with $B = z_{ref}/h$.
+
+The non-cohesive erosion rate is $E = w_s C_{eq}$, where $C_{eq}$ is the equilibrium near-bed concentration determined by using an empirical formula.
+
+For non-cohesive sediments, the net sediment flux $E-D$ is therefore determined based on the concept of equilibrium concentration, see~\cite{CelikRodi}:
+\begin{equation}\label{eq:CelikRodi}
+\left(E-D \right)_{z_{ref}} = w_s \left(C_{eq} - C_{z_{ref}}\right).
+\end{equation}
+
+%...............................................................................
+\subsection{Available equilibrium near-bed concentration formulas}\label{sec:concform}
+%...............................................................................
+\subsubsection{Zyserman-Fredsoe}
+\begin{itemize}
+\item The Zyserman-Fredsoe formula~\cite{Zyserman} \telkey{SUSPENSION TRANSPORT FORMULA FOR ALL SANDS = 1}
+\begin{equation*}
+C_{eq} =\frac{0.331(\theta'-\theta_{cr})^{1.75}}{1+0.72(\theta'-\theta_{cr})^{1.75}},
+\end{equation*}
+where $\theta_{cr}$ is the critical Shields parameter and $\theta'= \mu\theta$ the shear stress due to skin friction (see \S\ref{sec:skin}).
+\item The reference elevation $z_{ref}=\alpha_{k_s}\times d_{50}$ ($=3.0\times d_{50}$ by default, $\alpha_{k_s}$ can be modified with the keyword \telkey{ RATIO BETWEEN SKIN FRICTION AND MEAN DIAMETER})
+\item Fortran subroutine {\ttfamily suspension\_fredsoe\_gaia.f}.
+\end{itemize}
+
+\subsubsection{Bijker}
+\begin{itemize}
+\item Bijker formula \telkey{SUSPENSION TRANSPORT FORMULA = 2}
+\item This formula is related to the bedload sediment transport $Q_b$, therefore this option cannot be used without activating the bedload transport mechanism \telkey{ BED LOAD FOR ALL SANDS = YES}
+\begin{equation*}
+C_{eq} =\frac{Q_b}{b\,z_{ref}\,u_*}
+\end{equation*}
+with $b$ a constant ($=6.34$) and $u_*$ the shear velocity
+\item The reference elevation $z_{ref}=k_{sr}$, with $k_{sr}$ the rippled bed roughness
+\item Fortran subroutine {\ttfamily suspension\_bijker\_gaia.f}.
+\end{itemize}
+
+\subsubsection{van Rijn}
+\begin{itemize}
+\item van Rijn formula~\cite{vanRijn84b} \telkey{SUSPENSION TRANSPORT FORMULA = 3}
+\begin{equation*}
+C_{eq} =0.015\,d_{50}\frac{\left(\theta'/\theta_{cr}-1\right)^{3/2}}{z_{ref}D_*^{0.3}}
+\end{equation*}
+with $\theta_{cr}$ the critical Shields parameter and and $\theta'= \mu\theta$ the shear stress due to skin friction.
+\item The reference elevation $z_{ref}=0.5 \times k_s$, with $k_s$ the total roughness (from the hydrodynamics steering file)
+\item Fortran subroutine {\ttfamily suspension\_vanrijn\_gaia.f}.
+\end{itemize}
+
+\subsubsection{Soulsby \& van Rijn}
+\begin{itemize}
+\item Soulsby and van Rijn formula~\cite{Soulsby97} \telkey{SUSPENSION TRANSPORT FORMULA = 4}
+  \begin{equation*}
+C_{eq}=\left\{\begin{array}{ll}
+A_{ss}\left(\sqrt{U_c^2+\frac{0.018}{C_D}U_w^2-U_{cr}}\right)^{2.4} & \text{if}\, \geq U_{cr}\\
+0.0 &  \text{otherwise}
+\end{array}
+\right.
+\end{equation*}
+  with $U_c$ the norm of the depth-averaged current velocity and $U_w$ the wave orbital velocity (see Chapter~\ref{chap:infl_waves}). The threshold current velocity $U_{cr}$ is computed as:
+\begin{equation*}
+U_{cr}=\left\{\begin{array}{ll}
+  0.19 (d_{50}^{0.1})\log_{10}\left(\frac{4.0 h}{d_{90}}\right) & \text{if}\, d_{50} < 0.0005~\text{m}\\
+  8.5 (d_{50}^{0.6})\log_{10}\left(\frac{4.0 h}{d_{90}}\right) & \text{otherwise}\\
+\end{array}
+\right.
+\end{equation*}
+with $d_{90}$ the particle diameter representing the 90\% cummulative percentile value (90\% of the particles in the sediment sample are finer than the $d_{90}$ grain size), in meters.
+
+If wave effects are considered, the quadratic drag coefficient $C_D$ is computed as follows:
+\begin{equation*}
+  C_D = \left(\frac{0.4}{\log(\max(h, z_{0})/z_{0}-1)}\right)^{2},
+\end{equation*}
+with $z_{0}=0.006$~m the bed roughness.
+
+The empirical suspended transport factor $A_{ss}$ is computed by:
+\begin{equation*}
+A_{ss} = \frac{0.012 h d_{50} \left(\left(\frac{g(s-1)}{\nu^2}\right)^{1/3}d_{50}\right)^{-0.6}}{\left((s-1)g d_{50}\right)^{1.2}}
+\end{equation*}
+\item Fortran subroutine {\ttfamily suspension\_sandflow\_gaia.f}.
+\end{itemize}
+

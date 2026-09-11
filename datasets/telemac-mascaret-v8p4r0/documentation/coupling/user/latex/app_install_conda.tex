@@ -1,0 +1,71 @@
+\chapter{Installation of the conda
+  environment}\label{ann:conda_install}
+
+If conda is not yet installed on your machine, please refer to
+\url{https://www.anaconda.com/}
+
+For a lighter installation, we suggest the use of miniconda3
+[\url{https://docs.conda.io/en/latest/miniconda.html}].
+\newline
+
+You need to create a complete environment under python3 (the default
+python version for miniconda3), but you should avoid to install
+\texttt{mpi4py} from conda itself ({\em cf.} section
+\ref{ann:mpi4py}). You have to provide a name for the dedicated
+environment: in the following instructions we arbitrarily chose \texttt{cpl\_py3}.
+\begin{verbatim}
+xxx>source deactivate
+
+xxx>conda update -n base conda
+
+xxx>conda create -n cpl_py3 -c conda-forge \
+>python openturns=1.10 matplotlib numpy pandas scipy scikit-learn \
+>pathos jsonschema paramiko sphinx sphinx_rtd_theme pytest \
+>pytest-runner mock ffmpeg shapely cython
+
+xxx>source activate cpl_py3
+\end{verbatim}
+
+
+\section{Installation of mpi4py}\label{ann:mpi4py}
+It is mandatory that the python MPI interface \texttt{mpi4py} is
+compiled against the same version of MPI used for the coupled
+codes. For this reason we should not install the precompiled version
+provided by conda, but we have to compile and install it via
+\texttt{pip}.
+\newline
+
+Please, check that the commands \texttt{mpicc} and \texttt{mpirun}
+found by default in your environment (as determined by the
+\texttt{PATH} variable) are the same that you used to compile Open
+TELEMAC-MASCARET.
+
+In our case we check that
+\begin{verbatim}
+xxx>which mpicc
+/softs/local/openmpi400_gcc731/bin/mpicc
+
+xxx>mpicc --version
+gcc (GCC) 7.3.1 20180130 (Red Hat 7.3.1-2)
+\end{verbatim}
+and
+\begin{verbatim}
+xxx>which mpirun
+/softs/local/openmpi400_gcc731/bin/mpirun
+
+xxx>mpirun --version
+mpirun (Open MPI) 4.0.0
+\end{verbatim}
+
+Once the paths are correctly set, you can proceed to the installation of
+\texttt{mpi4py}.
+Notice that the installation is normally driven by
+\begin{verbatim}
+xxx>pip install mpi4py
+\end{verbatim}
+but that a specific feature of OpenMPI 4 requires a maintenance
+version, until the official mpi4py distro isn't updated
+\begin{verbatim}
+xxx>pip install --user https://bitbucket.org/mpi4py/mpi4py/get/maint.zip
+\end{verbatim}
+

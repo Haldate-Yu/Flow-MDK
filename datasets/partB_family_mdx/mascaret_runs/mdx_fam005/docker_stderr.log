@@ -1,0 +1,49 @@
+ Fichiercas : FichierCas.txt                                                                                                                                                                                                                                                 
+
+ TELEMAC-MASCARET V8P4R0 == Copyright (C) 2000-2022 EDF-CEREMA ==
+
+ Data File : mdx.xcas
+
+ Study name : Etude hydraulique1d
+
+ Hydraulic statistics (prior solve phase)
+    ------ Geometric parameters ------
+    Number of reach(es)       =            1
+    Number of cross-sections  =           73
+    Number of open boundaries =            2
+    Number of junction(s)     =            0
+    Number of inflow(s)       =            7
+    Number of lateral weir(s) =            0
+    Number of storage area(s) =            0
+    Number of link(s)         =            0
+    Number of dam(s)/weir(s)  =            0
+    ------ Numerical parameters ------
+    Number of 1D nodes (mesh) =          894
+    Computation Kernel        =            3
+    Initial time step         =      2.0E+00
+    Variable time step?       =            0
+    Implicit Scheme?          =            1
+    Non Hydrostatic?          =            0
+    Simulation time           =      8.6E+04
+
+ OptionCourlis F
+ Start the Simulation...
+ READING XAJ FILES
+ NO XAJ FILES TO READ
+ NO XAJ FILES TO READ
+
+=====
+
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+
+Backtrace for this error:
+#0  0x79e4341bb8b0 in ???
+#1  0x79e4341baae3 in ???
+#2  0x79e4336bf96f in ???
+#3  0x5d1d329a2101 in ???
+#4  0x5d1d329f2680 in ???
+#5  0x5d1d328980d8 in ???
+#6  0x5d1d327cc4b2 in ???
+#7  0x79e4336ac09a in ???
+#8  0x5d1d327cc4e9 in ???
+#9  0xffffffffffffffff in ???

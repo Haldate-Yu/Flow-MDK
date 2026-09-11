@@ -1,0 +1,214 @@
+{
+  "source": "D:\\Projects\\wzzhsl-rest-subsystems-xd\\schinta-module-basin-flood-prevention\\schinta-module-basin-flood-prevention-start\\src\\main\\resources\\template",
+  "cases": {
+    "wqh": {
+      "case": "wqh",
+      "kind": "1d",
+      "folder": "D:\\Projects\\Flow-MDK\\data\\real_sources\\wqh",
+      "stem": "wuqiao",
+      "num_sections": 27,
+      "reach_length_m": 9434.4,
+      "dt_s": "5.0",
+      "temps_max_s": "86400.0",
+      "kernel_code": "3",
+      "strickler_minor": "35.0",
+      "laws": [
+        {
+          "name": "upstream_Q_Z",
+          "columns": "Temps (s) Cote Debit",
+          "n_lines": 7,
+          "xcas_type": 3,
+          "kind": "limni_2"
+        },
+        {
+          "name": "downstream_Z",
+          "columns": "Temps (s) Cote",
+          "n_lines": 5,
+          "xcas_type": 2,
+          "kind": "limnigramme_Z_t"
+        },
+        {
+          "name": "inflow_1",
+          "columns": "Temps (s) Debit",
+          "n_lines": 5,
+          "xcas_type": 1,
+          "kind": "hydrogramme_Q_t"
+        },
+        {
+          "name": "inflow2",
+          "columns": "Temps (s) Debit",
+          "n_lines": 5,
+          "xcas_type": 1,
+          "kind": "hydrogramme_Q_t"
+        },
+        {
+          "name": "inflow3",
+          "columns": "Temps (s) Debit",
+          "n_lines": 5,
+          "xcas_type": 1,
+          "kind": "hydrogramme_Q_t"
+        },
+        {
+          "name": "inflow4",
+          "columns": "Temps (s) Debit",
+          "n_lines": 5,
+          "xcas_type": 1,
+          "kind": "hydrogramme_Q_t"
+        },
+        {
+          "name": "inflow5",
+          "columns": "Temps (s) Debit",
+          "n_lines": 5,
+          "xcas_type": 1,
+          "kind": "hydrogramme_Q_t"
+        },
+        {
+          "name": "inflow6",
+          "columns": "Temps (s) Debit",
+          "n_lines": 5,
+          "xcas_type": 1,
+          "kind": "hydrogramme_Q_t"
+        }
+      ],
+      "has_gate_file": false,
+      "has_opt_results": true,
+      "profile_names_local": [
+        "五桥河P3",
+        "五桥河P5",
+        "五桥河P6",
+        "五桥河P7",
+        "五桥河P8",
+        "五桥河P9",
+        "五桥河P10",
+        "五桥河P11",
+        "五桥河P12",
+        "五桥河P13",
+        "五桥河P14",
+        "五桥河P15",
+        "五桥河P16",
+        "五桥河P17",
+        "五桥河P18",
+        "五桥河P19",
+        "五桥河P20",
+        "五桥河P21",
+        "五桥河P22",
+        "五桥河P23",
+        "五桥河P24",
+        "五桥河P25",
+        "五桥河P26",
+        "五桥河P27",
+        "五桥河P28",
+        "五桥河P29",
+        "P30"
+      ],
+      "opt_mesh_sections": 459,
+      "opt_geo_abscissa_max_diff_m": 0.0,
+      "npz": "data\\real_cases\\scenarios_1d\\wqh.npz",
+      "npz_frames": 48,
+      "depth_max_m": 4.185999870300293,
+      "q_max_m3s": 75.18099975585938,
+      "nan_fraction": 0.0,
+      "role": "single-basin 1D — complete second-provider project (historical .opt, exact rerun reproduction); supersedes the incomplete template"
+    },
+    "zxh": {
+      "case": "zxh",
+      "kind": "1d",
+      "folder": "D:\\Projects\\Flow-MDK\\data\\real_sources\\zxh",
+      "stem": "zx",
+      "num_sections": 23,
+      "reach_length_m": 13146.0,
+      "dt_s": "2.0",
+      "temps_max_s": "86400",
+      "kernel_code": "3",
+      "strickler_minor": "25.0",
+      "laws": [
+        {
+          "name": "graph_2_stage_hydrograph",
+          "columns": "Temps (s) Cote",
+          "n_lines": 5,
+          "xcas_type": 2,
+          "kind": "limnigramme_Z_t"
+        },
+        {
+          "name": "zhuxi_20220623",
+          "columns": "Temps (s) Cote Debit",
+          "n_lines": 5,
+          "xcas_type": 3,
+          "kind": "limni_2"
+        },
+        {
+          "name": "inflow1",
+          "columns": "Temps (s) Debit",
+          "n_lines": 5,
+          "xcas_type": 1,
+          "kind": "hydrogramme_Q_t"
+        },
+        {
+          "name": "inflow2",
+          "columns": "Temps (s) Debit",
+          "n_lines": 5,
+          "xcas_type": 1,
+          "kind": "hydrogramme_Q_t"
+        },
+        {
+          "name": "inflow3",
+          "columns": "Temps (s) Debit",
+          "n_lines": 5,
+          "xcas_type": 1,
+          "kind": "hydrogramme_Q_t"
+        },
+        {
+          "name": "inflow4",
+          "columns": "Temps (s) Debit",
+          "n_lines": 5,
+          "xcas_type": 1,
+          "kind": "hydrogramme_Q_t"
+        }
+      ],
+      "has_gate_file": false,
+      "has_opt_results": true,
+      "profile_names_local": [
+        "苎溪河P1",
+        "苎溪河P2",
+        "苎溪河P3",
+        "苎溪河P4",
+        "苎溪河P5",
+        "苎溪河P6",
+        "苎溪河P7",
+        "苎溪河P8",
+        "苎溪河P9",
+        "苎溪河P10",
+        "苎溪河P11",
+        "苎溪河P12",
+        "苎溪河P13",
+        "苎溪河P14",
+        "苎溪河P15",
+        "苎溪河P16",
+        "苎溪河P17",
+        "苎溪河P18",
+        "苎溪河P19",
+        "苎溪河P20",
+        "苎溪河P21",
+        "苎溪河P22",
+        "苎溪河P23"
+      ],
+      "opt_mesh_sections": 648,
+      "opt_geo_abscissa_max_diff_m": 0.004999999999199645,
+      "npz": "data\\real_cases\\scenarios_1d\\zxh.npz",
+      "npz_frames": 24,
+      "depth_max_m": 2.934000015258789,
+      "q_max_m3s": 18.32699966430664,
+      "nan_fraction": 0.0,
+      "role": "single-basin 1D — complete second-provider project (full-horizon .opt, 25 frames); supersedes the truncated-template copy"
+    }
+  },
+  "coupled_chain": {
+    "name": "mdx_coupled",
+    "order": [
+      "mdx_upstream (1D)",
+      "mdx_2d (2D)",
+      "mdx_downstream (1D)"
+    ],
+    "note": "run order 1D upstream -> 2D -> 1D downstream; handoff series (Z, Q) come from each leg's .opt at the interface sections"
+  }
+}

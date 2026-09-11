@@ -1,0 +1,80 @@
+\section{Cohesive and mixed sediment}
+\label{Chap:Sed:Ex:cohesive}
+If different classes of cohesive sediment are present, deposition fluxes are computed for each sediment class according to its settling velocity. Conversely, as cohesive sediments have the same mechanical behaviour when they are in the bed, the same value of critical shear stress is used for all classes. Nevertheless, since the computation of erosion sediment fluxes accounts for the availability of each class, the computed values of erosion fluxes can be different for each sediment class.
+
+In \textsc{Gaia}, the default value of the critical shear stress for deposition is set to 1000 N/m$^2$. It implies that sediment deposition takes place at all times regardless of the value of the bottom shear stress.
+%In \textsc{Gaia}, the "simultaneous" paradigm allowing erosion and deposition to occur at the same time has been adopted~\cite{doi:10.1029/2012JC008072}. This paradigm implies that sediment deposition takes place at all times regardless of the value of the bottom shear stress.
+
+The erosion flux is computed with the Partheniades formula:
+\begin{equation*}
+E = \left\{\begin{array}{ll}
+M\left[\left(\frac{\tau_b}{\tau_{ce}}\right)-1\right]\quad & \text{if}\,\,\tau_b> \tau_{ce}\\
+0\quad & \text{otherwise}
+\end{array}
+\right.
+\end{equation*}
+with $M$ the Krone-Partheniades erosion law constant [kg/m$^2$/s] and $\tau_{ce}$ the critical bed shear stress.
+
+The deposition flux for mud is computed by the expression:
+\begin{equation}
+D = w_{s} C \left[1-\left(\frac{\sqrt{\tau_b/\rho}}{u_{*mud}^{cr}}\right)^2 \right],
+\end{equation}
+where $u_{*mud}^{cr}$ is the critical shear velocity for mud deposition.\\
+
+%-------------------------------------------------------------------------------
+\subsubsection{Erosion flux}
+%-------------------------------------------------------------------------------
+The erosion flux is computed with the Partheniades formula. For uniform beds, the erosion flux is related to the excess of
+applied bed shear stress to the bed shear strength at the bed surface:
+\begin{equation*}
+E = \left\{\begin{array}{ll}
+M\left[\left(\frac{\tau_b}{\tau_{ce}}\right)-1\right]\quad & \text{if}\,\,\tau_b> \tau_{ce}\\
+0\quad & \text{otherwise}
+\end{array}
+\right.
+\end{equation*}
+where $M$ the Krone-Partheniades erosion law constant [kg/m$^2$/s] is provided by the keyword {\ttfamily LAYERS PARTHENIADES CONSTANT} (real type, set to {\ttfamily = 1.E-03} by default).
+
+The value of $\tau_{ce}$ can be provided for the different layers with the keyword {\ttfamily LAYERS CRITICAL EROSION SHEAR STRESS OF THE MUD} (real list, set to {\ttfamily = 0.01;0.02;0.03;...} by default), expressed in N/m$^2$.
+
+The composition of the sediment mixture in the surface (active) layer is taken into consideration when computing the critical shear stress for erosion and the erosion rate. This is achieved by combining the critical shear stresses for erosion for all the sediment classes (cohesive and non-cohesive), according to~\cite{LEHIR2011S135}:
+%NH : The methodology is based on [11] except for the formulation of the erosion rate of sands. In Gaia, the formulation is based on a formulae for near bed concentration rather than a constant value.
+\begin{itemize}
+    \item If the mass of cohesive sediment as a fraction of the mixture is $\geq 50\%$, then the erosion rate and critical shear stress for cohesive sediment alone is used. %function of coh sed concentration
+    \item If the mass of cohesive sediment as a fraction of the mixture is $\leq 30\%$, then the erosion rate for non-cohesive sediment is used and the critical shear stress for non-cohesive sediment is used with a correction.
+    \item If the mass of cohesive sediment as fraction of the mixture is $\geq 30\%$ and $\leq 50\%$, then the values are interpolated between the previous values.
+\end{itemize}
+The total erosion rate is then distributed among the non-cohesive and cohesive sediment according to their respective fractions in the mixture.
+
+%-------------------------------------------------------------------------------
+\subsubsection{Deposition flux}
+%-------------------------------------------------------------------------------
+The deposition flux for mud is computed by the expression:
+\begin{equation}
+D = w_{s} C \left[1-\left(\frac{\sqrt{\tau_b/\rho}}{u_{*mud}^{cr}}\right)^2 \right],
+\end{equation}
+where $u_{*mud}^{cr}$ is the critical shear velocity for mud deposition, expressed in [m/s] and computed as $\sqrt{\tau_{d,mud}/\rho}$ with $\tau_{d,mud}$ provided by the keyword {\ttfamily CLASSES CRITICAL SHEAR STRESS FOR MUD DEPOSITION} (real type, set to {\ttfamily = 1000.} N/m$^2$ by default).
+
+For the evaluation of the settling velocity $w_s $, if the keyword {\ttfamily CLASSES SETTLING VELOCITIES} is not included in the steering file, \gaia{} computes the settling velocity for each sediment class by the Stokes, Zanke or van Rijn formulae depending on the grain size.
+The same result is found by providing the keyword and its corresponding value as {\ttfamily CLASSES SETTLING VELOCITIES = -9}.
+
+For $d_{50}<10^{-4}$, the Stokes' law is used:
+\begin{equation}
+w_s=\frac{gd_{50}^2}{18 \nu}(s-1)
+\label{eq:stokes:settling:vel}
+\end{equation}
+For $10^{-4}\le d_{50}<10^{-3}$ the Ruby \& Zanke formula (1977) is applied:
+\begin{equation}
+w_s=\frac{10 \nu}{d_{50}}\left(\sqrt{1+\dfrac{(s-1)gd_{50}^3}{100 \nu^2}}-1 \right)
+\label{eq:zanke:settling:vel}
+\end{equation}
+For $d_{50}\ge10^{-3}$ the Van Rijn formula is used:
+\begin{equation}
+w_s=1.1\sqrt{(s-1)gd_{50}}
+\label{eq:vanR:settling:vel}
+\end{equation}
+$s=\dfrac{\rho_s}{\rho}$ is the relative sediment density, $d_{50}$ is the median grain diameter, $g$ is the acceleration of gravity, $\nu$ is the kinematic viscosity.
+Further details can be found in the subroutine \texttt{settling\_vel.f}.
+
+By default, the flux of non-cohesive sediment deposits from the water column is added to the first layer of the consolidation bed model. It can alternatively be considered to immediately settle through the fresh cohesive sediment and thus be added to a given layer (of a given concentration) chosen by the user.
+

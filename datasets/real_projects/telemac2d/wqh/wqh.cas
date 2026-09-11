@@ -1,0 +1,80 @@
+////////////////////////////////////////////////////////////////////////
+/// 1-computation environment
+/// 1.1-initialization
+TITLE = 'wqh 2D'
+INITIAL CONDITIONS = 'CONSTANT DEPTH'
+INITIAL DEPTH = 5.0
+/// 1.1.1-input files
+GEOMETRY FILE = 'wqh.slf'
+BOTTOM SMOOTHINGS = 1
+BOUNDARY CONDITIONS FILE = 'wqh_BC.cli'
+/// 1.2-restart
+COMPUTATION CONTINUED = True
+PREVIOUS COMPUTATION FILE = 'restart.slf'
+/// 1.3-output files
+/// 1.3.1-results files
+GRAPHIC PRINTOUT PERIOD = 120
+VARIABLES FOR GRAPHIC PRINTOUTS = 'U,V,S,B,H,F,L'
+RESULTS FILE = 'res_wqh.slf'
+/// 1.3.2-listing
+LISTING PRINTOUT PERIOD = 120
+MASS-BALANCE = True
+INFORMATION ABOUT SOLVER = True
+COMPATIBLE COMPUTATION OF FLUXES = YES
+PRINTING CUMULATED FLOWRATES = YES
+SECTIONS INPUT FILE = 'sections.txt'
+SECTIONS OUTPUT FILE = 'flowrate.txt'
+////////////////////////////////////////////////////////////////////////
+/// 2-hydro
+/// 2.1-boundary conditions
+PRESCRIBED ELEVATIONS = 0.0;205.0
+PRESCRIBED FLOWRATES = 1000.0;0.0
+/RAIN OR EVAPORATION = YES
+/RAIN OR EVAPORATION IN MM PER DAY = 141.5
+/DURATION OF RAIN OR EVAPORATION IN HOURS = 6.0
+/// 2.2-boundary conditions others
+VELOCITY PROFILES = 5;1
+OPTION FOR LIQUID BOUNDARIES = 1;1
+LIQUID BOUNDARIES FILE = 't2d_canal.qsl'
+/// 2.3-physical parameters hydro
+/// 2.3.1-friction
+LAW OF BOTTOM FRICTION = 4
+FRICTION COEFFICIENT = 0.06
+/// 2.3.2-sources
+WATER DISCHARGE OF SOURCES = 0.0;1.0;2.0;3.0;4.0;5.0;6.0
+SOURCES FILE = 'source_discharge.qsl'
+SOURCE REGIONS DATA FILE = 'source_regions.qsl'
+MAXIMUM NUMBER OF POINTS FOR SOURCES REGIONS = 99999
+////////////////////////////////////////////////////////////////////////
+/// 3-general parameters
+/// 3.1-time
+TIME STEP = 5.0
+NUMBER OF TIME STEPS = 18000
+////////////////////////////////////////////////////////////////////////
+/// 4-numerical parameters
+/// 4.1-solver info
+TREATMENT OF NEGATIVE DEPTHS = 2
+FREE SURFACE GRADIENT COMPATIBILITY = 0.9
+H CLIPPING = NO
+TYPE OF ADVECTION = 1;5
+SUPG OPTION = 0;0
+MASS-LUMPING ON H = 1.
+DEPTH IN FRICTION TERMS = 2
+SCHEME FOR ADVECTION OF VELOCITIES = 14
+SCHEME OPTION FOR ADVECTION OF VELOCITIES = 1
+IMPLICITATION FOR DEPTH = 1
+IMPLICITATION FOR VELOCITY = 0.55
+////////////////////////////////////////////////////////////////////////
+/// 5-turbulence
+TURBULENCE MODEL = 1
+VELOCITY DIFFUSIVITY = 1.E-6
+////////////////////////////////////////////////////////////////////////
+/// 6-tidal flats info
+TIDAL FLATS = YES
+OPTION FOR THE TREATMENT OF TIDAL FLATS = 1
+TREATMENT OF THE LINEAR SYSTEM = 2
+SOLVER = 1
+SOLVER ACCURACY = 1.E-5
+CONTINUITY CORRECTION = YES
+MAXIMUM NUMBER OF ITERATIONS FOR SOLVER = 100
+MAXIMUM NUMBER OF ITERATIONS FOR ADVECTION SCHEMES = 500

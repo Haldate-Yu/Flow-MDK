@@ -1,0 +1,48 @@
+Here are the minimal version necessary for the prerequisites for
+TELEMAC-MASCARET to have compilation, execution pre/post-treatment and
+validation working.
+
+To just have compilation and execution (without api and in sequential) you just
+need Python and a Fortran Compiler.
+
+The version given below are the ones the code is validated with.
+The code might work with higher version for some dependencies.
+
+Mandatory:
+- Python: 3.5.3
+- Numpy: 1.17.4
+- Scipy: 1.3.2
+
+Optionals:
+- matplotlib: 3.0.3
+To add parallel support:
+- metis: 5.1.0
+- mpi: openmpi, mpich...
+To add MED support:
+- hdf5: 1.10.3
+- med: 4.0.0
+To add MUMPS support:
+- mumps: 4.10
+To add AED support:
+- aed2: 1.0-edf (Download from Telemac website http://www.opentelemac.org/index.php/binaries/summary/39-manual-installation-sources/)
+To add GOTM:
+- gotm: 2019-06-14-edf (Download from Telemac Website http://www.opentelemac.org/index.php/binaries/summary/39-manual-installation-sources/)
+Additionals Python packages are needed for some of the python scripts:
+- OWSLib==0.18.0
+- jupyter==1.0.0
+- zipp==0.6.0
+- ipython==7.9.0
+- ipywidgets==7.5.1
+- mpi4py==3.0.3
+- pyproj==2.4.1
+- folium==0.10.0
+- pandas==0.25.3
+- kiwisolver==1.1.0
+- geopandas==0.7.0
+- fiona==1.8.13
+- alphashape==1.0.2
+- openpyxl==2.6.4
+- shapely==1.7.0
+- rasterio==1.1.0
+- pylint==2.4.4
+- doxypypy==0.8.8.6

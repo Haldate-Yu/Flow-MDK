@@ -1,0 +1,65 @@
+\chapter{Degradation law}
+
+%\waqtel simulates the evolution of one or several tracer(s)
+%over time from an initial condition according to a degradation law
+%that is assumed to be of 1$^{\rm{st}}$ order (i.e. a tracer decrease).
+
+\waqtel can simulate usual laws for bacterial degradation with
+$T_{90}$ coefficient(s):
+time(s) required for 90\% of the initial bacterial population to disappear
+or also described as the time for bacterial or viral concentration to decrease
+by one log unit (hence the 2.3 coefficient below).
+It is expressed in hours.
+
+In other words, it simulates the evolution of tracer(s) $C$ over time from
+initial condition(s) according to a degradation law assumed to be of
+1$^{\rm{st}}$ order (i.e. a tracer decrease) with constant(s) of tracer kinetic
+degradation equal to $\frac{2.3}{T_{90}}$:
+
+\begin{equation}
+  F([C]) = -\frac{2.3}{T_{90}} [C],
+\end{equation}
+
+with $T_{90}$ coefficient(s) described above, in hours.
+\\
+
+\waqtel can also simulate the evolution of tracer(s) $C$ over time
+from initial condition(s)
+according to a degradation law that is assumed to be of 1$^{\rm{st}}$ order
+(i.e. a tracer decrease):
+
+\begin{equation}
+  F([C]) = -k_1 [C],
+\end{equation}
+
+where $k_1$ is the constant (or one of the constants) of tracer kinetic
+degradation $C$ (it can be given in h$^{-1}$ or d$^{-1}$).
+\\
+
+The user can decide whether a tracer follows such laws
+with the keyword \telkey{LAW OF TRACERS DEGRADATION}
+which is an array containing as many values as the number of tracers.
+Possible choices are:
+\begin{itemize}
+\item 0: no degradation (default),
+\item 1: law for bacterial degradation with $T_{90}$ coefficient
+in hours,
+\item 2: degradation law of first order, constant of tracer kinetic
+degradation in h$^{-1}$,
+\item 3: degradation law of first order, constant of tracer kinetic
+degradation in d$^{-1}$,
+\item 4: law implemented by user (with the help of
+\telfile{USER\_CALCS2D\_DEGRADATION} or \telfile{USER\_CALCS3D\_DEGRADATION}
+subroutines in 2D or 3D).
+\end{itemize}
+
+%and the values 0 if no degradation or 1 if a decrease law
+%of kind bactoriological is applied (default = 0).
+%Thus, this keyword has to contain as many values as the number of tracers.
+
+%Its constant of tracer kinetic degradation $k_1$ can be specified
+%The 90~\% mortality time $T_{90}$ can be specified
+The $T_{90}$ or $k_1$ coefficients can be specified
+with the keyword \telkey{COEFFICIENT 1 FOR LAW OF TRACERS DEGRADATION}
+(one per tracer, expressed in hours for law 1, in h$^{-1}$ for law 2,
+in d$^{-1}$ for law 3).

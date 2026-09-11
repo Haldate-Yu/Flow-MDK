@@ -1,0 +1,50 @@
+model:
+  arch: flow_mdk
+  hidden_dim: 32
+  num_message_passing_layers: 2
+  hops_per_layer: 2
+  hidden_activation: tanh
+  num_previous_steps: 1
+  num_dynamic_vars: 2
+  water_level_feature_idx: -1
+  elevation_feature_idx: 0
+  wet_depth_threshold: 0.001
+  mask_small_depth: true
+  small_depth_epsilon: 0.001
+  clamp_depth: false
+  mdk:
+    use: false
+    num_steps: 2
+    weighting: geometric
+    lambda0: 0.3
+    learn_lambda: true
+    directed: true
+    wet_gate: source
+    mixing: learned
+    alpha_value: 0.5
+    edge_weight: discharge
+    direction_beta: 1.0
+train:
+  horizon_max: 8
+  curriculum_steps: 4
+  var_weights:
+  - 1.0
+  - 3.0
+  only_where_water: true
+  lr: 0.007
+  lr_decay: 0.9
+  lr_step_epochs: 7
+  max_epochs: 40
+  early_stop_patience: 99
+  batch_size: 8
+  grad_clip_value: 0.5
+data:
+  name: 1d_chain
+  root: data/scenarios_1d
+  split: {}
+  train_frac: 0.6
+  val_frac: 0.2
+  seed: 0
+seed: 0
+device: auto
+out_dir: runs/partA_swegnn

@@ -1,0 +1,39 @@
+\pagebreak
+%-------------------------------------------------------------------------------
+\section{Bed evolution}\label{sec:bedevol}
+%-------------------------------------------------------------------------------
+
+In \textsc{Gaia}, the bed evolution is computed by solving the mass conservation equation for sediment or \textit{Exner equation}, expressed in terms of mass (see~\ref{sec:BedloadTransport}), where bedload, suspension or both sediment transport modes can be considered simultaneously. In its simplest form (only bedload, one sediment class) this equation reads:
+\begin{align}
+  (1-\lambda)\frac{\partial (\rho\,z_b)}{\partial t} + \nabla\cdot\mathbf{Q}_{mb}=0
+\end{align}
+with $\mathbf Q_{mb}$ is the vector of mass transport rate per unit width without pores (kg/(m~s)), $\lambda$ is the sediment porosity (keyword \telkey{LAYERS NON COHESIVE BED POROSITY} with default value equal to $0.4$ per layer, and $z_b$ the bed elevation above datum.
+In \textsc{Gaia}, two different morphological accelerators are proposed: ($i$) a morphological factor on the hydrodynamics, which distorts the evolution of the hydrodynamics with respect to the morphodynamics; and ($ii$) a morphological factor on the bed, which distorts the evolution of the morphodynamics with respect to the hydrodynamics. The first option is suitable for river applications accounting for bedload transport whereas the second option is suitable for coastal and estuarine applications as it is compatible with suspended sediment transport processes.
+
+The solution of the conservative law equation for sediment mass (or Exner equation) can be written with respect to the bottom elevation, as follows:
+
+\begin{align}
+(1-\lambda)\frac{\partial z_b}{\partial t} + \nabla\cdot \mathbf Q_b = 0
+\label{eq:Exner}
+\end{align}
+with $\mathbf Q_b$ the vector of volumetric transport rate per unit width without pores (m$^2/$s), with components $Q_{b_x}, Q_{b_y}$ in the $x$ and $y$ direction respectively, $z_b$ is the bottom elevation (m) and $\lambda$ the bed porosity. The bedload transport vector can be decomposed into $x-$ and $y-$direction components as:
+\begin{align}
+\mathbf Q_b = (Q_{b_x}, Q_{b_y}) = (Q_b \cos\alpha, Q_b \sin\alpha).
+\label{eq:bedloadtransportvector}
+\end{align}
+Above, $Q_b$ is the bedload transport rate per unit width, computed as a function of the equilibrium sediment load closure (or sediment transport capacity) and $\alpha$ is the angle between the sediment transport vector and the downstream direction ($x-$axis).
+The deviation of the bed load direction from the flow direction is mainly influenced by the bed slope and the presence of secondary flows~\cite{Talmon95}, see Section~\ref{sec:corrections}.
+
+\gaia{} does not solve equation \eqref{eq:Exner} but solves the Exner equation which has mass as main variable. The equation is obtained writing the conservative law equation for sediment and integrating along the vertical, keeping density in the equation:
+\begin{align}
+(1-\lambda)\frac{\partial \left(\rho z_b\right)}{\partial t} + \nabla\cdot \left(\mathbf Q_{mb} z_b\right) = 0
+\label{eq:Exner_mass}
+\end{align}
+where $\mathbf Q_{mb}=\rho \mathbf Q_b$ is the vector of mass transport rate per unit width without pores (kg/(m~s)).
+
+%-------------------------------------------------------------------------------
+\subsection{Numerical treatments for the Exner equation}
+%-------------------------------------------------------------------------------
+The Exner equation can be solved in \gaia{} using a finite element or a finite volume scheme. A property which needs to be satisfied is the layer thickness positivity or the rigid bed condition. \\
+When using the finite element scheme (default option), the equation is solved using the subroutine \texttt{positive\_depths} and in particular the \texttt{NERD} algorithm (\texttt{positive\_depths\_nerd}). This is also one of the scheme used to preserve the water depth positivity when solving the shallow water equations. \\
+To use finite volumes, the following keyword must be activated in the \gaia{}'s steering file: \telkey{FINITE VOLUMES = YES}. Then the scheme will be by default a centred one but an upwind scheme can be chosen setting \telkey{UPWINDING FOR BEDLOAD = 1}.

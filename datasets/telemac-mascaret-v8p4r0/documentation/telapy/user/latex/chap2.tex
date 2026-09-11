@@ -1,0 +1,253 @@
+\chapter{\TelApy{} description}\label{ch:TelApy_description}
+
+As mentioned in the introduction part (Section~\ref{ch:intro}), the \TelApy{}
+module is used to control the APIs of \telemacsystem{} in the \python{}
+programming language. The \telemacsystem{} APIs are developed in \fortran{}.
+However, it is relatively easy to use these \fortran{} routines directly in
+\python{} using the ``f2py'' tool from the \python{} NumPy
+library~\cite{Peterson2009}. This tool will make it possible to compile
+\fortran{} code to make it accessible and usable in \python{}. This compilation
+step is directly integrated into the compilation of the \telemacsystem{} and is
+thus transparent to the user. Moreover, in order to make the \TelApy{} module
+more user friendly, a \python{} wrapper has been developed in order to
+encapsulate and simplify the different API \python{} calls. This set of
+transformation constitutes the \TelApy{} module.
+
+The first section of this chapter is dedicated to the \fortran{} API of
+\telemacsystem{}. Then, the \python{} \TelApy{} module is presented.
+
+\section{\telemacsystem{} \fortran{} API description}
+%------------------------------------------------------------------------------
+%
+An API (Application Programming Interface) is a library allowing to control the
+execution of a program. Here is part of the definition from Wikipedia:\\
+
+"In computer programming, an application programming interface (API) specifies
+a software component in terms of its operations, their inputs and outputs and
+underlying types. Its main purpose is to define a set of functionalities that
+are independent of their respective implementation, allowing both definition
+and implementation to vary without compromising each other.
+
+In addition to accessing databases or computer hardware, such as hard disk
+drives or video cards, an API can be used to ease the work of programming
+graphical user interface components, to allow integration of new features into
+existing applications (a so-called "plug-in API"), or to share data between
+otherwise distinct applications. In practice, many times an API comes in the
+form of a library that includes specifications for routines, data structures,
+object classes, and variables." \\
+
+The API’s main goal is to have control on a simulation while running a case.
+For example, it must allow the user to stop the simulation at any time step,
+retrieve some variables values and change them. In order to make this possible,
+a \fortran{} structure called instance is used in the API\@. This informatic
+structure is described in the paragraph~\ref{subsec:instan}. The instance
+structure gives direct access to the physical memory of variables, and allows
+therefore the variable control (see paragraph~\ref{subsec:var}). Furthermore,
+based on modifications in \telemacsystem{} main subroutines, it is possible to
+run hydraulic case time step by time step. This will be
+presented in the paragraph~\ref{subsec:exec}. And finaly, the parallelism is
+evoked (paragraph~\ref{subsec:para}).
+All \fortran{} routines are available in the directory ``api'' of the
+\telemacsystem{} repository.
+sources.
+
+Detailed information on each function can be find in the Doxygen documentation
+to open it run the following command:
+
+\begin{lstlisting}
+firefox <root>/documentation/doxydocs/html/index.html
+\end{lstlisting}
+
+Replacing <root> by the path to your installation and firefox by your internet
+browser.
+
+If you are on the main branch, run the command below to generate it.
+
+\begin{lstlisting}
+doc_telemac.py -M doxydocs
+\end{lstlisting}
+
+\begin{WarningBlock}{Warning:}
+\centering
+ In the following sections, all presented API routines are related to
+ \telemac{2D}. However, the API implementation of \telemacsystem{} modules is
+ generic that is to say based on the same structure (in the following routines
+ the sequence "t2d" related to \telemac{2D} module can be replace by "sis"
+  related to \sisyphe{} module for instance).
+\end{WarningBlock}
+
+\subsection{Structure}
+
+The functions are dispatched in \fortran{} files as follow:
+\begin{itemize}
+  \item \verb!api_interface.f!: Contains the main function for all the api.
+  \item \verb!api_handle_error.f!: Contains the handling of error messages.
+  \item \verb!api_handle_var_t2d.f!: Contains all the get/set.
+  \item \verb!api_instance_t2d.f!: Contains the function for the instance
+    described in Section~\ref{subsec:instan}.
+  \item \verb!api_run_t2d.f!: Contains the function for the execution of the
+    computation described in Section~\ref{subsec:exec}.
+\end{itemize}
+
+\subsection{Instantiation}\label{subsec:instan}
+An instance is a memory structure that gathers all the variables alterable
+by the API\@. The definition of the ``instance'' structure is made in a
+\fortran{} type dedicated to this purpose and is composed of:
+
+\begin{itemize}
+\item An index defining the instance ID\@.
+\item A string which can contain error messages.
+\item Some pointers to the concerned module variables. This is what makes it
+  possible to manipulate the variables of the module by having a direct access
+    to their memory location. The list of variables that can be accessed is
+    given in the Tables below. Not all
+    variables within the module are there. However adding a new variable is
+    pretty straight forward, the procedure is described in
+    Section~\ref{var_add}.
+\end{itemize}
+
+%Automatically generated by python list of variables
+\input{latex/var_list_t2d.tex}
+\input{latex/var_list_t3d.tex}
+\input{latex/var_list_sis.tex}
+\input{latex/var_list_art.tex}
+\input{latex/var_list_wac.tex}
+
+In addition to the instance definition, the module includes all routines needed
+to manipulate it (creation, deletion, and so on).
+
+\subsection{Variable control}
+\label{subsec:var}
+The way in which the instance is defined (pointers) allows manipulation of
+variables during the simulation. So, to get information on the variables the
+following set of functions has been implemented:
+
+\begin{itemize}
+
+\item \verb!get_var_list! get the list of variables reachable with the API:
+
+\item \verb!get_var_type! get the type of a variable.
+
+\item \verb!get_var_size! get the size of a variable.
+
+\item \verb!get_*!, \verb!set_*! access to a given index of a
+  variable.
+
+\item \verb!get_double_array! and \verb!set_double_array! to optimize
+  access to a whole array instead of just a value a new pair of
+functions was created.
+
+\end{itemize}
+
+The \verb!get_*! exist for 4 kind of types (boolean, integer, double/float,
+string). However the type distinction is removed in \TelApy{} based on
+\python{} benefits.
+
+All of those functions are in \verb!api_interface.f! they all take as arguments
+a short name (t2d, t2d, sis\ldots) and an id.
+
+The detailed information for all the routines are available in the Doxygen
+documentation.
+
+\subsection{Computation control}\label{subsec:exec}
+
+The computation control is carried out using some specific routines to launch
+the simulation. These routines constitute a decomposition of the main program
+of each \telemacsystem{} modules corresponding to the following different
+computation steps:
+
+\begin{itemize}
+\item \verb!run_set_config_t2d!: Configuration setup. This function initialises
+  the instance and the listing output. The instance, characterised by the
+  \textbf{id} integer parameter, represents a run of \telemac{2D}.
+
+\begin{CommentBlock}{Comment:}
+\centering
+  In the current version you can have only one instance of each module running
+  at the same time.
+\end{CommentBlock}
+
+\item \verb!run_read_case_t2d!: Reading the \telemac{2D} steering file. This
+  function reads the case file and set the variable of the \telemac{2D}
+    steering file accordingly.
+
+\begin{WarningBlock}{Warning:}
+\centering
+  With the API we are not using the temporary folder (this folder was created
+  by the \python{} environment and all the file declared in the steering file
+  where copied and renamed inside that folder) which means that the name and
+  path given in the steering file will be used. This also this means that the
+  same file cannot be used for multiple keywords.
+\end{WarningBlock}
+
+\item \verb!run_allocation!: Memory allocation. This function runs the
+  allocation of all the data needed in \telemac{2D}. Any modifications to
+    quantities of \telemac{2D} should be done before the call to that function.
+
+\item \verb!run_init_t2d!: Initialization. This function will do the setting of
+  the initial conditions of \telemac{2D}. It corresponds to the time-step 0 of
+    a \telemac{2D} run.
+
+\item \verb!run_timestep_t2d!: Computation function that runs one time-step
+  of \telemac{2D} and writing the results. To compute all time steps, a
+    loop on this function must be done.
+
+\item \verb!run_timestep_compute_t2d!: Computation function that runs one
+  time-step of \telemac{2D} without writing the results (only in \telemac{2D}).
+
+\item \verb!run_timestep_res_t2d!: Computation function that runs the writing
+  part of a time step on listing and/or files (only in \telemac{2D}).
+
+\item \verb!run_finalize_t2d!: Finalization. This function concludes the run of
+  \telemac{2D} and will deallocate all the arrays and delete the instance. To
+    start a new execution of \telemac{2D} the function run\_set\_config must be
+    run again.
+
+\end{itemize}
+
+For each routine defined above, the first argument is the identity number it is
+allowing all computation variables to be linked with the corresponding instance
+pointers. These routines are then called in the same order to insure a correct
+execution of the computation in the API main program.
+
+\subsection{Parallelisation}
+\label{subsec:para}
+All steps associated with parallel computation must be performed by the user
+when he chooses to launch his calculation on several processors. In this case,
+after initializing the MPI environment, the user must partition the input files
+(geometry file, boundary conditions files, and so on) using the \fortran{}
+function "partel". Then, when the calculation is complete, it is necessary to
+merge each subdomains result files using the "gretel" routine of the
+\telemacsystem{}. The MPI environment can then be closed.
+
+All the get/set functions are using local numbering.
+To handle global number two tools are available:
+\begin{itemize}
+  \item the function GLOBAL\_TO\_LOCAL\_POINT returns the local numbering of a
+    global id
+(0 if it is not on the partition).
+  \item the array KNOLG returns the global number of a local point.
+\end{itemize}
+
+\section{\TelApy{} \python{} module}
+
+It is relatively easy to use the \fortran{} API routines directly in \python{}
+using the ``f2py'' tool of the \python{} Numpy library. This tool will make it
+possible to compile \fortran{} code such as it is accessible and usable in
+\python{}. For more details on this tool, the interested reader can refer
+directly to \cite{Peterson2009}. However, using the advantage of the \python{}
+language, it is possible to implement a wrapper in order to provide user
+friendly function of the \fortran{} API\@. Thus, a \python{} overlay was
+developed in order to encapsulate and simplify the different API \python{}
+calls. The different \python{} functions written to simplify the use of API are
+available in the directory "$HOMETEL/scripts/python3/telapy/$".
+
+A \doxygen documentation (In \verb!<root>/documentation/doxypydocs! if you are
+on the main branch, run \verb!doc_telemac.py -M doxypydocs! to generate it) is
+available and allows the user to visualize \python{} classes, functions that
+can be used as well as its input and output variables and so on.
+
+In order to launch the \doxygen documentation, the user needs to copy and paste
+the link \verb!$HOMETEL/documentation/doxypydocs/html/index.html! into his
+favorite internet browser. Then, the user can navigate in the \doxygen
+environment in order to find information.

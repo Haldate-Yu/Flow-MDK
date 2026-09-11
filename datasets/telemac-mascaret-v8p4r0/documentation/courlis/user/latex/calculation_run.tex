@@ -1,0 +1,122 @@
+\section{First run}
+
+From your working folder, in the same way as for hydraulics simulations with \mascaret, the user should call the \mascaret script:
+\lstset{language=bash,
+        basicstyle=\scriptsize\ttfamily}
+
+\begin{lstlisting}[escapechar=|]
+[bash:] mascaret.py <your_xcas_file.xcas>
+\end{lstlisting}
+
+An example of a \Cbedload simulation on a Debian 10 machine is given below :
+\lstset{language=TelemacCas}
+\begin{lstlisting}
+Loading Options and Configurations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+(*@\color{codegreen} < COURLIS VERSION >@*)
+
+Running your CAS file(s) for:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+S10.gfortran.dyn: 
+    
+
+    +> Gfortran compiler 8.3.0 with open_mpi for a Debian 10
+
+    +> root:    (*@\color{codegreen} <your root folder>@*)
+    +> module: ad / api / artemis / bief
+               damocles  / gaia  / gretel  / hermes
+               identify_liq_bnd  / khione  / mascaret  / nestor
+               parallel  / partel  / postel3d  / sisyphe
+               special  / stbtel  / telemac2d  / telemac3d
+               tomawac / waqtel
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+... processing the steering file
+
+... checking parallelisation
+
+... handling temporary directories
+~+> Creating FichierCas.txt
+                                                                               
+... checking the executable
+
+
+Running your simulation(s) :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+In (*@\color{codegreen} <your simulation folder>@*):
+mpirun -np 1 (*@\color{codegreen} <your root folder>@*)/builds/S10.gfortran.dyn/bin/mascaret
+
+
+ Fichiercas : FichierCas.txt
+
+ TELEMAC-MASCARET V8P2R0beta == Copyright (C) 2000-2020 EDF-CEREMA ==
+
+ Data File : (*@\color{codegreen} <your xcas file.xcas>@*)
+
+ Clip Evolution = (*@\color{codegreen} <non absolute clipping value>@*)
+
+ Pente locale : T
+
+ Parametres utilises seulement pour les formules de transport de Recking et de Lefort
+ D84 = (*@\color{codegreen} < >@*)
+ Diametre moyen = (*@\color{codegreen} < >@*)
+
+ Parametre utilise seulement pour la formule de transport de Lefort
+ D16 = (*@\color{codegreen} < >@*)
+
+ Bedload option : T  (*@\color{codegreen} Bedload simulation@*)
+
+ Suspension option : F
+
+ sediment slide option : F
+
+ planim clipping option : F
+
+ absolute clipping = (*@\color{codegreen} <absolute clipping value>@*)
+
+ bedload transport law is (*@\color{codegreen} <transport law>@*)
+ Study name : (*@\color{codegreen} <your study name>@*)
+
+ Hydraulic statistics (prior solve phase)
+    ------ Geometric parameters ------
+    Number of reach(es)       =            1
+    Number of cross-sections  =           (*@\color{codegreen} <nb sections>@*)
+    Number of open boundaries =            2
+    Number of junction(s)     =            0
+    Number of inflow(s)       =            0
+    Number of lateral weir(s) =            0
+    Number of storage area(s) =            0
+    Number of link(s)         =            0
+    Number of dam(s)/weir(s)  =            0
+    ------ Numerical parameters ------
+    Number of 1D nodes (mesh) =           (*@\color{codegreen} <nb sections>@*)
+    Computation Kernel        =            1
+    Initial time step         =      	(*@\color{codegreen} <dt>@*)
+    Variable time step?       =            0
+    Simulation time           =      	(*@\color{codegreen} <t max>@*)
+
+ (*@\color{PantoneRed}OptionCourlis T@*)
+ Start the Simulation...
+\end{lstlisting}
+
+\section{Calculation continuation}
+
+wip
+
+
+\begin{WarningBlock}{Warning}
+	When updating your version of \courlis, make sure to delete the precedent \telfile{dictionnary file} before running your simulation again.
+\end{WarningBlock}
+

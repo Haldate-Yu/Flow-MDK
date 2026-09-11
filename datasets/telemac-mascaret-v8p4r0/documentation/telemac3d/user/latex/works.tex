@@ -1,0 +1,98 @@
+\chapter{Construction works modelling}
+\label{ch:constr:wm}
+
+\section{Culverts}
+\label{sec:culverts}
+The keyword \telkey{NUMBER OF CULVERTS} (default value = 0) specifies
+the number of culverts to be treated as source terms.
+Culverts are described as couples of points between which flow may occur,
+as a function of the respective water level at these points.
+They must be described as sources in the domain.
+%Since release 6.2 of \telemac{3D}, it is no longer
+It is not necessary to describe each culvert
+inflow and outflow as a source point like in \telemac{2D} before release 6.2.
+
+There are two options to treat culverts in \telemac{3D}.
+The choice can be done with \telkey{OPTION FOR CULVERTS}
+(default value = 1).
+For more information about this choice, the reader is invited to refer to the
+\telemac{3D} theory guide.\\
+
+Information about culvert characteristics is stored in the
+\telkey{CULVERTS DATA FILE}.
+
+The following file gives an example of a culvert:
+\begin{lstlisting}[language=bash]
+Relaxation, Number of culverts
+0.2 1
+I1  I2  CE1 CE2 CS1 CS2 LRG  HAUT1 CLP LBUS Z1  Z2  CV  C56 CV5 C5  CT  HAUT2 FRIC LENGTH CIRC D1  D2 A1 A2  AA
+199 640 0.5 0.5 10  1.0 2.52 2.52  0   0.2  0.3 0.1 0.0 0.0 0.0 0.0 0.0 2.52  0.0  0.0    1    90. 0. 0. 90. 0
+
+\end{lstlisting}
+
+The relaxation coefficient is initially used to prescribe the discharge
+in the culvert on a progressive basis in order to avoid the formation of an eddy.
+Relaxation, at time $T$, between result computed at time $T$ and result
+computed at previous time step.
+A relaxation coefficient of 0.2 means that 20\% of time $T$ result is mixed
+with 80\% of the previous result.
+I1 and I2 are the numbers of each end of the culvert in the global point
+numbering system.
+
+The culvert discharge is calculated based on the formulae given
+in the \telemac{3D} theory guide:
+CE1 and CE2 are the head loss coefficients of 1 and 2 when they are operating as
+inlets.
+CS1 and CS2 are the head loss coefficients of 1 and 2 when they are operating as
+outlets.
+LRG is the width of the culvert.
+HAUT1 and HAUT2 are the heights of the construction work (in meters)
+at the inlet and outlet.
+The flow direction is also imposed through the keyword CLP:\\
+CLP = 0, flow is allowed in both directions,\\
+CLP = 1, flow is only allowed from section 1 to section 2,\\
+CLP = 2, flow is only allowed from section 2 to section 1,\\
+CLP = 3, no flow allowed.\\
+LBUS is the linear head loss in the culvert, generally equal to
+$\lambda {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} \frac{L}{D} $
+where $L$ is the length of the pipe, $D$ its diameter and $l$ the friction
+coefficient.
+Z1 and Z2 are the levels of the inlet and outlet.
+CV refers to the loss coefficient due to the presence of a valve and
+C56 is the constant used to differentiate flow types 5 and 6 in the formulation
+by Bodhaine.
+C5 and CV5 represent correction coefficients to C1 and to CV coefficients 
+due to the occurrence of the type 5 flow in the Bodhaine formulation.
+CT is the loss coefficient due to the presence of trash screens.
+FRIC is the Manning Strikler coefficient.
+LENGTH is the length of the culvert, and the culvert's shape can be specified
+through the parameter CIRC (equal to 1 in 
+case of a circular section, 0 for a rectangular section).
+A1 and A2 are the angles with respect to the $x$ axis. 
+D1 and D2 are the angles that the pipe makes with respect to the bottom,
+in degrees.
+For a vertical intake, the angle with the bottom will therefore be 90$^\circ$.
+They are used to account for the current direction at source or sink point.
+AA is a parameter which allows the user to choose whether A1 and A2 are
+automatically computed by \telemac{3D}
+or whether the data file values are used to set these angles:
+AA=1 -- automatic angle; AA=0 -- user-set angle.
+
+
+%Following lines come from the \telfile{BUSE} subroutine comments.
+%The choice can be done with the keyword \telkey{OPTION FOR CULVERTS}:
+%\begin{itemize}
+%\item option 1 computes the flow according to $\Delta H$ (only works for
+%circular sections).
+%This is the default option (and the older available in \tel),
+%\item option 2 uses Bodhaine (1968) + Carlier (1976) formulae.
+%The flowrate is calculated according to 5 types of flow calculation
+%of discharges based on water levels equations.
+%\end{itemize}
+
+%For option 1, if the linear pressure loss is negligible,
+%it could have different entry/exit sections.
+%For option 2, in case the entrance and exit surfaces of the culvert are not
+%equal, we assume that the smallest surface will limit the flow through
+%the culvert.
+%This surface is thus taken to calculate the discharge.

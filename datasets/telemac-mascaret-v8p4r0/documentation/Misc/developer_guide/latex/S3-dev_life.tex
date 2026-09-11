@@ -1,0 +1,76 @@
+\chapter{Development life in Telemac}
+\label{ref:devlife}
+Greetings fellow developers of the \telemacsystem and welcome into the world of
+a \telemacsystem developer. It might be hard at the beginning but with time you
+will unravel all of the \telemacsystem dirty little secrets.
+%
+The purpose of this guide is to describe all the steps you may encounter when
+developing in the \telemacsystem. Those steps can be found in the
+``\telemacsystem Software Quality Plan'' (Eureka H-P74-2014-02365-EN). They are
+resumed in Fig \ref{cycle}.
+%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance = 1cm, auto]
+  % Defining style for the task
+  \tikzstyle{task} = [draw, very thick, fill=white, rectangle]
+  \tikzstyle{bigbox} = [draw, thin, rounded corners, rectangle]
+  \tikzstyle{box} = [draw, thick, fill=white, rounded corners, rectangle]
+  % Creation of the nodes
+  \node (ISSUE) [task] {1. GitLab issue};
+  \node (CHs) [task, below of=ISSUE] {2. CHs};
+  \node (DISC) [task, below of=CHs] {3. Discussion};
+  \node (IMPL) [task, below of=DISC] {4. Implementation};
+  \node (null2) [right of=IMPL, node distance=9em] {};
+  \node (VV) [task, below of=IMPL] {5. Verification \& Validation};
+  \node (DOC) [task, below of=VV] {6. Documentation};
+  \node (INT) [task, below of=DOC] {7. Integration};
+  \node (null1) [right of=INT, node distance=9em] {};
+  \node (null3) [left of=INT, node distance=9em] {};
+  \node (MAIN) [box, below of=INT, node distance=4em] {Main branch of the
+    \telemacsystem};
+  \node (VALID) [task, below of=MAIN] {Full validation};
+  \node (TAG) [box, below of=VALID] {Release of the \telemacsystem (tag)};
+  % big box
+  \node (DEV) [bigbox, fit = (ISSUE) (CHs) (DISC) (IMPL) (null1) (null2) (null3) (VV) (DOC) (INT)] {};
+  \node at (DEV.north) [above, inner sep=3mm] {\textbf{Development}};
+  % Creation of the path between the nodes
+  \draw[->] (ISSUE) to node {} (CHs);
+  \draw[->] (CHs) to node {} (DISC);
+  \draw[->] (DISC) to node {} (IMPL);
+  \draw[->] (IMPL) to node {} (VV);
+  \draw[->] (VV) to node {} (DOC);
+  \draw[->] (DOC) to node {} (INT);
+  \draw[-] (INT) -- node [near start] {no} (null1.center);
+  \draw[-] (null1.center) -- (null2.center);
+  \draw[->] (null2.center) -- node [near start] {} (IMPL);
+  \draw[->] (INT) to node {yes} (MAIN);
+  \draw[->] (MAIN) to node {} (VALID);
+  \draw[->] (VALID) to node {} (TAG);
+\end{tikzpicture}
+\caption{\label{cycle}Life cycle of a \telemacsystem development}
+\end{figure}
+%
+The following sections will describes how to use GitLab, the Git-based
+integrated platform used to handle the \telemacsystem source code as well as
+the issues and merge requests, which is available at:\\
+\url{https://gitlab.pam-retd.fr/otm/telemac-mascaret}
+%
+\label{mail}
+%
+%-----------------------------------------------------------------------
+\section{Request a GitLab developer access}
+%-----------------------------------------------------------------------
+%
+A GitLab account is not necessary to clone the repository, but is required to
+modify it and create issues and merge requests. To request a developer access
+to the \telemacsystem, you need to send an email to \url{boris.basic@edf.com}
+with the following informations:
+\begin{itemize}
+\item Your name
+\item Your e-mail address
+\item The \telemacsystem modules that you will work on.
+\end{itemize}
+
+You will then receive an e-mail to setup your account. More information on this
+can be found in the ``Git Guide'' of the \telemacsystem.

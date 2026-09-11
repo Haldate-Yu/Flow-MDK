@@ -1,0 +1,316 @@
+\chapter{The THERMIC module}
+\label{subs:therm:mod}
+For a majority of water quality processes, the interaction with atmosphere is a key parameter.
+The THERMIC module is activated by setting \telkey{WATER QUALITY PROCESS} = 11.
+The neighboring conditions are taken into account through a meteorological file
+like the one described in section \ref{subs:meteo:file}.
+It is important to underline that the data contained in this file
+can vary depending on the considered case.
+The subroutine \telfile{meteo.f} can be edited by the user to customize it to his specific model.
+
+Before version 7.0, heat exchange between water and atmosphere could have been
+done with a linearised formula of the balance of heat exchange fluxes at the
+free surface in \telemac{3D}. An example of an exchange with a constant atmosphere temperature
+and a constant sea salinity was given as standard (as comments) through a
+direct programming in the \telfile{BORD3D} subroutine.\\
+
+A much more elaborated model has been introduced in \waqtel for 2D and 3D.
+
+The evolution of temperature of water is tightly linked to heat fluxes through the free surface.
+These fluxes (in W/m$^2$) are of 5 natures:
+
+\begin{itemize}
+\item solar radiation or sun ray flux $RS$,
+\item atmospheric radiation flux $RA$,
+\item water radiation or free surface radiation flux $RE$,
+\item latent heat or heat flux due to advection $CV$,
+\item sensitive heat of conductive origin or heat flux due to evaporation $CE$.
+\end{itemize}
+
+The final balance of (surface) source terms is given by:
+\[S_{surf}=RS+RA-RE-CV-CE\]
+We will give a brief description for each of these terms, for more details see \cite{El-Kadi2012}.
+This surface source term is treated explicitly in \telemac{2D},
+the following term is added in the explicit source term of advection-diffusion equation
+of tracer$\frac{S_{surf}}{\rho C_pH}$.\\
+
+There is a distinction done in 3D compared to 2D:
+whereas the long wave radiation (atmospheric radiation $RA$) is absorbed in
+the first centimetres of the water column, the short wave radiation (solar
+radiation $RS$) penetrates the water column. Evaporation is calculated in 3D.
+
+The choice of the heat exchange model can be done with the keyword
+\telkey{ATMOSPHERE-WATER EXCHANGE MODEL} in the \waqtel steering file
+(default value = 0: no exchange
+model). Value 1 will use with the linearised formula at the free surface,
+whereas value 2 will use with the model with complete balance.
+
+These calculations require additional meteo data which may vary in time
+in an expected format, rather defined
+in the \telkey{ASCII ATMOSPHERIC DATA FILE} of the \telemac{3D} steering file,
+see the example "heat\_exchange".
+
+Since release v8.2 the format of the \telkey{ASCII ATMOSPHERIC DATA FILE} is
+flexible with respect to the order of columns (but with the mandatory convention
+for data names with the shortnames listed in \ref{subs:meteo:file}).
+
+If not filling the necessary variables
+(in 3D: wind velocities, air temperature, atmospheric pressure, cloud cover,
+rainfall, relative humidity;
+ in 2D: wind velocities, air temperature, atmospheric pressure, cloud cover,
+rainfall, solar radiation, saturated vapour pressure),
+the missing variables are considered constant along the whole computation and
+their values are set by associated keywords values
+(\telkey{WIND VELOCITY ALONG X}, \telkey{WIND VELOCITY ALONG Y}, or
+\telkey{SPEED AND DIRECTION OF WIND} for wind velocity,
+\telkey{VALUE OF ATMOSPHERIC PRESSURE} for atmospheric pressure,
+\telkey{RAIN OR EVAPORATION IN MM PER DAY} for rainfall,
+\telkey{AIR TEMPERATURE}, \telkey{CLOUD COVER}, \telkey{RELATIVE HUMIDITY},
+\telkey{SOLAR RADIATION}, \telkey{VAPOROUS PRESSURE}).
+
+%The format may be changed but the user has to change the
+%implementation of the reading and the interpolation of the meteorological data.
+
+When using the complete module, evaporation is calculated by \telemac{3D}, but
+the user has to provide rainfall data with units homogeneous with length over
+time.
+
+The main developments of this module are implemented in the module
+\telfile{EXCHANGE\_WITH\_ATMOSPHERE} in 3D and in the \telfile{CALCS2D\_THERMIC} in 2D.
+
+
+\section{Sun ray flux RS}
+
+Sun ray flux is simply provided in the \telkey{ASCII ATMOSPHERIC DATA FILE} in 2D.
+In a majority of cases, when no measurements are available,
+this flux is estimated using the method of Perrin \& Brichambaut (\cite{El-Kadi2012}),
+which uses the cloud cover of the sky that varies during the day (function of time).
+So far, this flux is considered constant in space.
+
+Since release 8.2, solar radiation or sun ray can be either read in the 
+\telkey{ASCII ATMOSPHERIC DATA FILE} or computed by \waqtel in 3D.
+To read it in the meteo file, the keyword
+\telkey{SOLAR RADIATION READ IN METEO FILE} is to be activated (default = NO,
+i.e. it is computed by \waqtel in 3D).
+Moreover, an additional column is to be written with the shortname RAY3
+as headline of the column.
+
+For more real cases, the user is invited to use the ``heat exchange'' module
+(in folder sources/telemac3d).
+A sun ray flux varying in space, common between \telemac{2D} and \telemac{3D} will be implemented in next releases.
+
+In 3D, examples of solar radiation penetration in the water $RS$ are given in the
+\telfile{CALCS3D\_THERMICV} subroutine. Two laws are suggested: the first one
+uses the \emph{in situ} measurements of Secchi length and is
+recommended if available; the second one uses two exponential laws that may be
+difficult to calibrate and require an estimation of the type of water from
+turbidity.
+An example of the a double exponential law is commented.
+A similar law as Atkins formula with Secchi length (see BIOMASS module) can also be
+used with light extinction coefficient directly given with the keyword
+\telkey{LIGHT EXTINCTION COEFFICIENT} as soon as
+\telkey{METHOD OF COMPUTATION OF RAY EXTINCTION COEFFICIENT} is set to 3.
+
+The type of sky related to the luminosity of the site has to be chosen
+with respect to the considered area, with the \waqtel keyword
+\telkey{LIGHTNESS OF THE SKY} (1: very pure sky, 2: mean pure sky which is default
+or 3: industrial zone sky) in 3D.
+
+
+\section{Atmospheric radiation RA}
+
+The atmospheric radiation $RA$ is estimated with meteorological
+data collected at the ground level.
+It takes into account energy exchanges with the ground, water
+(and energy) exchanges with the underground, etc.\\
+
+In 2D, $RA$ is estimated mainly by the air temperature, like:
+\begin{equation*}
+RA=e_{air}\sigma\left(T_{air}+273.15 \right)^4\left(1+k\left(\frac{c}{8}\right)^2 \right),
+\end{equation*}
+where:
+\begin{itemize}
+\item $e_{air}$ is a calibrating coefficient given by the keyword
+  \telkey{COEFFICIENTS FOR CALIBRATING ATMOSPHERIC RADIATION} (default 0.97),
+\item $\sigma$ is the constant of Stefan-Boltzmann (= 5.67.10$^{-8}$ Wm$^{-2}$K$^{-4}$),
+\item $T_{air}$ is air temperature given in the \telkey{ASCII ATMOSPHERIC DATA FILE},
+\item $k$ is the coefficient that represents the nature and elevation of clouds,
+it has a mean value of 0.2 and can be changed with the keyword
+\telkey{COEFFICIENT OF CLOUDING RATE}.
+To simplify calculations, an average value of $k$ = 0.2 is usually taken in 2D
+(but default value = 0.17 like in 3D since release 8.2,
+old default value was 0.2 until release 8.1).
+However, it varies like indicated in Table \ref{tab:kcloud}.
+\end{itemize}
+
+\begin{table}
+  \centering
+  \begin{tabular}{|l|c|}
+     \hline
+     Type of cloud & $k$ \\
+     \hline \hline
+     Cirrus & 0.04 \\
+     Cirro-stratus & 0.08 \\
+     Altocumulus & 0.17 \\
+     Altostratus & 0.2 \\
+     Cumulus & 0.2 \\
+     Stratus & 0.24\\
+     \hline
+   \end{tabular}
+  \caption{Values of $k$ depending on cloud type}\label{tab:kcloud}
+\end{table}
+
+In 3D, clouds and albedo at
+the free surface determine the atmospheric radiation $RA$ penetrating the water:
+\begin{equation*}
+RA = (1-alb_{lw}) e_{air}\sigma(T_{air}+273.15)^{4}(1+k . C^{2}),
+\end{equation*}
+where:
+\begin{itemize}
+\item $alb_{lw}$ = 0.03 is the water albedo for long radiative waves
+  (common value used in the literature \cite{imerito_dyresm_2007},
+  \cite{henderson-sellers_energy_balance_1986}),
+%\item $T_{air}$ ($^{\circ}$C) is the air temperature,
+\item $e_{air} = 0.937.10^{-5}(T_{air}+273.15)^{2}$ is the air emissivity,
+\item $\sigma= 5.67.10^{-8}~\mathrm{{W.m^{-2}.K^{-4}}}$ is Stefan-Boltzmann's constant,
+\item $C$ is the nebulosity (tenths). Some meteorological services such as
+M\'{e}t\'{e}o France provide this data in octas, it needs to be converted
+into tenths,
+\item $k$ (dimensionless) is a parameter characterising the type of
+cloud. In practise, it is difficult to know the type of cloud during the
+period of simulation and a mean value of 0.17 is often used \cite{tva_heat_1972},
+\cite{imerito_dyresm_2007}.
+This is the new default value for the keyword
+\telkey{COEFFICIENT OF CLOUDING RATE} since release 8.2.
+Other choices are possible
+%hard-coded in 3D but other choices are possible
+(see the table \ref{tab:kcloud}).
+%and can be changed in the module
+%\telfile{EXCHANGE\_WITH\_ATMOSPHERE}.
+\end{itemize}
+
+When coupling \waqtel with \telemac{3D}, the \telkey{FORMULA OF ATMOSPHERIC RADIATION}
+can be changed:
+\begin{itemize}
+\item 1: Idso and Jackson (1969),
+\item 2: Swinbank (1963) which is the default formula,
+\item 3: Brutsaert (1975),
+\item 4: Yajima Tono Dam (2014).
+\end{itemize}
+
+The formulae in 2D and 3D are almost the same with few differences.
+
+
+\section{Free surface radiation RE}
+
+The available water is assumed to behave like a grey body.
+Radiation generated by this grey body through the free surface is given by:
+\begin{equation*}
+RE = e_{water}\sigma\left(T_{water}+273.15 \right)^4,
+\end{equation*}
+where:
+\begin{itemize}
+\item $T_{water}$ is the mean water temperature in ${}^\circ$C.
+$T_{water}$ is given by the keyword \telkey{WATER TEMPERATURE} (default 7${}^\circ$C),
+\item $e_{water}$ can be seen as a calibration coefficient which depends on the nature
+of the site and obstacles around it.
+This coefficient is given with
+\telkey{COEFFICIENTS FOR CALIBRATING SURFACE WATER RADIATION} (default 0.97).
+For instance, for a narrow river with lots of trees on its banks,
+$e_{water}$ is around 0.97, for large rivers or lakes it is about 0.92.
+\end{itemize}
+
+
+\section{Advection heat flux CV}
+
+This flux (also called sensitive heat flux) is estimated empirically:
+\begin{equation*}
+CV=\rho_{air}C_{p_{air}}f(V)\left(T_{water}-T_{air} \right),
+\end{equation*}
+where:
+\begin{itemize}
+  \item $\rho_{air}$ is the air density given by
+${\rho }_{air}=\ \frac{100\ P_{atm}}{\left(T_{air}+273.15\right)287}$
+where $P_{atm}$ is the atmospheric pressure,
+introduced in the \telkey{ASCII ATMOSPHERIC DATA FILE} or using the keyword
+\telkey{VALUE OF ATMOSPHERIC PRESSURE} (default 100,000~Pa),
+this is a keyword of \telemac{2D} and \telemac{3D},
+\item $C_{p_{air}}$ is the air specific heat (J/kg${}^\circ$C)
+  given by \telkey{AIR SPECIFIC HEAT} (default 1,005),
+\item $f(V)$ is a function of the wind velocity $V$:
+  \begin{itemize}
+  \item in 2D: $f(V) = a+bV$,
+  \item in 3D: $f(V) = b(1+V)$ for wind velocity at 2~m high
+    or $f(V) = a+bV$ for wind velocity at 10~m high,
+    depending on user's choice,
+  \end{itemize}
+\item $V$ is the wind velocity (m/s),
+\item $a$, $b$ are empirical coefficients to be calibrated in 2D and in 3D (only $a$ if one single calibrating coefficient).
+Their values are very close to 0.0025, but they can be changed
+using \telkey{COEFFICIENTS OF AERATION FORMULA} (default = (0.002, 0.0012)).
+\end{itemize}
+
+Because the site of a study may not be equipped with local wind measurements
+and these kinds of data are available at a different location, possibly far
+from the studied site, a wind function is used.
+In 3D, this can be a linear function with
+a single coefficient of calibration $b:f(U_{2}) = b(1+U_{2}$) where $U_{2}$ is
+the wind velocity at 2~m high.
+
+To get the wind velocity at 2~m high from classical wind data at 10~m high, a
+roughness length of ${z}_{0}~=~0.0002$~m has been chosen in the code,
+that leads to $U_{2} \approx 0.85 U_{10}$. This value
+of 0.85 (or the roughness length) may be changed by the user if needed.\\
+
+In 3D, except for the coefficient to model the penetration of solar radiation in the
+water column,
+and if there is only one single calibrating coefficient,
+the parameter $b$ that appears in the wind function is the
+single calibration parameter of this module. Its value is given by the keyword
+\telkey{COEFFICIENT TO CALIBRATE THE ATMOSPHERE-WATER EXCHANGE MODEL}
+in the \waqtel steering file (default
+value = 0.0025 but recommended values are between 0.0017 and 0.0035). This
+keyword is both used for the linearised formula at the free surface and the
+model with complete balance (values 1 and 2 for the keyword
+\telkey{ATMOSPHERE-WATER EXCHANGE MODEL} in the \waqtel steering file).
+
+Since release 8.2, the user can define a wind function depending on 2 coefficients
+by filling in the \telkey{COEFFICIENTS OF AERATION FORMULA}
+(not letting the default values).
+These 2 coefficients are then taken into account rather the 1 single coefficient
+if using \telkey{ATMOSPHERE-WATER EXCHANGE MODEL} = 2.
+Contrary to the wind function with one single coefficient to calibrate where
+wind velocity is taken at 2~m high, the wind function with 2 coefficients
+uses wind velocity taken at 10~m high.
+
+
+\section{Evaporation heat flux CE}
+
+The evaporative heat flux $CE$ (also called latent heat flux)
+is given by the following empirical formula:
+\begin{equation*}
+CE = L(T_{water})\rho_{air}f(V) \left(H^{sat}-H \right)
+\end{equation*}
+where:
+\begin{itemize}
+\item $L(T_{water})$ = 2,500,900 - 2,365.$T_{water}$ is the vaporization latent heat (J/Kg),
+\item $f(V)$ is a function of the wind velocity $V$:
+  \begin{itemize}
+  \item in 2D: $f(V) = a+bV$,
+  \item in 3D: $f(V) = b(1+V)$ for wind velocity at 2~m high
+    or $f(V) = a+bV$ for wind velocity at 10~m high,
+    depending on user's choice,
+  \end{itemize}
+\item $V$ is the wind velocity (m/s),
+\item $H^{sat}=\frac{0.622P^{sat}_{vap}}{P_{atm}-0.378P^{sat}_{vap}}$
+is the air specific moisture (humidity) at saturation (kg/kg),
+\item $H = \frac{0.622P_{vap}}{P_{atm}-0.378P_{vap}}$ is the air specific humidity (kg/kg),
+\item $P_{vap}$ is the partial pressure of water vapour in the air (hPa)
+which is given in the \telkey{ASCII ATMOSPHERIC DATA FILE},
+\item $P^{sat}_{vap}$ is the partial pressure of water vapour at saturation (hPa) which is estimated with:
+\begin{equation*}
+P^{sat}_{vap} = 6.11 \exp \left(\frac{17.27T_{water}}{T_{water}+237.3} \right).
+\end{equation*}
+\end{itemize}
+
+When $H{}^{sat} < H$, the atmospheric radiation $RA$ is corrected by multiplying it with 1.8.

@@ -1,0 +1,159 @@
+\pagebreak
+%-------------------------------------------------------------------------------
+\section[Bottom stratigraphy]{Bottom stratigraphy}
+%-------------------------------------------------------------------------------
+For sand graded distributions, an algorithm based on the classical active layer formulation of Hirano is used~\cite{doi:10.1029/2006WR005474}. The active layer supplies material that can be eroded or deposited as bedload or suspended load. Its thickness can be specified by the user or set by default to the value $3\times d_{50}$, with $d_{50}$ the median diameter of sediment material contained in the active layer.
+
+The bed model can be discretized by a constant number of layers along the vertical direction. Since layers are allowed to be emptied, the utilized number of layers at each mesh node can vary during a numerical simulation. When more than one sediment class is specified in the steering file, the following cases arise: ($i$) for a given initial bed stratification (i.e. through a given number of layers $N_{lay}$), an active layer is added inside this stratification at the beginning of the simulation. In this case the total number of layers is $=N_{lay}+1$; ($ii$) if the initial bed stratification is not provided, the sediment bed is thus subdivided in two layers: the active layer and a substrate layer located directly below. In this case, the total number of layers is $=2$.
+
+To maintain a constant active layer thickness throughout the numerical simulation, at each time step the following procedures are performed:
+\begin{itemize}
+    \item In the case of erosion, the sediment mass is taken from the active layer, therefore the sediment flux is transferred from the substratum (first non-empty layer below the active layer) to the active layer. Note that the rigid bed algorithm is applied to the active layer, i.e.~only the sediment mass in the active layer is available at the given time step. This is important as bedload transport rate and/or the rate of entrainment for suspension are computed using the sediment composition available in the active layer.
+    \item If the erosion during the time step exceeds the sediment mass available in the top layer, this layer is fully eroded and a new erosion rate is computed using the composition of the layer underneath, that is now the surface layer.
+    \item In the case of deposition, the increased thickness generates a sediment flux from the active layer to the first substratum layer. %CHECK!!!
+\end{itemize}
+
+The bed model algorithm introduced before has been modified to account for the presence of mud or sand-mud mixtures.
+Mixed sediment consists of a mixture of $N_{nco} \geq 1$ classes of non-cohesive sediment (sand and/or gravel) with $N_{co} \geq 1$ classes of fine, cohesive sediment. Non-cohesive sediments are assumed to be transported by bedload and/or suspension, while cohesive sediment is transported only by suspension.
+
+In the algorithm for mixed sediments, the layer thickness results from the mass ratio of cohesive and non-cohesive sediment contained in each layer. If the cohesive sediment volume is $\leq 40\%$ of the non-cohesive sediment volume, the layer thickness only depends on the mass of non-cohesive sediment volume. Conversely, if the cohesive sediment volume is $\geq 40\%$ of the non-cohesive sediment volume, the layer thickness is computed from the non-cohesive sediment volume plus the cohesive sediment volume minus the interstitial volume between non-cohesive sediment classes.
+
+The presence of high concentrations of cohesive sediment in the bed are known to prevent bedload transport from occurring~\cite{vanLedden}. Therefore, in \textsc{Gaia}, bedload transport is only computed if the mass fraction of cohesive sediment in the active layer is $\leq 30\%$. In this case, the non-cohesive sediment can still be transported in suspension. In addition, erosion of non-cohesive sediment by bedload transport causes cohesive sediment present in the mixture to be entrained into suspension.
+
+
+%-------------------------------------------------------------------------------
+% This section gives a description of the former hippodrome test case
+%%\subsection{Preliminaries}
+%%%-------------------------------------------------------------------------------
+%%The general bed model implemented in \gaia{} is used to compute both both horizontal and vertical spatial and temporal variability of bed mixture composition (in the case of more than one sediment class, representing graded and/or mixed sediment) and/or sediment properties (in the case of consolidation of cohesive sediment).
+%%
+%%The two simplest cases of the bed model, namely the variability of bed mixture composition, based on the active layer model for non-cohesive sediment, and the consolidation model for one sediment class, are presented in sections~\ref{bedmodel:active} and \ref{}, respectively. A more general case is introduced later in section~\ref{}, including:
+%%\begin{itemize}
+%%\item mixed sediment (cohesive and non-cohesive sediment)
+%%\item consolidation of more than one cohesive sediment
+%%\item mixed sediment with consolidation
+%%\end{itemize}
+%%
+%%For all cases, the bed model consists of a discretization of the sediment bed over the vertical direction through a user-defined fixed number of bed layers. Although the number of bed layers is kept constant for the whole computation domain, they can empty during the simulation time, leading to a ``merging'' of layers sharing the same interface.
+%%
+%%The main variable used in the code to represent the amount of sediment in each layer is the sediment mass for each sediment class (variables \texttt{MASS\_MUD(IMUD,ILAYER,IPOIN)} and \texttt{MASS\_SAND(ISAND,ILAYER,IPOIN)} for cohesive and non-cohesive sediment, respectively). The following sediment transport processes can modify the sediment mass contained in each layer:
+%%\begin{itemize}
+%%\item Bedload transport (for non-cohesive sediment only),
+%%\item Suspended sediment transport,
+%%\item Sediment ``avalanching'', due for example to the collapse of bed slope over a critical slope or angle of repose,
+%%\item Consolidation (for cohesive sediment only).
+%%\end{itemize}
+%%
+%%For each time step, the bed model algorithm updates:
+%%\begin{itemize}
+%%\item the bed layer thicknesses and therefore the bed elevation, computed as the sum of the rigid bed elevation plus the layer thicknesses
+%%\item the variables representing the sediment bed composition, namely:
+%%  \begin{itemize}
+%%  \item the mass fraction of each class of cohesive sediment over the total cohesive sediment mass (variable \texttt{RATIO\_MUD(IMUD,ILAYER,IPOIN)})
+%%  \item the mass fraction of each class of non-cohesive sediment over the total non-cohesive sediment mass (variable \texttt{RATIO\_SAND(ISAND,ILAYER,IPOIN)}),
+%%  \item the mass fraction of cohesive sediment over the total sediment mass (cohesive and non-cohesive)
+%%  \end{itemize}
+%%\end{itemize}
+%%
+%%\begin{WarningBlock}{Note:}
+%%There is no choice of bed model to be made by the user. It is automatically selected by the code depending on the processes, and type and number of sediment classes set by the user in the \gaia{}'s steering file.
+%%\end{WarningBlock}
+
+%-------------------------------------------------------------------------------
+\subsection{Active layer model}\label{bedmodel:active}
+%-------------------------------------------------------------------------------
+The active layer is the surface layer, which supplies material that can be transported as bedload or suspended load and receives the deposited sediment material. Therefore the composition of the active layer is used to compute the rate of bedload transport and the rate of erosion in suspension for each sediment class, where decomposition of bedload transport and suspension transport in size-classes is presented. This composition is variable in space and time as it depends on the composition of the sediment deposited and/or eroded from this layer, as well as the exchange of mass with the substratum.
+
+The active layer thickness depends on the flow and sediment characteristics. In \gaia{}, the active layer thickness is constant, with a target value set by the user. The active layer thickness can be internally modified during the simulation.
+
+At the beginning of the computation, if there is more than one sediment class set in the steering file, the active layer is created automatically at the surface of the sediment bed.
+
+\begin{itemize}
+\item In the case where the user does not set any initial bed stratification (i.e. the initial bed material composition is set constant over the vertical direction), the sediment bed is subdivided in two layers: an ``active'' or ``mixing'' layer in contact with the water column, and a substrate layer located immediately below.
+\item In the case where the user does set an initial bed stratification (i.e. layers of different bed compositions, see chapter \ref{chap:how-to}), then:
+  \begin{itemize}
+  \item An active layer will be added inside this stratification at the beginning of the computation. Therefore, the actual number of layers will be equal to the number of layers for the initial stratification plus one.
+  \item If the first (surface) layer of the initial stratification is larger than the target active layer thickness, this surface layer is split in two sub-layers: the active layer plus a layer immediately below with a thickness equal to the first stratification layer thickness minus the active layer thickness. For this case, the initial composition of the active layer is assumed to be the same as the composition of the first layer.
+  \item If the first (surface) layer of the initial stratification is smaller than the target active layer thickness, the active layer is ``merged'' by the first layer, and also take from the stratification layer(s) underneath the remaining amount of sediment necessary to reach its target thickness. The initial composition of the active layer will thus be a mix of the sediment from the first and (partially) the second stratification layers.
+  \end{itemize}
+\end{itemize}
+
+If during a simulation, the thickness of sediment available in the bed is smaller than the target active layer thickness, the actual active layer thickness for this node will be equal to the sediment thickness. All sediment in the bed will thus be mixed in the active layer. The target active layer thickness is thus only respected if there is enough available sediment. This enables smooth implementation of the rigid bed algorithm also for the case of the active layer model. This point is also important as it enables the user to ``force'' a full mixing of sediment composition over the whole sediment thickness by imposing a very large target active layer thickness (see chapter \ref{chap:how-to}). At each time-step, the substratum exchanges material with the active layer in order to keep the active layer at a target thickness:
+
+\begin{itemize}
+\item In the case of erosion, mass is taken from the active layer to be sent in suspension, or to the active layer of neighbouring nodes (through bedload). Therefore, to keep active layer thickness at a target value, the sediment mass has to be transferred from the substratum (first non-empty layer below the active layer plus layers underneath if necessary) and incorporated into the active layer. The mass transferred has the composition of the substratum: this correction flux does not change the composition of the substratum but might change the composition of the active layer. Note that the rigid bed algorithm is applied to the active layer, i.e. only the mass of sediment in the active layer is available for erosion during a given time-step. Therefore the amount of erosion during a time-step should not exceed the amount of mass in the active-layer (this is important for physical coherence as the bedload transport rate as well as the rate of erosion in suspension are computed using the composition of the active layer).
+
+\item In the case of deposition, mass is added to the active layer. Therefore a flux of sediment mass has to be taken from the active layer and added to the substratum (first non-empty layer below the active layer). The mass transferred has the composition of the active layer: this correction flux does not change the composition of the active layer but might change the composition of the substratum. No bookkeeping of the composition of deposits, that is the creation of new layers of substratum to discretize the deposits, has been implemented for the current version of \gaia{}.
+\end{itemize}
+
+%-------------------------------------------------------------------------------
+The active layer model is automatically selected when there are at least two size-classes of sediment (set by the dimension of keyword \texttt{CLASSES TYPE OF SEDIMENT}).
+By default, the composition of the sediment mixture is constant over the computational domain and set by keyword \texttt{CLASSES INITIAL FRACTION}.
+The target active layer thickness is set by the keyword \texttt{ACTIVE LAYER THICKNESS}.
+
+The user might wish not to use the active layer model, and thus to mix the sediment composition on the sediment bed, resulting in one sediment layer. For this case, the user can set a target active layer thickness value larger than the maximum sediment layer thickness. Note that this is the default case, since the default value for keyword \texttt{ACTIVE LAYER THICKNESS} is equal to 10,000 m, while the default value for sediment thickness is equal to 100 m (as hardcoded in \texttt{lecdon\_gaia}). This value can be modified with the keyword \texttt{LAYERS INITIAL THICKNESS}).
+
+To set a variable bed composition along the vertical direction, the keyword \texttt{NUMBER OF LAYERS FOR INITIAL STRATIFICATION} can be used.
+
+Layers thicknesses and compositions must be set using the variables \texttt{ESTRATUM(ISTRAT,IPOIN)} and \texttt{RATIO\_INIT(ICLA,ISTRAT,IPOIN)}. The same user subroutine must be used to set spatially-dependent bed compositions.
+
+%-------------------------------------------------------------------------------
+\subsubsection{Mixed sediment}
+%-------------------------------------------------------------------------------
+Mixed sediment is defined as the mixture of \texttt{Nnco} classes ($Nnco \geq 1$) of non-cohesive sediment (e.g.~sand and/or gravel) and \texttt{Nco} classes ($Nnco \geq 1$) of fine, cohesive sediment (e.g.~mud). The non-cohesive sediment is transported by bedload and/or suspension, and the cohesive sediment is transported only by suspension. The bed model is a generalization of the active-layer bed model implemented for non-cohesive sediment, as follows:
+
+\begin{enumerate}
+\item The composition of the surface layer (the active layer) of the bed sediment mixture is considered for computing the critical shear stress for erosion, the bedload transport rate, and the erosion rate in suspension.
+\item Each layer's thickness, and thus the resulting bed elevation at the end of each time step, is computed from the mass of non-cohesive sediment and cohesive sediment using the following hypothesis:
+\begin{itemize}
+\item If the cohesive sediment volume is smaller than 40\% of the non-cohesive sediment volume, the layer thickness is only function of non-cohesive sediment mass.
+\item If the cohesive sediment volume is larger than 40\% of the non-cohesive sediment volume, the layer thickness is computed from non-cohesive sediment volume plus cohesive sediment volume minus interstitial volume between non-cohesive sediment grain sizes.
+\end{itemize}
+\item For several cohesive sediment classes in the mixture, it is assumed that each sediment class has its own settling velocity value.
+%  \begin{itemize}
+%    \item They have the same critical shear stress and their erosion fluxes are computed in the same way. The actual erosion fluxes takes into account the availability of each class in the surface layer, therefore the erosion fluxes of the classes of cohesive sediment can in fact be different.
+%    \item In the case of consolidation, the consolidation fluxes are computed in the same way for all classes. Therefore, consolidation fluxes from one layer to the more consolidated layer underneath can be different between classes only because of the different availability of each class in the layer considered.
+%  \end{itemize}
+%When there is consolidation, the following two points apply:
+%\item Each layer of the bed model accounts both for:
+%	Temporal and spatial (horizontally and vertically) variation of the properties of the cohesive sediment (critical shear stress, Partheniades constant and consolidation rate) as in the consolidation bed model.
+%	Temporal and spatial (horizontally and vertically) variation of the composition of the sediment mixture (\% of each class of non-cohesive sediment and cohesive sediment in the mixture) as in the active layer bed model.
+%\item The properties (critical shear stress, Partheniades constant and consolidation rate) of the cohesive sediment in the surface (active) layer are interpolated. This consists in aggregating the surface layers of the bed model over a predefined active layer thickness. %The composition of the mixture of this active layer is then used to interpolate (to continue) - RWR
+%
+%  In the case of mixed sediment, non-cohesive sediment presence in the mixture is considered to not alter cohesive sediment consolidation. Non-cohesive sediment is ``trapped'' by cohesive sediment when cohesive sediment consolidates. Thus transfer of cohesive sediment from one layer to the layer underneath is accompanied by a transfer of non-cohesive sediment. The non-cohesive sediment/cohesive sediment ratio of the transferred sediment is the same as the ratio of consolidating layer. If there are more than one classes of non-cohesive sediment, they are transferred according to their percentage of presence in the consolidating layer.
+\end{enumerate}
+
+%\subsubsection{Deposition}
+%Flux of non-cohesive sediment deposits from the water column can be considered to immediately settle through the fresh cohesive sediment and thus is added to the mass of non-cohesive sediment of the layer of the consolidation bed model. In this case there can be no non-cohesive sediment is the first upper layers of the bed model. Is there possibility to bypass the first layer (yes in the fortran, no keyword).
+
+%\subsubsection{Erosion}
+%At each time step, the surface composition of the sediment bed is used to compute the critical shear stress for erosion and the rate of erosion in suspension (for cohesive sediment and all non-cohesive sediment classes). The composition considered is the one of the surface (active) layer.
+
+Following~\cite{LEHIR2011S135}, the critical shear stress for a mass cohesive sediment fraction of the mixture is computed as follows.
+
+If the mass cohesive sediment fraction of the mixture is:
+\begin{itemize}
+\item $>50\%$, its value is equal to the critical shear stress of the cohesive sediment fraction (that depends on cohesive sediment concentration)
+\item $<30\%$, its value is equal to the critical shear stress of the non-cohesive sediment fraction, with a correction that increases the critical shear stress to account for the cohesive sediment fraction
+\item in the range $[30-50]\%$, its value is computed by linear interpolation of values computed from the two previous cases.
+\end{itemize}
+
+If the erosion rate for a mass cohesive sediment fraction of the mixture is:
+\begin{itemize}
+\item  $>50\%$, its value is equal to the erosion rate for cohesive sediment fraction
+\item $<30\%$, its value is equal to the erosion rate computed for the non-cohesive sediment fraction
+\item in the range $[30-50]\%$, its value is computed by linear interpolation of values computed from the two previous cases.
+\end{itemize}
+
+%The total erosion rate is then distributed among non-cohesive sediment and cohesive sediment fractions, according to their respective fraction in the mixture.
+%Encore d’actualité ? Vérifier ?
+%If erosion during the time step exceeds the mass of sediment  present in this top layer (for cohesive sediment and all non-cohesive sediment classes), the layer is fully eroded, and the duration needed for this full erosion is substracted from the time step. A new erosion rate is then computed using the composition of the layer underneath, that is now the new surface layer. This erosion rate is applied to the new surface for what remains of the duration of the time step. Again, if the erosion exceed the mass in this layer, the layer underneath will be considered for erosion, etc.
+
+\subsubsection{Bedload}
+Bedload transport is computed only if mass cohesive sediment fraction in the active layer is lower than 30\%. Otherwise, non-cohesive sediment can still be transported in suspension. Erosion of non-cohesive sediment through bedload causes cohesive sediment present in the mixture to be entrained in suspension. As for deposit from suspension, deposit of non-cohesive sediment caused by bedload is added to the third layer of the consolidation bed model (corresponding to a sediment concentration equal to 100 g/l).
+
+
+
+
+
+

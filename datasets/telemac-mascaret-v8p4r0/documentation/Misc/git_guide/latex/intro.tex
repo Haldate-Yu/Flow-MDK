@@ -1,0 +1,81 @@
+%---------------------------------------------------------------------------
+\chapter{Introduction}
+%---------------------------------------------------------------------------
+
+\soft{Git} is a version control software that allows you to track changes in
+your project.\\
+
+The principle is that you will tell \soft{Git} to track changes in some files
+and take snapshots of these files throughout the evolution of the project by
+\important{committing} your changes. A \important{commit} is then a snapshot of
+a project at a given time, which tracks the changes made by one person on one 
+or several files compared to the previous version. Every \important{commit} is
+a version of the project.\\
+
+Here is an overview of all \soft{Git} commands:\\
+\begin{small}
+\url{https://training.github.com/downloads/github-git-cheat-sheet.pdf}
+\end{small}
+
+\section{Required packages}
+
+First, to benefit from certain key features, you will need to install a recent
+version of Git (2.22.0 or over) as well as the Git LFS extension.
+
+\subsection{For Linux users}
+To install Git and Git LFS on Linux, you can do so through the package
+management tool that comes with your Linux distribution.\\
+
+If you are on a Debian-based distribution, such as Ubuntu, try \soft{apt}:
+\begin{lstlisting}
+$ sudo apt install git-all
+$ sudo apt install git-lfs
+\end{lstlisting}
+If you are on Fedora (or any closely-related RPM-based distribution, such as
+RHEL or \mbox{CentOS}), you can use \soft{dnf}:
+\begin{lstlisting}
+$ sudo dnf install git-all
+$ sudo dnf install git-lfs
+\end{lstlisting}
+
+For more options, there are instructions on the official Git website for
+installing \soft{Git} on several Linux distributions, at
+\url{https://git-scm.com/download/linux}.
+
+\subsection{For Windows users}
+You can download and install the latest ``Git for Windows'' from the official
+website at \url{https://gitforwindows.org}. Make sure Git LFS is checked within
+the Components page, and override the default branch name to main.\\
+
+Other settings include the following, from which you need to choose:
+\begin{itemize}
+\item To use Git from the command line and also from 3rd party software (such
+      as Git Extensions or other GUI client) and use the OpenSSL library;
+\item To checkout as-is (Linux) and commit Unix-style;
+\item To work directly within a DOS console windows;
+\item To please use the \important{git pull \texttt{-{}-}rebase} option (see
+      warning below for that command);
+\item To use the latest Git Credential Manager Core; and
+\item To enable file system caching.
+\end{itemize}
+
+\section{GUI client}
+
+While it is better to learn Git through the command line, it is still
+recommended to use a GUI client, if only to have a better visibility of the
+commit history. \soft{Git} already comes with a basic client called
+\soft{gitk}, however it is best to use a more advanced one. Depending on your
+OS, we recommend one of the following:
+
+\begin{itemize}
+\item Linux: \soft{SmartGit}, which is free of charge when working with open
+      source projects and can be installed in your HOME directory, if you don't
+      have administrator rights.
+\item Windows: although \soft{SmartGit} can also be used, the recommended client
+      is \soft{Git Extensions}, which can be installed using a setup or as a
+      portable application.
+\end{itemize}
+
+There are many other GUI clients, the most popular ones being \soft{Sourcetree}
+(Windows only) and \soft{GitKraken} (Windows, Linux and macOS), however, both
+require an online account to use them.

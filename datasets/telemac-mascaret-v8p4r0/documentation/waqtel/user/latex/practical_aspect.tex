@@ -1,0 +1,147 @@
+\chapter{Practical aspects}
+
+To activate the water quality module \waqtel, the integer keyword
+\telkey{WATER QUALITY PROCESS} must be set to a value different from 1 (default = 1)
+in the \telemac{2D} or \telemac{3D} \telkey{STEERING FILE}.
+The possible choices are:
+\begin{itemize}
+\item 0: all available processes,
+\item 1: nothing (default value),
+\item 2: O$_2$ module,
+\item 3: BIOMASS module,
+\item 5: EUTRO module,
+\item 7: MICROPOL module,
+\item 11: THERMIC module,
+\item 13: AED2 model,
+\item 17: degradation law.
+\end{itemize}
+
+Several modules can be combined by giving the multiplication of the process choices,
+e.g. 55 = 5 $\times$ 11 activates EUTRO and THERMIC modules.
+It is noted that AED2 should be used on its own, for the time being,
+without possible combination with other processes.\\
+
+In \waqtel, a new dictionary is created and fully dedicated to water quality applications.
+The description of this new dictionary will be the subject of a separate manual
+(see the \waqtel reference manual).
+%\telemac{2D} or \telemac{3D} will not read automatically this dictionary,
+%unless the keyword \telkey{WAQ DICTIONARY} is used.
+%This keyword is the path to dictionary.
+To introduce WAQ parameters, a separate steering file is necessary.
+It is read with the use of the keyword \telkey{STEERING FILE}
+and its name has to be declared in the \telemac{2D} or \telemac{3D}
+\telkey{STEERING FILE}.
+In the next sections which are dedicated to water quality,
+all the keywords to be introduced to the water quality steering file
+will be written in \telkey{THIS FONT}.
+
+Depending on the \waqtel module, \telemac{2D} or \telemac{3D}
+automatically increase the number of tracers of the model.
+In fact, the total number of tracers (variable \telfile{NTRAC})
+is increased by 3 (for O$_2$ process), by 5 (for BIOMASS and MICROPOL processes)
+or by 8 (for EUTRO process).
+%For the THERMIC module, the number of tracers is increased only
+%if no temperature is present in the set of tracers already existing in the model.
+
+Some general parameters can also be chosen for any water quality process.
+For instance, user can give a title for the study by using \telkey{WAQ CASE TITLE}.
+He/she can introduce water density (\telkey{WATER DENSITY}).
+%viscosity of water (\telkey{KINEMATIC WATER VISCOSITY}), read but not used at the moment
+
+
+\section{The meteo file or ASCII ATMOSPHERIC DATA FILE}
+\label{subs:meteo:file}
+Most of the water quality processes are tightly linked to
+meteorological data on the domain.
+Besides the specific treatment for wind, atmospheric pressure
+and rainfall described in the section 6.3 of the \telemac{2D} User Manual
+or in the section 5.5 of the \telemac{3D} User Manual,
+water quality needs different meteorological data such as
+nebulosity, air temperature, evaporation pressure etc.\\
+
+Since release 8.2 and the creation of the new \telfile{METEO\_TELEMAC} module
+based on the already existing \telfile{METEO\_KHIONE} module, it is possible to
+manage meteo data in the \telkey{ASCII ATMOSPHERIC DATA FILE}.
+Moreover, this module enables to use flexible format for this file as long as
+the names of the meteo data are included in a specific list.
+Therefore, the order of columns is flexible.\\
+
+Here is a list of the available variables for this module and the shortnames to
+be used in the headline of the \telkey{ASCII ATMOSPHERIC DATA FILE}:
+\begin{itemize}
+\item WINDS and WINDD: wind speed + wind direction (in m/s) or,
+\item WINDX and WINDY: wind velocity components along $x$ and $y$ (in m/s),
+\item TAIR: air temperature (in $^{\circ}$C),
+\item PATM: atmospheric pressure (in mbar or hPa),
+\item CLDC: cloud coverage or nebulosity (in octas or tenths),
+\item RAINI or RAINC: rainfall (last letter I or C depending on if it is
+an interpolated variable as other usual variables
+or if it is  given as cumulated variable),
+\item RAY3: solar radiation (in W/m$^2$),
+\item HREL: relative humidity (in \%),
+\item PVAP: saturated vapor pressure (in hPa),
+\item TDEW: dewpoint temperature (in $^{\circ}$C),
+\item VISBI: visibility (in m),
+\item SNOW: snow (in m),
+\end{itemize}
+
+Hereafter we give examples of \telkey{ASCII ATMOSPHERIC DATA FILE}
+when coupling with \telemac{2D} (see Table \ref{tab:meteo2d})
+or with \telemac{3D} (see Table \ref{tab:meteo3d}).\\
+
+The user can change the order of columns.
+If additional parameters are needed, it can be done
+by changing the \telfile{METEO\_TELEMAC} available in the
+sources/utils/bief folder.\\
+
+%The user can edit this file and add new parameters.
+%However, in this case, he must edit subroutine \telfile{meteo.f} consequently.
+
+Since release 8.2, a time reference can be given:
+If a \#REFDATE with a date + hour in YYYY-MM-DD HH:MM:SS
+in year, month, day, hour, minute, second format is written in ASCII files
+related to time,
+the date+hour will be added to the times in these ASCII files
+when using \telemac{2D} and \telemac{3D}.
+For SERAFIN or MED binary files, the date in these files will be used.
+
+Such feature is used in the \telkey{ASCII ATMOSPHERIC DATA FILE} of the
+heat\_exchange example of \waqtel (see Table \ref{tab:meteo3d}).
+
+%TELEMAC-2D/TELEMAC-3D: Time reference in all Telemac2d/3d time related files:
+%You can add #REFDATE in the ascii files and the date will be added to the times
+%in the files when used in Telemac2d/3d. For SERAFIN/MED it will use the date in
+%the file.
+
+\begin{table}[h]
+    \centering
+%  \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+  \begin{tabular}{rrrrrrrrr}
+%     \hline \hline
+     % after \\: \hline or \cline{col1-col2} \cline{col3-col4} ...
+%     Time & $T_{air}$ & $P_{vap}$ & Wind speed & Wind dir. & Nebulo. & Ray. & $P_{atm}$ & Rain \\
+     T & TAIR & PVAP & WINDS & WINDD & CLDC & RAY3 & PATM & RAINI \\
+%     \hline \hline
+%     s & $^\circ$C & hPa & m/s & $^\circ$ & Octa & W/m$^2$ & mbar & mm \\
+     s & degC & hPa & m/s & degree & octa & W/m2 & mbar & mm \\
+%     \hline \hline
+     0 & 20 & 10 & 0.5 & 70 & 5 & 160 & 1012.7 & 0 \\
+     3600 & 20 & 10 & 0.5 & 70 & 5 & 160 & 1012.7 & 0 \\
+     7200 & 20 & 10 & 0.5 & 70 & 5 & 160 & 1012.7 & 0 \\
+     %     \hline
+   \end{tabular}
+  \caption{Example of meteo data file for THERMIC module in 2D}\label{tab:meteo2d}
+\end{table}
+
+\begin{table}[h]
+\#REFDATE 2006-10-01 00:00:00\\
+  \centering
+  \begin{tabular}{rrrrrrrrr}
+   T     & WINDS & WINDD & TAIR & PATM   & HREL & CLDC & RAINI     \\
+    sec  & m/s   & deg   & degC & mbar   & \%   & octa & mm3/s/mm2 \\
+       0 & 6     & 140   & 22.1 & 1012.5 & 84   & 7    & 0.000E+00 \\
+   10800 & 5     & 140   & 22   & 1011.8 & 83   & 7    & 0.000E+00 \\
+   21600 & 5     & 130   & 21.6 & 1012.2 & 80   & 7    & 0.000E+00 \\
+   \end{tabular}
+  \caption{Example of meteo data file for heat exchange module in 3D}\label{tab:meteo3d}
+\end{table}

@@ -1,0 +1,45 @@
+{
+  "train": [
+    "mdx_fam000",
+    "mdx_fam001",
+    "mdx_fam002",
+    "mdx_fam003",
+    "mdx_fam004",
+    "mdx_fam007",
+    "mdx_fam009",
+    "mdx_fam010",
+    "mdx_fam011",
+    "mdx_fam012",
+    "mdx_fam018",
+    "mdx_fam020",
+    "mdx_fam021",
+    "mdx_fam022",
+    "mdx_fam023",
+    "mdx_fam024",
+    "mdx_fam025",
+    "mdx_fam026",
+    "mdx_fam028",
+    "mdx_fam029",
+    "mdx_fam032",
+    "mdx_fam035",
+    "mdx_fam037",
+    "mdx_fam038",
+    "mdx_fam039"
+  ],
+  "val": [
+    "mdx_fam006",
+    "mdx_fam008",
+    "mdx_fam013",
+    "mdx_fam014",
+    "mdx_fam030"
+  ],
+  "test": [
+    "mdx_fam015",
+    "mdx_fam016",
+    "mdx_fam019",
+    "mdx_fam027",
+    "mdx_fam031",
+    "mdx_fam033",
+    "mdx_fam036"
+  ]
+}

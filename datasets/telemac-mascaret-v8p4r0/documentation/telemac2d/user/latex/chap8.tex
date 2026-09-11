@@ -1,0 +1,143 @@
+\chapter{Managing water sources}
+\label{ch:manag:ws}
+\telemac{2D} offers the possibility of placing water sources (with or without
+tracer discharge) at any point of the domain.
+
+The user has a few options to place the various sources at differents points
+of the domain:
+\begin{itemize}
+\item with the keywords \telkey{ABSCISSAE OF SOURCES} and
+\telkey{ORDINATES OF SOURCES}.
+These are arrays of real numbers,
+giving the source coordinates in meters. Actually, \telemac{2D} will position a
+source at the closest mesh point to that specified by these keywords.
+In parallel mode, the sources must coincide exactly with one point of the mesh,
+so this is recommended in all cases,
+\item with the keyword \telkey{GLOBAL NUMBERS OF SOURCE NODES}. This is an
+array of integers which contains the global numbers of nodes that correspond
+ to source point locations.
+\end{itemize}
+The program itself will determine the number of sources as a function of the
+number of values given to these keywords.
+
+Another option consists in associating the source(s) to a spatial area(s) of the
+domain and not to a single point.
+To use this option the user must create an external file which contains the
+coordinates of every source region (polygons).
+In this case the source will be placed at every point contained in the
+region (the region must contain at least one node). The advantage of this option
+is that the user can control the surface of the source. However, it is worth to
+notice that the surface computed by the program will not correspond exactly to
+the surface of the polygon indicated by the user.
+Indeed, the surface will be computed as
+the sum of the surfaces of every point (integral of basis functions).
+An example of file is given here: it indicates three source regions, defined
+through 4 pair of coordinates.
+\begin{lstlisting}[language=TelemacCas]
+#
+# COORDINATES AT SOURCE REGION 1
+#
+X(1)   Y(1)
+198.7  25.85
+198.7  24.06
+201.5  24.06
+201.5  25.85
+#
+# COORDINATES AT SOURCE REGION 2
+#
+X(2)   Y(2)
+248.7  27.85
+248.7  22.06
+251.5  22.06
+251.5  27.85
+#
+# COORDINATES AT SOURCE REGION 3
+#
+X(3)  Y(3)
+372.0 8.0
+372.0 2.0
+376.0 2.0
+376.0 8.0
+\end{lstlisting}
+The program itself will determine the number of points contained in each region.
+The keyword to read the file is \telkey{SOURCE REGIONS DATA FILE}.
+The maximum number of regions is limited by the keyword
+\telkey{MAXIMUM NUMBER OF SOURCES}, which is 20 by default, while the number
+of coordinates for every polygons is limited by the keyword
+\telkey{MAXIMUM NUMBER OF POINTS FOR SOURCES REGIONS}, which is 10 by default.
+
+At each source (single point or region), the user must indicate the discharge
+(and the values of the tracers, if there are tracers).
+The discharge is specified in m${}^{3}$/s using
+the keyword \telkey{WATER DISCHARGE OF SOURCES} (and the value of the tracer by
+the keyword \telkey{VALUES OF THE TRACERS AT THE SOURCES}). However, if these
+two variables are time-dependent, the user can then program the two subroutines
+\telfile{USER\_DEBSCE} (source discharge) and \telfile{USER\_TRSCE} (value of
+tracer at source). It is also possible to use a specific file to define the time
+evolution of the sources:
+the \telkey{SOURCES FILE}. This file has exactly the same
+structure as the one of the \telkey{LIQUID BOUNDARY FILE}.
+An example is presented here with 2 sources and 2 tracers.
+Between 2 given times, the values are obtained by linear interpolation.
+\begin{lstlisting}[language=TelemacCas]
+#
+# TIME-DEPENDENT DISCHARGES AND TRACERS AT SOURCES 1 AND 2
+#
+#  T IS TIME
+#
+#  Q(1) IS DISCHARGE AT SOURCE 1 Q(2) IS DISCHARGE AT SOURCE 2
+#
+#  TR(1,1) IS TRACER 1 AT SOURCE 1 TR(1,2) IS TRACER 2 AT SOURCE 1 TR(2,1) IS
+#  TRACER 1 AT SOURCE 2 TR(2,1) IS TRACER 2 AT SOURCE 2
+#
+#
+T     Q(1)   TR(1,1)    TR(1,2)   Q(2)   TR(2,1)   TR(2,2)
+s     m3/s      C          C       m3/s     C         C
+0.     0.      99.        20.      0.      30.       40.
+2.     1.      50.        20.      2.      30.       20.
+4.     2.      25.        80.      4.      30.       20.
+\end{lstlisting}
+By default, when using the keyword \telkey{WATER DISCHARGE OF SOURCES}, the
+sources are added in the continuity equations without contribution to the
+momentum equations. In this case we consider that the velocity of sources is
+equal to the velocity of the flow.
+
+To take into account a momentum flux from the sources with \telemac{2D}, the
+user must prescribe a particular velocity, which will be considered in the
+momentum equations. If this is constant throughout the simulation, the value
+may be given with the keywords \telkey{VELOCITIES OF THE SOURCES ALONG X} and
+\telkey{VELOCITIES OF THE SOURCES ALONG Y.} If not, the user must program the
+two subroutines \telfile{USER\_VUSCE} (for the velocity along $x$) and
+\telfile{USER\_VVSCE} (for the velocity along $y$).
+In both subroutines, time, source number and water depth are available to the
+user.
+
+When the sources are located through the keywords \telkey{ABSCISSAE OF SOURCES}
+or \telkey{GLOBAL NUMBERS OF SOURCE NODES}, the
+\telkey{WATER DISCHARGE OF SOURCES}
+is mandatory to take into account the velocity of the sources.
+On the contrary, if the source is located in a region (through
+\telkey{ASCII SOURCE DATA FILE}), the user can choose
+to only impose the velocity of the source.
+The program will automatically compute the water discharge, using the surface
+of the region.
+
+Although it is possible in a practical point of view, it is not recommended
+to use source point at the boundaries of the domain. In these cases, the
+velocity field could not be as expected by the user even though
+\telfile{USER\_VUSCE} and \telfile{USER\_VVSCE} subroutines are used.
+The imposition of hydrodynamics
+boundary conditions could modify the prescribed components of the velocity of
+the source.
+
+If source terms are to be taken into account for the creation or decay of the
+tracer, these must be introduced in the \telfile{DIFSOU} subroutine.
+
+From a theoretical point of view, complete mass conservation can only be
+ensured if the source is treated as a Dirac function and not as a linear
+function. The type of treatment is indicated by the user with the keyword
+\telkey{TYPE OF SOURCES}, which may have a value of 1 (linear function, default
+value) or 2 (Dirac function). It should be noted that in the second case, the
+solutions are of course less smoothed.
+
+It is possible to manage sources without simulating tracer transport.

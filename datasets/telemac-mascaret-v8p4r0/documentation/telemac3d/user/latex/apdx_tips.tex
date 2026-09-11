@@ -1,0 +1,130 @@
+\chapter{Some recommendations for TELEMAC-3D simulations}
+
+If it is not too bad for you to increase your computational time,
+here are some recommendations about the options to use.
+
+\section{Advection}
+\begin{itemize}
+\item use the predictor-corrector distributive scheme with local implicitation for tidal flats,
+based on the PSI scheme, for the velocity and all tracers, including $k$ and $\epsilon$
+if you have them:\\
+  / PSI scheme\\
+  \telkey{SCHEME FOR ADVECTION OF VELOCITIES} = 5\\
+  \telkey{SCHEME FOR ADVECTION OF K-EPSILON} = 5\\
+  \telkey{SCHEME FOR ADVECTION OF TRACERS} = 5\\
+  / predictor-corrector with local implicitation implicite\\
+  \telkey{SCHEME OPTION FOR ADVECTION OF VELOCITIES} = 4\\
+  \telkey{SCHEME OPTION FOR ADVECTION OF K-EPSILON} = 4\\
+  \telkey{SCHEME OPTION FOR ADVECTION OF TRACERS} = 4\\
+These are the new default values since release 8.1.\\
+\item without tidal flats, use the predictor-corrector without tidal flats treatment to gain some time\\
+  / Predictor-corrector without tidal flats treatment\\
+  \telkey{SCHEME OPTION FOR ADVECTION OF VELOCITIES} = 2\\
+  \telkey{SCHEME OPTION FOR ADVECTION OF K-EPSILON} = 2\\
+  \telkey{SCHEME OPTION FOR ADVECTION OF TRACERS} = 2\\
+\end{itemize}
+\section{Friction}
+\begin{itemize}
+\item use the Nikuradse law, which is the only one that is really 3D compatible:
+the other options have been implemented to ensure an easy correspondance between 2D and 3D simulations,
+but their use is not recommended for fully 3D studies:\\
+  \telkey{LAW OF BOTTOM FRICTION} = 5,\\
+\item use a friction coefficient that is representative of the physics of your case:
+with the Nikuradse law, the friction coefficient corresponds to the characteristic height of the roughness \\
+  \telkey{FRICTION COEFFICIENT FOR THE BOTTOM} = 3 $\times$ d90.\\
+  For a natural bed with sediment of characteristic size d90 and without riddles or dunes,
+its value should be taken from van Rijn, equal to 3 $\times$ d90.
+In the presence of dunes, van Rijn proposes another formula,
+\item depending on the nature of the lateral walls, either use a Nikuradse law or no friction \\
+  \telkey{LAW OF FRICTION ON LATERAL BOUNDARIES} = 0 or 5,
+\item as for the bed, use a physical value for \telkey{FRICTION COEFFICIENT FOR LATERAL SOLID BOUNDARIES},
+\item remark: contrary to the friction coefficients used with the laws derived
+from the shallow water context (Manning, Strickler, Chézy, Haaland),
+the friction coefficient with the Nikuradse law does not "hide" physical effects
+like diffusion-dispersion, like it does with the shallow-water equations.
+Thus, it is less prone to being used as a calibration parameter in the studies.
+\end{itemize}
+
+\section{Mass-lumping}
+\begin{itemize}
+\item avoid using mass-lumping, unless you really have a strong constraint on computational time
+(this is the default behaviour of TELEMAC-3D): it introduces artificial dispersion in the results.
+\end{itemize}
+
+\section{Semi-implicitation}
+\begin{itemize}
+\item do not change the default value for\\
+  \telkey{IMPLICITATION FOR DEPTH} ( = 0.55)\\
+  and use \\
+  \telkey{IMPLICITATION FOR VELOCITIES} = 0.55, new default value since release 8.1. \\
+%instead of the default value of 1.
+Warning: never use a value lower or equal to 0.5 for these coefficients,
+otherwise the scheme becomes unconditionnally unstable. Avoid using the value 1 too, we have observed a
+strange behaviour of the scheme in this case: it seems to introduce quite a lot of spurious diffusion,
+even though 0.99 does not... We should perform more testing and analysis to better understand this behaviour.
+\item the keyword \telkey{IMPLICITATION FOR DIFFUSION} can be left to its value by default, 1.
+\end{itemize}
+
+\section{Linear solvers}
+\begin{itemize}
+\item use the GMRES solver (= 7) for the matrices inversion, except diffusion
+(\telkey{SOLVER FOR PPE, SOLVER FOR PROPAGATION}).
+For the diffusion, the conjugate gradients should be good enough (solver number = 1).
+These are the new default values since release 8.1,
+\item use an accuracy equal to $10^{-8}$ or lower for all solvers
+(\telkey{ACCURACY FOR PPE, ACCURACY FOR PROPAGATION, ACCURACY FOR DIFFUSION OF VELOCITIES,
+ACCURACY FOR DIFFUSION OF K-EPSILON, ACCURACY FOR DIFFUSION OF TRACERS, ACCURACY FOR DIFFUSION OF SEDIMENT}).
+These are the new default values since release 8.1,
+\item be careful to always check in your listing that your solvers have actually converged,
+otherwise the simulation may complete but with wrong results.
+In case you do not reach the accuracy you asked for with these options,
+try increasing the value of \telkey{OPTION OF SOLVER FOR [...]} to 10.
+It sets the size of the Krylov subspaces used in the GMRES solver.
+You can also try using conjugate gradients or Bi-CGSTAB,
+or increasing the maximum number of iterations of the solvers,
+or try using the preconditionning number 34 to make the matrix inversions faster.
+\end{itemize}
+
+\section{Fractional steps method}
+\begin{itemize}
+\item the keyword \telkey{DYNAMIC PRESSURE IN WAVE EQUATION} can be left to its value by default NO,
+but setting it to YES may slightly reduce the numerical diffusion
+(altough we need to test it further to really characterize the behaviour of these two choices).
+\end{itemize}
+
+\section{Free surface}
+\begin{itemize}
+\item if you observe free-surface instabilities (wiggles) in your results,
+you can try using a lower value for the\\
+\telkey{FREE SURFACE GRADIENT COMPATIBILITY}\\
+than the one by default, for example 0.9.
+\end{itemize}
+
+\section{Liquid boundaries}
+\begin{itemize}
+\item we would suggest trying not to use the Thompson boundary conditions,
+because they are actually only valid in the shallow water context.
+However, they may help stabilise the simulations involving liquid boundaries,
+so it is not always that easy not to use them.
+You should try without it before trying to use it.
+\end{itemize}
+
+\section{Tidal flats}
+\begin{itemize}
+\item use \telkey{TREATMENT OF NEGATIVE DEPTHS} = 2 if possible,
+\item use \telkey{TREATMENT ON TIDAL FLATS FOR TRACERS} = 1 to ensure conservation.
+\end{itemize}
+
+\section{Turbulence}
+\begin{itemize}
+\item trying to use the $k$-$\epsilon$ model (= 3) on the vertical and the horizontal directions,
+or the Spalart-Allmaras one (= 5), also in both directions,
+instead of the mixing length model which is not flexible, since it is a zero-equation model.
+However, for stratification simulations, the mixing length model
+may provide better results than any other (the $k-\epsilon$ model tends to mix too much).
+\end{itemize}
+
+\section{Other numerical options}
+\begin{itemize}
+\item do not change the matrix storage, simply do not include it from the steering file.
+\end{itemize}

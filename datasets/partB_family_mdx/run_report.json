@@ -1,0 +1,210 @@
+[
+  {
+    "scenario": "mdx_fam005",
+    "status": "failed",
+    "error": "mascaret failed in D:\\Projects\\Flow-MDK\\data\\real_cases\\mascaret_runs\\mdx_fam005 (see docker_stderr.log); rc=139"
+  },
+  {
+    "scenario": "mdx_fam006",
+    "status": "ok",
+    "runtime_s": 43.43485769999825,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam007",
+    "status": "ok",
+    "runtime_s": 44.410408700001426,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam008",
+    "status": "ok",
+    "runtime_s": 45.29794530000072,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam009",
+    "status": "ok",
+    "runtime_s": 45.53889479999998,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam010",
+    "status": "ok",
+    "runtime_s": 47.42836030000035,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam011",
+    "status": "ok",
+    "runtime_s": 47.09152560000075,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam012",
+    "status": "ok",
+    "runtime_s": 45.94551670000146,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam013",
+    "status": "ok",
+    "runtime_s": 46.32695380000223,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam014",
+    "status": "ok",
+    "runtime_s": 47.38763420000032,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam015",
+    "status": "ok",
+    "runtime_s": 53.698335599998245,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam016",
+    "status": "ok",
+    "runtime_s": 49.89872950000063,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam017",
+    "status": "ok",
+    "runtime_s": 47.47526629999993,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam018",
+    "status": "ok",
+    "runtime_s": 45.970358500002476,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam019",
+    "status": "ok",
+    "runtime_s": 47.38041840000005,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam020",
+    "status": "ok",
+    "runtime_s": 45.28662670000267,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam021",
+    "status": "ok",
+    "runtime_s": 45.76444999999876,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam022",
+    "status": "ok",
+    "runtime_s": 45.763624600000185,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam023",
+    "status": "ok",
+    "runtime_s": 48.03258790000109,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam024",
+    "status": "ok",
+    "runtime_s": 48.92724409999937,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam025",
+    "status": "ok",
+    "runtime_s": 51.081655000001774,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam026",
+    "status": "ok",
+    "runtime_s": 53.54009229999792,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam027",
+    "status": "ok",
+    "runtime_s": 50.81823279999662,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam028",
+    "status": "ok",
+    "runtime_s": 47.95615220000036,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam029",
+    "status": "ok",
+    "runtime_s": 44.613043800000014,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam030",
+    "status": "ok",
+    "runtime_s": 44.41625750000094,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam031",
+    "status": "ok",
+    "runtime_s": 43.42752340000152,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam032",
+    "status": "ok",
+    "runtime_s": 46.56133939999927,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam033",
+    "status": "ok",
+    "runtime_s": 43.9669862999981,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam034",
+    "status": "failed",
+    "error": "mascaret failed in D:\\Projects\\Flow-MDK\\data\\real_cases\\mascaret_runs\\mdx_fam034 (see docker_stderr.log); rc=139"
+  },
+  {
+    "scenario": "mdx_fam035",
+    "status": "ok",
+    "runtime_s": 43.41646899999978,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam036",
+    "status": "ok",
+    "runtime_s": 44.32322470000145,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam037",
+    "status": "ok",
+    "runtime_s": 44.73847469999964,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam038",
+    "status": "ok",
+    "runtime_s": 44.02704910000102,
+    "frames": 120
+  },
+  {
+    "scenario": "mdx_fam039",
+    "status": "ok",
+    "runtime_s": 47.41799180000089,
+    "frames": 120
+  }
+]

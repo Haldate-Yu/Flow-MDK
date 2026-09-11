@@ -1,0 +1,12 @@
+{
+  "case": "zxh",
+  "runtime_s": 33.675715900000796,
+  "rerun_frames": 24,
+  "abscissa_max_diff_m": 0.004648437499781721,
+  "depth_max_rerun_m": 2.934000015258789,
+  "reference_frames": 24,
+  "depth_rmse_m": 0.0,
+  "discharge_rmse_m3s": 0.0,
+  "depth_max_reference_m": 2.934000015258789,
+  "passed": true
+}

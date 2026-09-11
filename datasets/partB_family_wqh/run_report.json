@@ -1,0 +1,242 @@
+[
+  {
+    "scenario": "wqh_fam000",
+    "status": "ok",
+    "runtime_s": 11.238362899999629,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam001",
+    "status": "ok",
+    "runtime_s": 11.326960999998846,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam002",
+    "status": "ok",
+    "runtime_s": 12.044320700002572,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam003",
+    "status": "ok",
+    "runtime_s": 10.97056639999937,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam004",
+    "status": "ok",
+    "runtime_s": 12.21451320000051,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam005",
+    "status": "ok",
+    "runtime_s": 10.886483300000691,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam006",
+    "status": "ok",
+    "runtime_s": 11.241453999999067,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam007",
+    "status": "ok",
+    "runtime_s": 11.007838100002118,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam008",
+    "status": "ok",
+    "runtime_s": 11.423718400001235,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam009",
+    "status": "ok",
+    "runtime_s": 11.947887999998784,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam010",
+    "status": "ok",
+    "runtime_s": 11.214670299999852,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam011",
+    "status": "ok",
+    "runtime_s": 12.066814400001022,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam012",
+    "status": "ok",
+    "runtime_s": 11.237416199997824,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam013",
+    "status": "ok",
+    "runtime_s": 11.913965600000665,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam014",
+    "status": "ok",
+    "runtime_s": 10.830093000000488,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam015",
+    "status": "ok",
+    "runtime_s": 11.65499490000002,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam016",
+    "status": "ok",
+    "runtime_s": 10.631599300002563,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam017",
+    "status": "ok",
+    "runtime_s": 12.014089899999817,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam018",
+    "status": "ok",
+    "runtime_s": 12.035812899997836,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam019",
+    "status": "ok",
+    "runtime_s": 13.668257899997116,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam020",
+    "status": "ok",
+    "runtime_s": 11.946949099998164,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam021",
+    "status": "ok",
+    "runtime_s": 11.071462900003098,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam022",
+    "status": "ok",
+    "runtime_s": 11.396393499999249,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam023",
+    "status": "ok",
+    "runtime_s": 10.4386654000009,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam024",
+    "status": "ok",
+    "runtime_s": 11.391807100000733,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam025",
+    "status": "ok",
+    "runtime_s": 10.789433600002667,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam026",
+    "status": "ok",
+    "runtime_s": 11.960147199999483,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam027",
+    "status": "ok",
+    "runtime_s": 12.096313699999882,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam028",
+    "status": "ok",
+    "runtime_s": 13.995113600001787,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam029",
+    "status": "ok",
+    "runtime_s": 14.08888830000069,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam030",
+    "status": "ok",
+    "runtime_s": 12.018584699999337,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam031",
+    "status": "ok",
+    "runtime_s": 10.863410599999042,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam032",
+    "status": "ok",
+    "runtime_s": 10.357968599997548,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam033",
+    "status": "ok",
+    "runtime_s": 10.477942900000926,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam034",
+    "status": "ok",
+    "runtime_s": 10.626383700000588,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam035",
+    "status": "ok",
+    "runtime_s": 10.86170299999867,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam036",
+    "status": "ok",
+    "runtime_s": 10.491513199998735,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam037",
+    "status": "ok",
+    "runtime_s": 10.812108599999192,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam038",
+    "status": "ok",
+    "runtime_s": 10.404012400002102,
+    "frames": 48
+  },
+  {
+    "scenario": "wqh_fam039",
+    "status": "ok",
+    "runtime_s": 10.31887529999949,
+    "frames": 48
+  }
+]

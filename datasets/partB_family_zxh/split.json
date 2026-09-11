@@ -1,0 +1,48 @@
+{
+  "train": [
+    "zxh_fam000",
+    "zxh_fam001",
+    "zxh_fam002",
+    "zxh_fam003",
+    "zxh_fam004",
+    "zxh_fam006",
+    "zxh_fam009",
+    "zxh_fam010",
+    "zxh_fam011",
+    "zxh_fam017",
+    "zxh_fam018",
+    "zxh_fam019",
+    "zxh_fam020",
+    "zxh_fam021",
+    "zxh_fam022",
+    "zxh_fam023",
+    "zxh_fam024",
+    "zxh_fam025",
+    "zxh_fam026",
+    "zxh_fam027",
+    "zxh_fam028",
+    "zxh_fam030",
+    "zxh_fam032",
+    "zxh_fam034",
+    "zxh_fam035",
+    "zxh_fam036",
+    "zxh_fam037",
+    "zxh_fam038"
+  ],
+  "val": [
+    "zxh_fam007",
+    "zxh_fam008",
+    "zxh_fam012",
+    "zxh_fam013",
+    "zxh_fam016",
+    "zxh_fam039"
+  ],
+  "test": [
+    "zxh_fam005",
+    "zxh_fam014",
+    "zxh_fam015",
+    "zxh_fam029",
+    "zxh_fam031",
+    "zxh_fam033"
+  ]
+}

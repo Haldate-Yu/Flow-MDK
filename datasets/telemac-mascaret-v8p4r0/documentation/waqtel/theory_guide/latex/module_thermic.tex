@@ -1,0 +1,514 @@
+\chapter{THERMIC Module}
+
+The THERMIC module computes the water mass temperature through the conservation of energy.
+%by calculating the heat flux balance applied to it.
+Only atmospheric exchanges through the free surface are taken into account,
+the heat exchanges with banks or bottom are neglected.\\
+
+\section{Origin of the tracer formulation: the equation of conservation of energy}
+
+The energy conservation equation is written as:
+
+\begin{equation}
+  \label{energy_cons_equation}
+  \frac{\partial E}{\partial t} + \vec{U} \cdot \vec \nabla E
+  - \nabla \cdot \left( \lambda \vec \nabla T \right),
+  = S_{vol} + \frac{S_{surf}}{h},
+\end{equation}
+
+with $E$ = internal energy (J), $\lambda$ = thermal conductivity (W.m$^{-1}$.$^{\circ}$C$^{-1}$),
+$T$ = water temperature.\\
+
+The volumic sources $S_{vol}$
+(inputs linked to tributaries or load releases, inputs through the Joule effect, etc.) are
+implemented by the user. The surface sources $S_{surf}$,
+which are the exchange fluxes through the free surface,
+are calculated by the THERMIC module.\\
+
+The conservation energy is rearranged as a function of temperature $T$,
+considering that the internal energy $E$ is:
+
+\begin{equation}
+  E = \rho C_p T,
+\end{equation}
+
+where $C_p$ is water specific heat (J/kg$^{\circ}$C)
+and $\rho$ (kg.m$^{-3}$) is the water density.
+Omitting $S_{vol}$, equation \ref{energy_cons_equation} reads as:
+
+\begin{equation}
+  \frac{\partial T}{\partial t} + \vec{U} \cdot \vec \nabla T
+  - \nabla \cdot \left( \alpha \vec \nabla T \right)
+  = \frac{S_{surf}}{\rho C_p h},
+\end{equation}
+
+where $\alpha = \frac{\lambda}{\rho C_p}$ is the thermic diffusivity coefficient
+(m$^2$/s).\\
+
+If turbulence is taken into account, the coefficient of turbulent diffusion
+(or dispersion) $k$ is added to the diffusivity coefficient.
+However, it can be negected as the value is usually low.
+The final equation is therefore:\\
+
+\begin{equation}
+  \label{final_equation_t}
+  F(T) = \frac{\partial T}{\partial t} + \vec{U} \cdot \vec \nabla T
+  - \nabla \cdot \left( k \vec \nabla T \right)
+  = \frac{S_{surf}}{\rho C_p h}.
+\end{equation}
+
+Equation \ref{final_equation_t} shows that the calculation of temperature $T$
+is carried out in the same way
+as for all other tracers, and comes down to determining the right-hand side
+of the equation, i.e. surface source terms.\\
+
+\section{A first simplified model of heat exchanges with the atmosphere in 3D}
+
+Two models computing water-atmosphere heat exchange are available
+in 3D: a linearised formula of the balance of heat exchange fluxes at
+the free surface that firstly described in this section
+and a model that computes the
+complete balance of exchange fluxes (which gather
+common formulae in 2D and 3D).\\
+
+In the first model, the thermal power liberated into the atmosphere per
+surface unit, denoted as $\Phi$, is assumed to be proportional to $(T-T_{air})$
+where $T$ is the water temperature on the surface and $T_{air}$ that of
+air. $\Phi=A(T-T_{air})$, where $A$ is the exchange coefficient in
+W/m$^{2}$/${^{\circ}}$C.
+
+The heat flux leaving the liquid domain is written as:
+\begin{equation}
+\Phi=-\rho C_{p\,}k\,\nabla T.\vec{n}=-\rho
+C_{p\,}k\dfrac{\partial T}{\partial z},
+\end{equation}
+with $C_{p}=4180\,$J/kg/${^{\circ}}$C. Recall that $k$ (m$^2$s$^{-1}$) is the
+molecular heat diffusion coefficient in water, $\vec{n}$ the normal vector to the surface.
+
+By equating the two formulations, one deduces the boundary conditions:%
+\begin{equation}
+k\dfrac{\partial T}{\partial z}=-\dfrac{A}{\rho C_{p}}\left(
+T-T_{air}\right).
+\end{equation}
+
+The coefficient $A$ should include phenomena such as radiation, air convection
+in contact with water and latent heat produced by water evaporation. Sweers
+\cite{sweers_wind_1976} expresses the coefficient $A$, in W/m$^{2}$/${^{\circ}}$C,
+according to the water temperature $T$ and wind velocity $V$ measured
+at the point under consideration (in m/s):
+
+\begin{equation}
+\label{sweers}A=(4.48+0.049T)+2021.5\,b\,(1+V)\,(1.12+0.018\,T+0.00158\,T^{2})
+\end{equation}
+
+The parameter $b$ varies depending on the location. Its average value on the
+shores of the English Channel and of the Atlantic ocean is 0.0025. It is higher in the
+Mediterranean sea, where it reaches approximately 0.0035.\\
+
+A much more elaborated model is also implemented both in 2D and 3D.
+This module calculates the complete balance of exchanged fluxes involved
+and is described in the following section.
+
+\section{Heat fluxes affecting the energy balance}
+
+Surface sources are fluxes through the free surface.\\
+
+There are 5 fluxes, expressed in W/m$^2$:
+
+\begin{itemize}
+\item the solar radiation flux $RS$,
+\item the atmospheric radiation flux $RA$,
+\item the radiation flux from water body $RE$,
+\item the heat flux driven by convection $CV$,
+\item the heat flux driven by evaporation $CE$.
+\end{itemize}
+
+Every flux is detailed in
+\cite{gilbert_num_comp_nat_river_1986}. The result in 2D is:
+
+\begin{equation}
+  S_{surf} = RS + RA - RE - CV - CE.
+\end{equation}
+
+Whereas the long wave radiation (atmospheric radiation $RA$) is absorbed in
+the first centimetres of the water column, the short wave radiation (solar
+radiation $RS$) penetrates the water column. Evaporation is calculated in 3D.
+Heat exchanges with the atmosphere are taken into account at two levels \textbf{in 3D}:
+\begin{itemize}
+\item the complete balance of exchange fluxes at the free surface is
+calculated at the surface boundary conditions for temperature:
+\begin{equation}
+k \left.  \dfrac{\partial T}{\partial z}\right|_{z=\eta} =
+\dfrac{RA-RE-CE-CV}{\rho C_p},
+\end{equation}
+\item the penetration of solar radiation into the water column is taken into
+account in the source term of the advection-diffusion equation of the
+temperature:
+\begin{equation}
+S=\dfrac{1}{\rho C_p}\dfrac{\partial Q(z,RS)}{\partial z},
+\end{equation}
+\end{itemize}
+%with $K$ ($\mathrm{{m}^{2}.{s}^{-1}}$) the molecular diffusivity coefficient of
+%temperature, $\rho_{water}$ ($\mathrm{{kg}.{m}^{-3}}$) is the water density,
+%$C_{p}$ = 4180 $\mathrm{{J}.{kg}^{-1}.^{\circ}{C}^{-1}}$ is the specific heat
+%of water at a constant pressure,
+where the function $Q(z, RS)$ is the residual solar radiation at the elevation $z$.
+
+\subsection{Solar radiation RS}
+
+The solar radiation $RS$ can be provided to the THERMIC module
+in the atmospheric data file in 2D.
+If there is no measurement, global solar radiation on a water body
+can be calculated by Perrin de Brichambaut's method,
+depending on the cloudiness of the sky, the date and the hour
+\cite{klein_ray_solaire_1979}.\\
+
+In 3D, the solar flux penetrating the water $RS$ is calculated with:
+\begin{itemize}
+\item the solar radiation reaching the surface with a clear sky. It depends on
+time and the location of the site. Perrin de Brichambaut's method
+\cite{perrin_ray_solaire_1963}, \cite{perrin_res_solaires_1975} is used,
+\item cloud coverage: a corrective term depending on the nebulosity is applied
+(Berliand's formulae \cite{berliand_cloud_1952}, \cite{berliand_radiatssi_1960}),
+\item albedo that enables to compute the effective part of solar radiation
+penetrating the water.
+\end{itemize}
+Solar radiation $RS$ is written as:
+\begin{equation}
+RS = AA.\sin(ang)^{BB}(1-0.65C^{2})(1-Alb),
+\end{equation}
+where:
+
+\begin{itemize}
+\item $AA$ ($\mathrm{{W}.m^{-2}}$) and $BB$ (dimensionless) are coefficients
+related to luminosity and sky colour. They have to be chosen with respect to the
+considered area. Three possibilities are suggested (see the table \ref{tab_sky_type}%
+) but mean values are used by default in 3D,
+\item $ang$ is the angular height of the sun (rad), which depends on the latitude and
+longitude of the location and changes with day and hour,
+%\item $C$ is the nebulosity (tenths). Some meteorological services like
+%M\'{e}t\'{e}o France provide these data in octas and then need to be converted
+%in tenths,
+\item $Alb$ water albedo for short waves that may vary every month
+\cite{payne_albedo_1972}.
+\end{itemize}
+
+\begin{table}[ptbh]
+\caption{Proposed values of the coefficients $AA$ and $BB$ for the calculation of solar
+radiation related to luminosity and sky colour }%
+\label{tab_sky_type}%
+\centering
+\begin{tabular}
+[c]{|c|c|c|}\hline
+Type of sky & $AA$ (W.m$^{-2}$) & $BB$\\\hline
+Very pure sky (type 1) & 1130 & 1.15\\\hline
+Mean pure sky (type 2) & 1080 & 1.22\\\hline
+Industrial area (type 3) & 995 & 1.25\\\hline
+\end{tabular}
+\end{table}
+
+The penetration of solar radiation into the water column is taken into account
+in the advection-diffusion equation of temperature by introducing a source
+term. It depends on the water turbidity and is linked to dissolved and
+suspended particles (mineral or organic). Two laws describing the solar
+radiation penetration are suggested:
+\begin{itemize}
+\item the first one consists of two exponential laws that may be difficult to
+calibrate and require an estimation of the degree of water turbidity,
+\item the second one uses the \emph{in situ} measurements of Secchi length and
+is therefore recommended.
+\end{itemize}
+In the first case, the source term reads:
+\begin{equation}
+Q(z,RS) = RS.\left(  R \exp\left(  -\dfrac{z_{s}-z}{\zeta_{1}} \right)  + (1-R)
+\exp\left(  -\dfrac{z_{s}-z}{\zeta_{2}} \right)  \right)  ,
+\end{equation}
+with $RS$ ($\mathrm{{W}.m^{-2}}$) is the solar radiation penetrating the
+water, $z_{s}$ (m) the free surface elevation, $\zeta_{1}$ and $\zeta_{2}$ (m)
+are attenuation lengths and $R$ is a dimensionless coefficient.
+%This equation means the penetration of solar radiation in the water column
+%with a law of double exponentials.
+This equation takes into account a selective
+absorption of the solar spectrum by water, separating the radiation quickly
+attenuated in the water column and the one penetrating deeply.\\
+
+In the second case, the source term is written from Beer-Lambert's law:
+\begin{equation}
+Q(z,RS) = RS. \exp\left(  -\dfrac{1.7(z_{s}-z)}{Z_{s}} \right)
+\end{equation}
+with $RS$ ($\mathrm{{W}.m^{-2}}$) is also the solar radiation penetration the
+water, $z_{s}$ (m) the free surface elevation, $Z_{s}$ (m) is the Secchi
+length provided by \emph{in situ} measurements.
+
+The coefficients $\zeta_{1}$, $\zeta_{2}$ and $R$ are characteristics of
+optical properties of water adjusted to the studied water body.
+Examples of combination are suggested in Table \ref{jerlov}. This
+classification has been done for coastal and marine flows and is widely used
+in numerical modelling.
+
+\begin{table}[ptbh]
+\caption{Selected values of $R$, $\zeta_{1}$, $\zeta_{2}$
+  according to the water turbidity (\cite{paulson_irradiance_1977},
+  \cite{jerlov_optical_1968}, \cite{kraus_atmos_1972})}%
+\label{jerlov}%
+\centering
+\begin{tabular}
+[c]{|c|c|c|c|}\hline
+Type of water & $R$ & $\zeta_{1}$ (m) & $\zeta_{2}$ (m)\\\hline
+Very clear (Kraus) & 0.40 & 5 & 40\\\hline
+Type I (Jerlov) & 0.58 & 0.35 & 23\\\hline
+Type IA (Jerlov) & 0.62 & 0.6 & 20\\\hline
+Type IB (Jerlov) & 0.67 & 1.0 & 17\\\hline
+Type II (Jerlov) & 0.77 & 1.5 & 14\\\hline
+Very turbid - Type III (Jerlov) & 0.78 & 1.4 & 7.9\\\hline
+\end{tabular}
+\end{table}
+
+The formulae require additional data (wind magnitude and direction,
+air temperature, atmospheric pressure, relative humidity, nebulosity and rainfall).
+The study site may not be equipped for local wind measurements,
+while data are available at a different location (even far from the studied
+site). A wind function is then used, which is a linear function with a single
+coefficient of calibration $b$:
+\begin{equation}
+f(V_2) = b(1+V_2)
+\end{equation}
+with $V_2$ that is the wind velocity at 2~m high. As for the linearised
+formula \eqref{sweers}, the parameter $b$ varies depending on the location. Its
+average value on the shores of the English Channel and of the Atlantic ocean is 0.0025. It
+is higher in the Mediterranean sea, reaching approximately 0.0035 and can
+be around 0.0017 \cite{salencon_lac_1997}.
+
+Wind data are often provided at 10 m high whereas latent and sensible fluxes
+need wind velocities at 2~m high. Velocities at 2~m high need to be calculated
+from wind velocities at 10~m high $V_{10}$. A logarithmic wind velocity vertical profile is
+considered, with a roughness length of $z_{0} =
+0.0002~\mathrm{{m}}$. This leads to $V_{2} = 0.85 V_{10}$. This value
+of 0.85 (or the roughness length) may be changed if needed.
+\begin{equation}
+V_{2} = \dfrac{V_{10}\log\left(\dfrac{2}{z_{0}}\right)}{\log\left(\dfrac{10}{z_{0}}\right)}%
+\end{equation}
+
+
+\subsection{Atmospheric radiation RA}
+
+The atmosphere emits a long wave radiation corresponding to the reemission of a
+part of direct solar energy. It emits like a black body.
+
+In 2D, the atmospheric radiation $RA$ is estimated through meteorological data collected at ground level.
+Some processes of energy exchange (exchanges of heat with the bottom,
+and of water with the water table, biodegradation reactions,
+industrial or urban effluents) are unknown or poorly known.
+They considerably depend on temperature.
+In the 2D calculation, they are combined with atmospheric radiation
+through the calibration coefficient $e_{air}$. The formula in 2D is:
+
+\begin{equation}
+  RA = e_{air} \sigma (T_{air} + 273.15 )^4 \left( 1+k\left( \frac{c}{8} \right) ^2 \right),
+\end{equation}
+
+with:
+\begin{itemize}
+  \item $e_{air}$ = calibration coefficient of atmospheric radiation (1$^{\rm{st}}$ parameter of the model),
+  \item $\sigma = $ Stefan-Boltzman constant, $\sigma = 5.67.10^{-8}$ Wm$^{-2}$K$^{-4}$,
+  \item $T_{air}$ = air temperature ($^{\circ}$C),
+  \item $c$ = cloudiness (octa), given in the atmospheric data file
+  \item $k$ = coefficient of cloud type, which depends on the type of clouds and their height
+    (see Table \ref{tab_cloud_type}).
+\end{itemize}
+To simplify calculations, an average value of $k$ = 0.2 is usually taken in 2D.\\
+
+\begin{table}[H]
+\caption{Coefficient $k$ for the calculation of atmospheric radiation}
+\label{tab_cloud_type}
+\centering
+\begin{tabular}{p{0.98in}p{0.39in}}
+\hline
+%row no:1
+\multicolumn{1}{|p{0.98in}}{Type of cloud} & 
+\multicolumn{1}{|p{0.39in}|}{$k$} \\
+\hline
+%\hhline{--}
+%row no:2
+\multicolumn{1}{|p{0.98in}}{Cirrus} & 
+\multicolumn{1}{|p{0.39in}|}{0.04} \\
+\hline
+%\hhline{--}
+%row no:3
+\multicolumn{1}{|p{0.98in}}{Cirro-Stratus} & 
+\multicolumn{1}{|p{0.39in}|}{0.08} \\
+\hline
+%\hhline{--}
+%row no:4
+\multicolumn{1}{|p{0.98in}}{Altocumulus} & 
+\multicolumn{1}{|p{0.39in}|}{0.17} \\
+\hline
+%\hhline{--}
+%row no:5
+\multicolumn{1}{|p{0.98in}}{Altostratus} & 
+\multicolumn{1}{|p{0.39in}|}{0.2} \\
+\hline
+%\hhline{--}
+%row no:6
+\multicolumn{1}{|p{0.98in}}{Cumulus} & 
+\multicolumn{1}{|p{0.39in}|}{0.2} \\
+\hline
+%\hhline{--}
+%row no:7
+\multicolumn{1}{|p{0.98in}}{Stratus} & 
+\multicolumn{1}{|p{0.39in}|}{0.24} \\
+\hline
+%\hhline{--}
+
+\end{tabular}
+\end{table}
+
+In 3D, clouds and albedo at
+the free surface determine the atmospheric radiation $RA$ penetrating the water:
+\begin{equation}
+RA = (1-alb_{lw}) e_{air}\sigma(T_{air}+273.15)^{4}(1+k . C^{2}),
+\end{equation}
+where:
+\begin{itemize}
+\item $alb_{lw}$ = 0.03 is the water albedo for long radiative waves
+  (common value used in the literature \cite{imerito_dyresm_2007},
+  \cite{henderson-sellers_energy_balance_1986}),
+%\item $T_{air}$ ($^{\circ}$C) is the air temperature,
+\item $e_{air} = 0.937.10^{-5}(T_{air}+273.15)^{2}$ is the air emissivity,
+\item $\sigma= 5.67.10^{-8}~\mathrm{{W.m^{-2}.K^{-4}}}$ is Stefan-Boltzmann's constant,
+\item $C$ is the nebulosity (tenths). Some meteorological services such as
+M\'{e}t\'{e}o France provide this data in octas, it needs to be converted
+into tenths,
+\item $k$ (dimensionless) is a parameter characterising the type of
+cloud. In practise, it is difficult to know the type of cloud during the
+period of simulation and a mean value of 0.17 is often used \cite{tva_heat_1972},
+\cite{imerito_dyresm_2007} but other choices are possible
+(see the table \ref{tab_cloud_type}).
+\end{itemize}
+
+The formulae in 2D and 3D are almost the same with few differences.
+
+%\begin{table}[ptbh]
+%\caption{Coefficient $k$ characterising the type of cloud }%
+%\label{tab_cloud_type}%
+%\centering
+%\begin{tabular}
+%[c]{|c|c|c|c|c|c|c|}\hline
+%Type of & Cirrus & Cirro & Alto & Alto & Cumulus & Stratus\\
+%cloud &  & Stratus & Cumulus & Stratus &  & \\\hline
+%$k$ & 0.04 & 0.08 & 0.17 & 0.20 & 0.20 & 0.24\\\hline
+%\end{tabular}
+%\end{table}
+
+\subsection{Radiation emitted from a water body RE}
+
+One can assume, as a good approximation, that a water body behaves like a grey body.
+The expression of radiation emitted by the water body $RE$
+(also called water radiation) is then:\\
+
+\begin{equation}
+  RE = e_{water} \sigma (T_{water} + 273.15)^4,
+\end{equation}
+
+with $T_{water}$ = water temperature ($^{\circ}$C)
+taken at the surface in 3D,
+$e_{water}$ = water emissivity which can be seen as a
+calibration coefficient of radiation from a water body,
+which depends on the location and obstacles surrounding the water body.
+For a narrow river bordered by trees, $e_{water}$ could be around 0.97
+(which is the default value)
+and for a widely uncovered area, $e_{water}$ could be close to 0.92.
+
+\subsection{Convection heat flux CV}
+
+This flux (also called sensitive heat flux)
+is estimated by the following empirical formula:
+
+\begin{equation}
+  CV = \rho_{air} C_{p_{air}} f(V) (T_{water} - T_{air}),
+\end{equation}
+
+with:
+\begin{itemize}
+  \item $\rho_{air}$ = air density (kg/m$^3$),
+    given by $\rho_{air} = \frac{100 P_{atm}}{(T_{air} + 273.15).287}$,
+    where $P_{atm}$ is the atmospheric pressure in hPa,
+  \item $C_{p_{air}}$ = air thermic capacity (J/kg$^{\circ}$C),
+  \item $f(V)$ is a function of the wind velocity $V$:
+    \begin{itemize}
+    \item in 2D: $f(V) = a+bV$,
+    \item in 3D: $f(V) = b(1+V)$ for wind velocity at 2~m high
+      or $f(V) = a+bV$ for wind velocity at 10~m high,
+      depending on user's choice,
+    \end{itemize}
+  \item $V$ = wind velocity (m/s),
+  \item $a, b$ = empirical coefficients
+    to be calibrated (2 in 2D and 3D, only $a$ in 3D if one single calibrating coefficient).
+    Their values are very close, around 0.0025.
+\end{itemize}
+
+\subsection{Evaporative heat flux CE}
+
+The evaporative heat flux $CE$ (also called latent heat flux)
+due to evaporation is given by the empirical formula:
+
+\begin{equation}
+  CE = L(T_{water}) \rho_{air} f(V) (H^{sat} - H),
+\end{equation}
+
+with:
+\begin{itemize}
+  \item $L(T_{water}) = 2500900 - 2365 T_{water}$ = latent heat of evaporation (J/kg)
+    taken at the surface in 3D,
+  \item $f(V)$ is a function of the wind velocity $V$:
+    \begin{itemize}
+      \item in 2D: $f(V) = a+bV$,
+      \item in 3D: $f(V) = b(1+V)$ for wind velocity at 2~m high
+        or $f(V) = a+bV$ for wind velocity at 10~m high,
+        depending on user's choice,
+    \end{itemize}
+  \item $V$ = wind velocity (m/s),
+  \item $H^{sat} = \frac{0.622 P_{vap}^{sat}}{P_{atm}-0.378 P_{vap}^{sat}}$
+    = the saturated air specific humidity (kg/kg),
+    in 3D at the surface temperature,
+  \item $H = \frac{0.622 P_{vap}}{P_{atm}-0.378 P_{vap}}$
+    = the air specific humidity (kg/kg),
+  \item $P_{vap}$ the partial pressure of air water vapor (hPa)
+    provided in the atmospheric data file in 2D
+    and calculated with the following formula in 3D:
+    $P_{vap} = \frac{H_{rel}}{100} P_{air}$,
+  \item  $P_{vap}^{sat}$ the partial pressure of saturation water vapor (hPa)
+    calculated by Magnus-Tetens's formula:
+\end{itemize}
+
+\begin{equation}
+  P_{sat}^{vap} = 6.11 \exp \left( \frac{17.27 T_{water}}{T_{water} + 237.3} \right)
+  = \exp \left( 2.3026 \left( \frac{7.5 T_{water}}{T_{water} + 237.3} + 0.7858 \right) \right).
+\end{equation}
+
+When $H_{sat} < H$, the atmospheric radiation $RA$ is corrected
+by multiplying the preceding expression by 1.8 in 2D.
+
+The surface evaporation flow rate is then calculated in 3D by:
+\begin{equation}
+Deb = \frac{CE}{\rho_{water}L(T_{water})},
+\end{equation}
+
+\section{Solved equation}
+
+The global surface source reads as:
+
+\begin{equation}
+  S_{surf} = RS + RA - RE - CV - CE.
+\end{equation}
+
+%The normal formulation in TRACER, in which source terms are written as linear combinations of tracer concentrations present (cf. Part 2), cannot therefore be carried out here.\\
+
+In the calculations, the global surface source $S_{surf}$ is treated explicitly
+and the $(\lambda_i^j, \mu_i^j)$ are all equal to zero.
+
+The following equation is explicitly solved:
+
+\begin{equation}
+  F(T) = \frac{S_{surf}}{\rho C_p h}.
+\end{equation}
