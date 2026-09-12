@@ -4,7 +4,8 @@
 Layout (see datasets/README.md):
 
     datasets/
-    ├── telemac-mascaret-v8p4r0/   solver source snapshot + docker build files
+    ├── telemac-mascaret-v8p4r0/   self-contained docker build context (solver tree + Dockerfile + dependencies)
+    ├── docker_images/             prebuilt solver images, docker-loadable (.tar.gz)
     ├── swegnn-official/           official SWE-GNN code + raw datasets (130 sims)
     ├── real_projects/             raw schinta basin templates (1D x5, 2D x2)
     ├── partA_synthetic/           generated scenario family (50 npz + splits)
@@ -39,16 +40,25 @@ OUT = REPO / "datasets"
 
 SOURCES = {
     "telemac-mascaret-v8p4r0": {
-        "origin": r"D:\tmp\telemac-wz-260529\telemac-mascaret",
-        "role": "TELEMAC-MASCARET v8p4r0 solver source snapshot (examples excluded, 1.4 GB regenerable from the upstream tree)",
-        "subdirs": ["sources", "scripts", "configs", "documentation"],
-        "files": ["LICENSE.txt", "NEWS.txt", "README.txt", "REQUIREMENTS.txt"],
+        "origin": r"D:\tmp\telemac-wz-260529",
+        "role": "TELEMAC-MASCARET v8p4r0 self-contained docker build context: "
+                "solver source tree (examples/notebooks/builds excluded — not "
+                "needed by compile_telemac) + Dockerfile + build scripts + "
+                "dependencies (JDK 8, timezone). docker build directly from "
+                "this directory after loading the base image "
+                "(datasets/docker_images/telemac-debian_0.1.tar.gz)",
+        "subdirs": ["telemac-mascaret/sources", "telemac-mascaret/scripts",
+                    "telemac-mascaret/configs", "telemac-mascaret/documentation"],
+        "files": [".dockerignore", "Dockerfile", "build.sh", "entrypoint.sh",
+                  "setenv.sh", "setup-4-output.sh", "systel.cfg"],
         "extra_files": {
-            "docker/Dockerfile": r"D:\tmp\telemac-wz-260529\Dockerfile",
-            "docker/build.sh": r"D:\tmp\telemac-wz-260529\build.sh",
-            "docker/entrypoint.sh": r"D:\tmp\telemac-wz-260529\entrypoint.sh",
-            "docker/setenv.sh": r"D:\tmp\telemac-wz-260529\setenv.sh",
-            "docker/systel.cfg": r"D:\tmp\telemac-wz-260529\systel.cfg",
+            "telemac-mascaret/LICENSE.txt": r"D:\tmp\telemac-wz-260529\telemac-mascaret\LICENSE.txt",
+            "telemac-mascaret/NEWS.txt": r"D:\tmp\telemac-wz-260529\telemac-mascaret\NEWS.txt",
+            "telemac-mascaret/README.txt": r"D:\tmp\telemac-wz-260529\telemac-mascaret\README.txt",
+            "telemac-mascaret/REQUIREMENTS.txt": r"D:\tmp\telemac-wz-260529\telemac-mascaret\REQUIREMENTS.txt",
+        },
+        "extra_dirs": {
+            "dependencies": r"D:\tmp\telemac-wz-260529\dependencies",
         },
     },
     "swegnn-official": {
@@ -155,6 +165,10 @@ def main() -> None:
                 (dst / rel).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dst / rel)
                 n += 1
+        for rel, src in spec.get("extra_dirs", {}).items():
+            src = Path(src)
+            if src.exists():
+                n += copy_tree(src, dst / rel)
         manifest["items"][name] = {"role": spec["role"], "origin": str(origin),
                                    "files": n}
         print(f"[ok] {name}: {n} files")

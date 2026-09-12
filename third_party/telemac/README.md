@@ -31,14 +31,30 @@ cp -r "$FLOW_MDK_TELEMAC_ROOT/examples/mascaret" third_party/telemac-mascaret/
 
 ## Docker image
 
-`D:\tmp\telemac-wz-260529` also contains a Dockerfile (`FROM
-telemac-debian:0.1`, builds TELEMAC/Mascaret v8p4r0) and its build scripts.
-Build once:
+The working image (`flow-mdk-telemac:v8p4r0`, built FROM
+`telemac-debian:0.1`) is **archived inside the repository** — no access to
+this local tree is needed to reproduce it:
 
-```bash
-cd /d/tmp/telemac-wz-260529
-docker build -t telemac-debian:0.1 .
-```
+- `datasets/docker_images/telemac-debian_0.1.tar.gz` — base image
+  (`docker load` first);
+- `datasets/docker_images/flow-mdk-telemac_v8p4r0.tar.gz` — ready-to-run
+  solver image;
+- `datasets/telemac-mascaret-v8p4r0/` — self-contained build context
+  (Dockerfile + build scripts + `dependencies/` + solver source tree in
+  `telemac-mascaret/`), buildable directly after loading the base image:
+
+  ```bash
+  docker load < datasets/docker_images/telemac-debian_0.1.tar.gz
+  docker build -t flow-mdk-telemac:v8p4r0 datasets/telemac-mascaret-v8p4r0/   # ~20-40 min
+  ```
+
+The context is the pruned tree (examples/notebooks/builds excluded — they are
+not inputs of `compile_telemac.py`); `scripts/archive_datasets.py` regenerates
+it from the local tree.
+
+The upstream base image was never built from a Dockerfile here — it was
+loaded from `D:\tmp\telemac-wz-260529\telemac-debian.tar`, now archived as
+`datasets/docker_images/telemac-debian_0.1.tar.gz` (see above).
 
 Then run scenarios headlessly:
 

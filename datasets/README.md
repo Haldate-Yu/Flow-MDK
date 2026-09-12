@@ -7,7 +7,8 @@ place and ready for Git LFS sync (patterns in `.gitattributes`; run
 
 | directory | content | origin | size |
 |---|---|---|---|
-| `telemac-mascaret-v8p4r0/` | solver source snapshot + docker build files (Dockerfile/build.sh/systel.cfg in `docker/`) | `D:\tmp\telemac-wz-260529` | ~37 MB |
+| `telemac-mascaret-v8p4r0/` | **self-contained docker build context**: solver source tree (`telemac-mascaret/`, examples/notebooks/builds excluded) + `Dockerfile` + build scripts + `dependencies/` (JDK 8, timezone) at context root | `D:\tmp\telemac-wz-260529` | ~460 MB |
+| `docker_images/` | prebuilt solver images (`docker load < *.tar.gz`): `telemac-debian_0.1` (base, needed before building the context) + `flow-mdk-telemac_v8p4r0` (ready-to-run) | local docker (`docker save`) | ~2.5 GB |
 | `swegnn-official/` | official SWE-GNN repo (RBTV1/SWE-GNN-paper-repository-) **incl. `raw_datasets/`** — 130 Delft3D-FM simulations used in the SWE-GNN paper | github / Zenodo 10214840 + 7764418 | ~2 GB |
 | `real_projects/` | raw real-basin project templates: `telemac1d/{mdx,wqh,zxh,mdxUpStream,mdxDownStream}`, `telemac2d/{wqh,mdx}` | schinta basin-flood-prevention subsystem | ~61 MB |
 | `partA_synthetic/` | 50 generated 1D scenarios (`*.npz`) + `split.json` + `stats.json` — geometry × hydrology random family, diffusive-wave reference truth | `scripts/generate_scenarios_1d.py` | ~10 MB |
@@ -19,10 +20,13 @@ place and ready for Git LFS sync (patterns in `.gitattributes`; run
 Reproduction chain:
 
 ```bash
-# solver
-docker build -t flow-mdk-telemac:v8p4r0 datasets/telemac-mascaret-v8p4r0/docker/
-#   (build context expects the telemac-mascaret tree alongside; see
-#    third_party/telemac/README.md for the two layout options)
+# solver — either load the prebuilt images (recommended):
+docker load < datasets/docker_images/telemac-debian_0.1.tar.gz
+docker load < datasets/docker_images/flow-mdk-telemac_v8p4r0.tar.gz
+#   ...or load the base image only and rebuild the solver image from the
+#   self-contained context (Dockerfile expects ./telemac-mascaret + ./dependencies):
+docker load < datasets/docker_images/telemac-debian_0.1.tar.gz
+docker build -t flow-mdk-telemac:v8p4r0 datasets/telemac-mascaret-v8p4r0/   # ~20-40 min
 
 # Part A
 python scripts/generate_scenarios_1d.py --out data/scenarios_1d --num 50

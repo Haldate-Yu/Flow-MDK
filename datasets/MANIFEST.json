@@ -2,11 +2,6 @@
   "created": "2026-09-11 17:31:28",
   "repo": "D:\\Projects\\Flow-MDK",
   "items": {
-    "telemac-mascaret-v8p4r0": {
-      "role": "TELEMAC-MASCARET v8p4r0 solver source snapshot (examples excluded, 1.4 GB regenerable from the upstream tree)",
-      "origin": "D:\\tmp\\telemac-wz-260529\\telemac-mascaret",
-      "files": 3718
-    },
     "swegnn-official": {
       "role": "Official SWE-GNN repository (RBTV1/SWE-GNN-paper-repository-) incl. raw_datasets (130 Delft3D-FM simulations)",
       "origin": "D:\\tmp\\swegnn-official",
@@ -45,10 +40,20 @@
     "runs": {
       "role": "training/evaluation results (configs, history, metrics, checkpoints)",
       "files": 32
+    },
+    "telemac-mascaret-v8p4r0": {
+      "role": "TELEMAC-MASCARET v8p4r0 self-contained docker build context: solver source tree (examples/notebooks/builds excluded) + Dockerfile + build scripts + dependencies (JDK 8, timezone)",
+      "origin": "D:\tmp\telemac-wz-260529",
+      "files": 3724
+    },
+    "docker_images": {
+      "role": "Prebuilt solver docker images, docker-loadable tar.gz: telemac-debian_0.1 (base) + flow-mdk-telemac_v8p4r0 (ready-to-run)",
+      "origin": "local docker (docker save) + D:\tmp\telemac-wz-260529\telemac-debian.tar",
+      "files": 2
     }
   },
   "totals": {
-    "files": 9146,
-    "bytes": 3329201457
+    "files": 9154,
+    "bytes": 5611086296
   }
 }

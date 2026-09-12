@@ -1,0 +1,5 @@
+telemac-debian.tar
+test/
+Dockerfile*
+*.md
+systel.cfg.bak
