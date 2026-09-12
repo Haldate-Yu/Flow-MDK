@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from flow_mdk.config import load_config  # noqa: E402
 from flow_mdk.eval.metrics import csi, mae_per_variable, rmse_per_variable  # noqa: E402
 from flow_mdk.eval.rollout import evaluate_scenarios, load_model  # noqa: E402
+from flow_mdk.utils.results_log import append_result  # noqa: E402
 from flow_mdk.utils.seed import get_device  # noqa: E402
 
 
@@ -82,8 +83,24 @@ def main() -> None:
         json.dumps(summary, indent=2), encoding="utf-8"
     )
     rmse_mean = np.mean([s["rmse"] for s in summary], axis=0).tolist()
+    mae_mean = np.mean([s["mae"] for s in summary], axis=0).tolist()
+    fmt = lambda vals: ";".join(f"{v:.6f}" for v in vals)  # noqa: E731
+    registry = append_result({
+        "kind": "eval",
+        "run": Path(config.out_dir).name,
+        "out_dir": str(config.out_dir),
+        "split": args.split,
+        "data_root": data_root,
+        "checkpoint": args.checkpoint,
+        "n_scenarios": len(summary),
+        "rmse": fmt(rmse_mean),
+        "mae": fmt(mae_mean),
+        "csi_0p05": f"{np.mean([s['csi_0p05'] for s in summary]):.4f}",
+        "csi_0p3": f"{np.mean([s['csi_0p3'] for s in summary]):.4f}",
+        "report": str(out_dir / out_name),
+    }, config.out_dir)
     print(f"mean test RMSE per variable: {np.round(rmse_mean, 4).tolist()} "
-          f"-> {out_dir / out_name}")
+          f"-> {out_dir / out_name}; logged -> {registry}")
 
 
 if __name__ == "__main__":

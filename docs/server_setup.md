@@ -61,10 +61,13 @@ cd ~/Flow-MDK && tar -czf flow_mdk_results.tar.gz runs/
 scp flow_mdk_results.tar.gz 本机:...
 ```
 
-`runs/<name>/` 内含每实验的 `config.yaml`（复现凭据）、`history.json`
-（逐 epoch 曲线）、`best.pt`/`last.pt`（权重）、`eval_*.json`（各域指标）。
-取回后放回本机 `runs/`，再 `python scripts/archive_datasets.py` 刷新
-`datasets/runs/` 归档。
+`runs/<name>_<时间戳>/` 为每轮链式执行的时间戳目录（重复执行互不覆盖），
+内含每实验的 `config.yaml`（复现凭据，训练开始即落盘）、`history.json`
+（逐 epoch 曲线；同目录重训时旧曲线自动备份为 `history_<时间戳>.json`）、
+`best.pt`/`last.pt`（权重）、`eval_*.json`（各域指标）。**`runs/results.csv`
+是所有训练/评测的总登记表**（一行一次结果：时间戳、配置、指标、路径），
+取回后可直接用 pandas/Excel 横向对比各轮实验。整包取回放回本机 `runs/`，
+再 `python scripts/archive_datasets.py` 刷新 `datasets/runs/` 归档。
 
 ## 0.4 torch 版本注意（driver 535 / CUDA 12.2）
 

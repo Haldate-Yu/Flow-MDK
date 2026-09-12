@@ -238,7 +238,10 @@ def main() -> None:
     n = 0
     if (REPO / "runs").exists():
         for run_dir in sorted((REPO / "runs").iterdir()):
-            if not run_dir.is_dir():
+            if run_dir.is_file():
+                # top-level files: the results registry (runs/results.csv)
+                shutil.copy2(run_dir, runs_dst / run_dir.name)
+                n += 1
                 continue
             n += copy_tree(run_dir, runs_dst / run_dir.name)
     manifest["items"]["runs"] = {
