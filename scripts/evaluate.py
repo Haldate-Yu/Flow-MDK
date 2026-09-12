@@ -26,7 +26,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
     parser.add_argument("--checkpoint", required=True)
-    parser.add_argument("--split", default="test", choices=("train", "val", "test"))
+    parser.add_argument("--split", default="test",
+                        help="split key in split.json (train/val/test, or "
+                             "A2_test/A3_test for the Part A v2 generalization subsets)")
     parser.add_argument("--data-root", default=None,
                         help="override config.data.root (zero-shot transfer evaluation)")
     parser.add_argument("--steps", type=int, default=0,
@@ -42,6 +44,9 @@ def main() -> None:
     else:
         names = sorted(p.stem for p in Path(data_root).glob("*.npz"))
         split = {"train": names, "val": names, "test": names}
+    if args.split not in split:
+        raise SystemExit(f"split '{args.split}' not in {sorted(split)} "
+                         f"({split_path})")
     names = split[args.split]
 
     # feature layout: 1D elev idx 0, 2D elev idx 1
