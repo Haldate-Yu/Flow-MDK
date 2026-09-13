@@ -140,27 +140,26 @@ def summarize_group(title: str, run_dirs: list[Path], registry: dict,
     add(f"\nGenerated {time.strftime('%Y-%m-%d %H:%M')} · "
         f"metric: {'Q' if idx else 'h'} RMSE · {len(run_dirs)} runs\n")
 
-    data: dict[str, dict[str, tuple]] = {}  # model -> domain -> entry
-    budget: dict[str, str] = {}
-    in_domain: dict[str, str] = {}
+    # per run: model -> seed -> domain -> entry dict
+    runs_data: list[dict] = []
     for run in run_dirs:
-        name = model_name(run)
         rows = registry.get(run.name, [])
         train_row = next((r for r in rows if r["kind"] == "train"), None)
         eval_rows = [r for r in rows if r["kind"] == "eval"]
         cfg = read_run_config(run)
         cfg_root = Path(((cfg.get("data") or {}).get("root")) or "").name
-        if train_row and name not in budget:
+        budget = None
+        if train_row:
             sec = train_row.get("train_seconds")
-            budget[name] = (
+            budget = (
                 f"arch={train_row.get('arch', '?')} G={train_row.get('hidden_dim', '?')} "
                 f"layers={train_row.get('num_layers', '?')} hops={train_row.get('hops_per_layer', '?')} "
                 f"mdk={train_row.get('mdk_use', '?')} epochs={train_row.get('epochs_run', '?')}"
                 + (f" train={float(sec) / 3600:.1f}h" if sec else "")
             )
-        elif cfg and name not in budget:
+        elif cfg:
             mcfg = cfg.get("model") or {}
-            budget[name] = (
+            budget = (
                 f"arch={mcfg.get('arch', '?')} G={mcfg.get('hidden_dim', '?')} "
                 f"layers={mcfg.get('num_message_passing_layers', '?')} "
                 f"hops={mcfg.get('hops_per_layer', '?')} "
@@ -172,7 +171,7 @@ def summarize_group(title: str, run_dirs: list[Path], registry: dict,
             if r.get("report"):
                 labels[Path(r["report"]).name] = domain_label(
                     r.get("data_root", "?"), r.get("split", "?"))
-        per_domain: dict[str, tuple] = {}
+        per_domain: dict[str, dict] = {}
         for json_path in sorted(run.glob("eval_*.json")):
             entries = json.loads(json_path.read_text(encoding="utf-8"))
             if not entries:
@@ -190,29 +189,76 @@ def summarize_group(title: str, run_dirs: list[Path], registry: dict,
             else:
                 label = fallback_label(json_path.name)
                 root_name = ""
-            values = {e["scenario"]: e["rmse"][idx] for e in entries}
             energies = [e["dirichlet"][-1] for e in entries if e.get("dirichlet")]
-            per_domain[label] = (
-                len(entries),
-                float(np.mean(list(values.values()))),
-                values,
-                float(np.mean(energies)) if energies else None,
-                root_name,
-            )
-        data[name] = per_domain
+            per_domain[label] = {
+                "n": len(entries),
+                "mean": float(np.mean([e["rmse"][idx] for e in entries])),
+                "std": 0.0,
+                "values": {e["scenario"]: e["rmse"][idx] for e in entries},
+                "dirichlet": float(np.mean(energies)) if energies else None,
+                "root": root_name,
+            }
         train_root = (Path(train_row.get("data_root", "?")).name
                       if train_row else cfg_root)
-        if train_root:
-            for label, entry in per_domain.items():
-                if entry[4] and entry[4] == train_root:
-                    in_domain[name] = label
-                    break
+        in_domain = next((label for label, entry in per_domain.items()
+                          if entry["root"] and entry["root"] == train_root), None)
+        seed = None
+        m = re.search(r"_s(\d+)$", run.name)
+        if m:
+            seed = int(m.group(1))
+        runs_data.append({"dir": run.name, "model": model_name(run), "seed": seed,
+                          "domains": per_domain, "budget": budget,
+                          "in_domain": in_domain})
 
-    models = list(data)
-    for name in models:
-        if name in budget:
-            add(f"- **{name}** — {budget[name]}")
+    aggregate = any(r["seed"] is not None for r in runs_data)
+    models = list(dict.fromkeys(r["model"] for r in runs_data))
+    for r in runs_data:
+        if r["budget"]:
+            tag = f" (s{r['seed']})" if r["seed"] is not None else ""
+            add(f"- **{r['model']}**{tag} — {r['budget']}")
     add("")
+
+    # fold runs of the same model: seed -> mean±std, per-scenario mean
+    data: dict[str, dict[str, dict]] = {}
+    seeds_of: dict[str, list[int]] = {}
+    in_domain: dict[str, str] = {}
+    for r in runs_data:
+        data.setdefault(r["model"], {})
+        if r["seed"] is not None:
+            seeds_of.setdefault(r["model"], []).append(r["seed"])
+        if r["in_domain"] and r["model"] not in in_domain:
+            in_domain[r["model"]] = r["in_domain"]
+        for label, entry in r["domains"].items():
+            data[r["model"]].setdefault(label, []).append(entry)
+    for model, domains in data.items():
+        for label, entries in domains.items():
+            means = [e["mean"] for e in entries]
+            values: dict[str, list[float]] = {}
+            for e in entries:
+                for s, v in e["values"].items():
+                    values.setdefault(s, []).append(v)
+            energies = [e["dirichlet"] for e in entries if e["dirichlet"] is not None]
+            data[model][label] = {
+                "n": entries[0]["n"],
+                "mean": float(np.mean(means)),
+                "std": float(np.std(means, ddof=1)) if len(means) > 1 else 0.0,
+                "values": {s: float(np.mean(v)) for s, v in values.items()},
+                "dirichlet": float(np.mean(energies)) if energies else None,
+                "root": next((e["root"] for e in entries if e["root"]), ""),
+                "pooled": [v for e in entries for v in e["values"].values()],
+            }
+    seeds_note = ""
+    if aggregate:
+        seed_strs = ["/".join(f"s{s}" for s in sorted(set(v))) for v in seeds_of.values()]
+        seeds_note = f" · seeds {seed_strs[0]}" if seed_strs else ""
+
+    def cell(name: str, d: str) -> str:
+        entry = data[name].get(d)
+        if not entry:
+            return "—"
+        if aggregate and seeds_of.get(name) and len(seeds_of[name]) > 1:
+            return f"{fmt(entry['mean'])}±{entry['std']:.3f}"
+        return fmt(entry["mean"])
 
     domains = sorted({d for per in data.values() for d in per},
                      key=lambda d: (0 if d in in_domain.values() else 1, d))
@@ -221,9 +267,7 @@ def summarize_group(title: str, run_dirs: list[Path], registry: dict,
     add("| model | " + " | ".join(domains) + " |")
     add("|---|" + "---|" * len(domains))
     for name in models:
-        cells = [fmt(data[name][d][1]) if d in data[name] else "—"
-                 for d in domains]
-        add(f"| {name} | " + " | ".join(cells) + " |")
+        add(f"| {name} | " + " | ".join(cell(name, d) for d in domains) + " |")
 
     in_labels = set(in_domain.values())
     degrade = [d for d in domains if d not in in_labels
@@ -239,32 +283,35 @@ def summarize_group(title: str, run_dirs: list[Path], registry: dict,
                 if not base or d == base or d not in data[name] or base not in data[name]:
                     cells.append("—")
                 else:
-                    cells.append(f"×{data[name][d][1] / data[name][base][1]:.1f}")
+                    cells.append(f"×{data[name][d]['mean'] / data[name][base]['mean']:.1f}")
             add(f"| {name} | " + " | ".join(cells) + " |")
 
     b2 = next((d for d in domains if d.startswith("→B2")), None)
     if b2:
         exams = sorted({s for m in models if b2 in data[m]
-                        for s in data[m][b2][2]})
+                        for s in data[m][b2]["values"]})
         if exams:
             add(f"\n## B2 per-exam ({b2})\n")
             add("| exam | " + " | ".join(models) + " |")
             add("|---|" + "---|" * len(models))
             for exam in exams:
-                cells = [fmt(data[m][b2][2][exam])
-                         if exam in data[m].get(b2, (0, 0, {}, None, ""))[2] else "—"
+                cells = [fmt(data[m][b2]["values"][exam])
+                         if exam in data[m].get(b2, {"values": {}})["values"] else "—"
                          for m in models]
                 add(f"| {exam} | " + " | ".join(cells) + " |")
 
     if args.ks:
-        add("\n## KS tests (per-scenario RMSE distributions)\n")
+        ks_head = "\n## KS tests (per-scenario RMSE distributions"
+        if aggregate:
+            ks_head += ", pooled over seeds"
+        add(ks_head + ")\n")
         produced = False
         for d in domains:
-            present = [m for m in models if d in data[m] and data[m][d][0] >= 5]
+            present = [m for m in models if d in data[m] and data[m][d]["n"] >= 5]
             for i, a in enumerate(present):
                 for b in present[i + 1:]:
-                    sa = np.array(list(data[a][d][2].values()))
-                    sb = np.array(list(data[b][d][2].values()))
+                    sa = np.array(data[a][d]["pooled"])
+                    sb = np.array(data[b][d]["pooled"])
                     try:
                         stat, p = ks_test(sa, sb)
                     except RuntimeError as exc:
@@ -281,11 +328,13 @@ def summarize_group(title: str, run_dirs: list[Path], registry: dict,
         add("| model | " + " | ".join(domains) + " |")
         add("|---|" + "---|" * len(domains))
         for name in models:
-            cells = [f"{data[name][d][3]:.1f}"
-                     if d in data[name] and data[name][d][3] is not None else "—"
+            cells = [f"{data[name][d]['dirichlet']:.1f}"
+                     if d in data[name] and data[name][d]["dirichlet"] is not None else "—"
                      for d in domains]
             add(f"| {name} | " + " | ".join(cells) + " |")
 
+    if seeds_note:
+        add(f"\n({seeds_note}; ± is the std of per-seed domain means)")
     return lines
 
 
