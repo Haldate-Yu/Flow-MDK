@@ -9,6 +9,7 @@ Layout (see datasets/README.md):
     ├── swegnn-official/           official SWE-GNN code + raw datasets (130 sims)
     ├── real_projects/             raw schinta basin templates (1D x5, 2D x2)
     ├── partA_synthetic/           generated scenario family (50 npz + splits)
+    ├── partA_v2/                  paper-protocol family (130 npz, Mascaret full-SWE truth)
     ├── partB_family_mdx/          real-master family (npz + splits + Mascaret workdirs)
     ├── partB_family_zxh/
     ├── partB_real_cases/          imported real cases, meshes, inventory, validation
@@ -39,49 +40,48 @@ DATA = REPO / "data"
 OUT = REPO / "datasets"
 
 SOURCES = {
-    "telemac-mascaret-v8p4r0": {
-        "origin": "TELEMAC-MASCARET v8p4r0 release tree (sources/ vendored; examples/notebooks/builds pruned)",
-        "role": "TELEMAC-MASCARET v8p4r0 self-contained docker build context: "
-                "solver source tree (examples/notebooks/builds excluded — not "
-                "needed by compile_telemac) + Dockerfile + build scripts + "
-                "dependencies (JDK 8, timezone). docker build directly from "
-                "this directory after loading the base image "
-                "(datasets/docker_images/telemac-debian_0.1.tar.gz)",
-        "subdirs": ["telemac-mascaret/sources", "telemac-mascaret/scripts",
-                    "telemac-mascaret/configs", "telemac-mascaret/documentation"],
-        "files": [".dockerignore", "Dockerfile", "build.sh", "entrypoint.sh",
-                  "setenv.sh", "setup-4-output.sh", "systel.cfg"],
-        "extra_files": {
-            "telemac-mascaret/LICENSE.txt": "<telemac-mascaret v8p4r0 release>/LICENSE.txt",
-            "telemac-mascaret/NEWS.txt": "<telemac-mascaret v8p4r0 release>/NEWS.txt",
-            "telemac-mascaret/README.txt": "<telemac-mascaret v8p4r0 release>/README.txt",
-            "telemac-mascaret/REQUIREMENTS.txt": "<telemac-mascaret v8p4r0 release>/REQUIREMENTS.txt",
-        },
-        "extra_dirs": {
-            "dependencies": "<telemac-mascaret v8p4r0 release>/dependencies",
-        },
+    "real_sources": {
+        "origin": REPO / "data" / "real_sources",
+        "origin_label": "data/real_sources (repo working copy)",
+        "role": "Complete second-provider 1D projects vendored into the repo "
+                "(wqh + zxh): launcher files, Abaques, historical .opt/.lis — "
+                "both validated by exact rerun reproduction (RMSE=0)",
+        "subdirs": ["wqh", "zxh"],
+        "files": [],
     },
+}
+
+# Items vendored under datasets/ with no local staging copy any more: the
+# tree in datasets/ IS the canonical copy (kernel patches are applied in
+# place — see telemac-mascaret-v8p4r0/PATCHES.md). The archiver only counts
+# their files into MANIFEST.json, it never re-copies them.
+IN_PLACE = {
     "swegnn-official": {
         "origin": "github RBTV1/SWE-GNN-paper-repository- + Zenodo 10214840/7764418",
         "role": "Official SWE-GNN repository (RBTV1/SWE-GNN-paper-repository-) incl. raw_datasets (130 Delft3D-FM simulations)",
-        "subdirs": ["models", "training", "utils", "database", "raw_datasets", "results"],
-        "files": ["README.md", "config.yaml", "main.py", "requirements.txt", "LICENSE"],
     },
     "real_projects": {
         "origin": "schinta basin-flood-prevention subsystem (internal project; path not vendored)"
                   r"\schinta-module-basin-flood-prevention-start\src\main\resources\template",
         "role": "Raw real-basin Mascaret / TELEMAC-2D project templates (mdx/wqh/zxh 1D, "
                 "mdxUpStream/mdxDownStream coupled legs, wqh/mdx 2D)",
-        "subdirs": ["telemac1d", "telemac2d"],
-        "files": [],
     },
-    "real_sources": {
-        "origin": str(REPO / "data" / "real_sources"),
-        "role": "Complete second-provider 1D projects vendored into the repo "
-                "(wqh + zxh): launcher files, Abaques, historical .opt/.lis — "
-                "both validated by exact rerun reproduction (RMSE=0)",
-        "subdirs": ["wqh", "zxh"],
-        "files": [],
+    "telemac-mascaret-v8p4r0": {
+        "origin": "TELEMAC-MASCARET v8p4r0 release tree (sources/ vendored; examples/notebooks/builds pruned)",
+        "role": "TELEMAC-MASCARET v8p4r0 self-contained docker build context: "
+                "solver source tree (examples/notebooks/builds excluded — not "
+                "needed by compile_telemac) + Dockerfile + build scripts + "
+                "dependencies (JDK 8, timezone). Carries the Flow-MDK kernel "
+                "patches (see PATCHES.md there). docker build directly from "
+                "this directory after loading the base image "
+                "(datasets/docker_images/telemac-debian_0.1.tar.gz)",
+    },
+    "docker_images": {
+        "origin": "local docker (docker save); telemac-debian base image from the upstream tar distribution",
+        "role": "Prebuilt solver docker images, docker-loadable tar.gz: "
+                "telemac-debian_0.1 (base) + flow-mdk-telemac_v8p4r0 (original) "
+                "+ flow-mdk-telemac_v8p4r0p1 (patched kernel — the standard for "
+                "all truth generation)",
     },
 }
 
@@ -134,7 +134,7 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
 
     manifest: dict = {"created": time.strftime("%Y-%m-%d %H:%M:%S"),
-                      "repo": str(REPO), "items": {}}
+                      "repo": "Flow-MDK repository root", "items": {}}
 
     # 1. external sources --------------------------------------------------
     for name, spec in SOURCES.items():
@@ -169,9 +169,20 @@ def main() -> None:
             src = Path(src)
             if src.exists():
                 n += copy_tree(src, dst / rel)
-        manifest["items"][name] = {"role": spec["role"], "origin": str(origin),
+        manifest["items"][name] = {"role": spec["role"],
+                                   "origin": spec.get("origin_label", str(origin)),
                                    "files": n}
         print(f"[ok] {name}: {n} files")
+
+    # 1b. items maintained in place under datasets/ -------------------------
+    for name, spec in IN_PLACE.items():
+        dst = OUT / name
+        n = sum(1 for p in dst.rglob("*") if p.is_file())
+        if n == 0:
+            print(f"[warn] {name}: 0 files — is the LFS checkout complete?")
+        manifest["items"][name] = {"role": spec["role"], "origin": spec["origin"],
+                                   "files": n}
+        print(f"[in-place] {name}: {n} files")
 
     # 2. generated datasets ------------------------------------------------
     gen_specs = {
@@ -179,6 +190,14 @@ def main() -> None:
             "role": "Part A: synthetic 1D scenario family (SWE-GNN-style), "
                     "diffusive-wave reference truth",
             "copy": [(DATA / "scenarios_1d", ".", None)],
+        },
+        "partA_v2": {
+            "role": "Part A v2: paper-protocol synthetic family (A1 100 + A2 20 "
+                    "unseen hydrology + A3 10 large-domain), Mascaret full-SWE "
+                    "truth attached (128/130 valid; split.json filtered, original "
+                    "130-scenario protocol kept in split_full_protocol.json; the "
+                    "4 s1geo-failure scenarios keep their diffusive reference)",
+            "copy": [(DATA / "scenarios_partA_v2", ".", None)],
         },
         "partB_family_mdx": {
             "role": "Part B1: real-master family (mdx geometry x synthetic hydrology), "
@@ -208,6 +227,7 @@ def main() -> None:
                      (DATA / "real_cases/validation_zxh.json", "validation_zxh.json", None),
                      (DATA / "real_cases/validation_mdx_upstream.json",
                       "validation_mdx_upstream.json", None),
+                     (DATA / "real_cases/validation_wqh.json", "validation_wqh.json", None),
                      (DATA / "real_cases/family_summary.json", "family_summary.json", None)],
         },
     }
