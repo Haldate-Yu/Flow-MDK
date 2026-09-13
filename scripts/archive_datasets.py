@@ -40,7 +40,7 @@ OUT = REPO / "datasets"
 
 SOURCES = {
     "telemac-mascaret-v8p4r0": {
-        "origin": r"D:\tmp\telemac-wz-260529",
+        "origin": "TELEMAC-MASCARET v8p4r0 release tree (sources/ vendored; examples/notebooks/builds pruned)",
         "role": "TELEMAC-MASCARET v8p4r0 self-contained docker build context: "
                 "solver source tree (examples/notebooks/builds excluded — not "
                 "needed by compile_telemac) + Dockerfile + build scripts + "
@@ -52,23 +52,23 @@ SOURCES = {
         "files": [".dockerignore", "Dockerfile", "build.sh", "entrypoint.sh",
                   "setenv.sh", "setup-4-output.sh", "systel.cfg"],
         "extra_files": {
-            "telemac-mascaret/LICENSE.txt": r"D:\tmp\telemac-wz-260529\telemac-mascaret\LICENSE.txt",
-            "telemac-mascaret/NEWS.txt": r"D:\tmp\telemac-wz-260529\telemac-mascaret\NEWS.txt",
-            "telemac-mascaret/README.txt": r"D:\tmp\telemac-wz-260529\telemac-mascaret\README.txt",
-            "telemac-mascaret/REQUIREMENTS.txt": r"D:\tmp\telemac-wz-260529\telemac-mascaret\REQUIREMENTS.txt",
+            "telemac-mascaret/LICENSE.txt": "<telemac-mascaret v8p4r0 release>/LICENSE.txt",
+            "telemac-mascaret/NEWS.txt": "<telemac-mascaret v8p4r0 release>/NEWS.txt",
+            "telemac-mascaret/README.txt": "<telemac-mascaret v8p4r0 release>/README.txt",
+            "telemac-mascaret/REQUIREMENTS.txt": "<telemac-mascaret v8p4r0 release>/REQUIREMENTS.txt",
         },
         "extra_dirs": {
-            "dependencies": r"D:\tmp\telemac-wz-260529\dependencies",
+            "dependencies": "<telemac-mascaret v8p4r0 release>/dependencies",
         },
     },
     "swegnn-official": {
-        "origin": r"D:\tmp\swegnn-official",
+        "origin": "github RBTV1/SWE-GNN-paper-repository- + Zenodo 10214840/7764418",
         "role": "Official SWE-GNN repository (RBTV1/SWE-GNN-paper-repository-) incl. raw_datasets (130 Delft3D-FM simulations)",
         "subdirs": ["models", "training", "utils", "database", "raw_datasets", "results"],
         "files": ["README.md", "config.yaml", "main.py", "requirements.txt", "LICENSE"],
     },
     "real_projects": {
-        "origin": r"D:\Projects\wzzhsl-rest-subsystems-xd\schinta-module-basin-flood-prevention"
+        "origin": "schinta basin-flood-prevention subsystem (internal project; path not vendored)"
                   r"\schinta-module-basin-flood-prevention-start\src\main\resources\template",
         "role": "Raw real-basin Mascaret / TELEMAC-2D project templates (mdx/wqh/zxh 1D, "
                 "mdxUpStream/mdxDownStream coupled legs, wqh/mdx 2D)",

@@ -42,10 +42,7 @@ from flow_mdk.data.graph_1d import build_1d_graph  # noqa: E402
 from flow_mdk.data.features import layouts_1d  # noqa: E402
 from flow_mdk.utils.io import Scenario, save_scenario  # noqa: E402
 
-DEFAULT_SOURCE = (
-    r"D:\Projects\wzzhsl-rest-subsystems-xd\schinta-module-basin-flood-prevention"
-    r"\schinta-module-basin-flood-prevention-start\src\main\resources\template"
-)
+DEFAULT_SOURCE = Path(__file__).resolve().parents[1] / "datasets" / "real_projects"
 
 CASES_1D = {
     # case name: (directory, geometry stem, role in the real-case track)

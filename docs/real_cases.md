@@ -1,7 +1,7 @@
 # 真实算例（Real-case track）
 
 > 数据来源：schinta 流域防洪子系统的 TELEMAC-MASCARET 建模模板
-> （`D:\Projects\wzzhsl-rest-subsystems-xd\schinta-module-basin-flood-prevention\...\resources\template\`）。
+> （项目内部资料，来源路径不入库；仓库内归档见 `datasets/real_projects/`）。
 > 原始工程文件**不入库**（见 plan/PLAN.md 准入清单的保密脱敏条目）；本仓库只保存
 > 解析脚本（`scripts/import_real_cases.py`）、匿名化元数据与派生 npz
 > （写入 git-ignored 的 `data/real_cases/`）。
@@ -72,7 +72,7 @@ mdx_upstream (1D, ybs)  ->  mdx_2d (2D)  ->  mdx_downstream (1D, xjz)
   | `zxh` | ✅ | 35 s | 0.096 m / 6.2 m³/s / 6.7% | **通过**，复算结果作为真值 |
   | `mdx_upstream` | ✅ | 26 s | 0.282 m / 56.4 m³/s / 6.4% | **通过**，复算结果作为真值 |
   | `mdx_downstream` | ❌ SIGSEGV | — | — | 求解器在计算中段崩溃，保留历史 `.opt` 为真值；待排查（怀疑与渲染期文件缺失有关） |
-  | `wqh` | ✅ 36 s | — | **0.000 m / 0.0 m³/s（逐位复现）** | **PASS** — 第二提供方提供完整工程（`D:\tmp\wqh`，含历史 `.opt` 与启动文件）；先前段错误确系模板缺文件所致 |
+  | `wqh` | ✅ 36 s | — | **0.000 m / 0.0 m³/s（逐位复现）** | **PASS** — 第二提供方提供完整工程（已内化至 `data/real_sources/wqh`，归档于 `datasets/real_sources/`，含历史 `.opt` 与启动文件）；先前段错误确系模板缺文件所致 |
 
   复算环境要点（写入 `scripts/run_real_family.py`）：启动器固定读 `FichierCas.txt`；
   `Abaques.txt` 为 Debord 标准查算表（全项目通用常数，缺失时可从 mdx 复制）；

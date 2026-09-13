@@ -1,10 +1,10 @@
 {
-  "source": "D:\\Projects\\wzzhsl-rest-subsystems-xd\\schinta-module-basin-flood-prevention\\schinta-module-basin-flood-prevention-start\\src\\main\\resources\\template",
+  "source": "schinta basin-flood-prevention subsystem (internal project; path not vendored)",
   "cases": {
     "wqh": {
       "case": "wqh",
       "kind": "1d",
-      "folder": "D:\\Projects\\Flow-MDK\\data\\real_sources\\wqh",
+      "folder": "data/real_sources/wqh",
       "stem": "wuqiao",
       "num_sections": 27,
       "reach_length_m": 9434.4,
@@ -113,7 +113,7 @@
     "zxh": {
       "case": "zxh",
       "kind": "1d",
-      "folder": "D:\\Projects\\Flow-MDK\\data\\real_sources\\zxh",
+      "folder": "data/real_sources/zxh",
       "stem": "zx",
       "num_sections": 23,
       "reach_length_m": 13146.0,

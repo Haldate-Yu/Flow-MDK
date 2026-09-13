@@ -1,7 +1,7 @@
 # Flow-MDK vs 官方 SWE-GNN 实现 — 逐项对照
 
 > 官方仓库：<https://github.com/RBTV1/SWE-GNN-paper-repository->（论文 Code availability 一节指定；
-> Zenodo: 10.5281/zenodo.10214840）。本地副本：`D:\tmp\swegnn-official`。
+> Zenodo: 10.5281/zenodo.10214840）。仓库内归档副本：`datasets/swegnn-official/`。
 > 对照日期：2026-09-11。官方关键文件：`models/gnn.py`、`models/models.py`、`training/train.py`、
 > `training/loss.py`、`utils/dataset.py`、`database/graph_creation.py`、`config.yaml`。
 
