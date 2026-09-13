@@ -112,6 +112,20 @@ swegnn/flow_mdk/ssgc}，预算与单种子链完全一致（G=32/40ep），18 �
   solver 翻转 `telemac2d_docker_rerun`，QC 报告存 `telemac2d_runs/*/`）。
   B2 的 mdx_upstream/downstream 仍是独立 1D 腿；真耦合（M4）未动。
 
+### 合成 2D 场景族管线（M3 主粮，当日打通 + pilot 完成）
+
+- `run_telemac2d_docker.py` 重写为端到端：全墙 `.cli`（逐字克隆真实墙线，
+  排序无关）+ **单节点源区域入流**（真实工程同款机制，替代溃口边界）+
+  生产关键字 `.cas` + 运行 + 自动摄取（ingest 抽出 `ingest_results()` 复用）。
+- 调试坑位（均已记入提交）：Git Bash 改写 `-w /work`；源区域须在 cas 声明
+  `WATER DISCHARGE OF SOURCES`；`.qsl` 需越界终点行；边基线性系统下
+  SUPG=0 + CONTINUITY CORRECTION；几何变量须命名 `BOTTOM`；ingest 后须
+  重载场景再补 runtime（旧对象会覆盖真值）。
+- **pilot 20 场景（64×64 @ 100m，干初始，20–80 m³/s 定常入流，48h）全部
+  QC PASS**：97 帧 @ 600s、h_max 11.6–19.4 m、湿区终值 5–10%、体积守恒
+  |ε|≤3.3e-15、合计 24 min。终态体积与 ∫Qdt 逐位吻合（均匀面积粗估差 6%
+  系校验方法近似，非管线问题）。扩到 50/130 场景纯参数化（~3 h）。
+
 ## 七、与服务器 L4 的衔接
 
 - 服务器训练进行中；其 history.json 自带 mdk_lambda0（trainer 已记录），

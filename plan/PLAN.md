@@ -206,6 +206,7 @@ Flow-MDK/
 | ~~L5~~ | ✅ **over-smoothing 监控接入评测**（2026-09-13） | λ₀ 逐 epoch 已在 history.json；Dirichlet 能量经 rollout forward hooks 逐层计算（逐边归一）进 eval json（`eval/rollout.py`、`scripts/evaluate.py`）；曲线工具 `scripts/plot_mdk_lambda0.py`。首轮信号：flow_mdk 训练中末层 λ₀ 0.42→0.09 塌缩、GCN 逐层能量随深度增长。表示相似度指标未实现（可选，不再单列） | M2 ✅ |
 | L6 | **mdx 家族补齐至 50**（可选） | 现 37 个（3 个段错误淘汰）；补采 13 个使三家族对称，总计 ~130 与论文对齐 | M2 前 |
 | ~~L7a~~ | ✅ **真实 2D 工程真值（M3 开线，2026-09-13）** | `wqh_2d`/`mdx_2d` 全量重跑完成（telemac2d.py --ncsize=4，本机 docker；25h/15h 工况，151/91 帧 @ 600s），QC 通过（质量守恒 |ε|≤7.3e-15，深度/湿区/NaN 门控）；真值已挂 `meshes_2d/*.npz`（solver=telemac2d_docker_rerun）。**预期修正**：模板 old.slf 是单帧初始化快照而非历史结果档案——2D 无逐位复现校验，重跑即真值 + 物理门控。重跑工具 `ingest_telemac2d_truth.py` + 配方记档。L7 余项：合成 2D 场景族真值（需 `.cli` 生成器）+ 65k 节点训练（A100 + 图分块） | M3 ◐ |
+| ~~L7b~~ | ✅ **合成 2D 场景族真值管线 + pilot（2026-09-13）** | 端到端管线当日打通（`run_telemac2d_docker.py` 重写：全墙 `.cli`（逐字克隆真实墙线）+ 单节点源区域入流（真实工程同款机制）+ 生产关键字 `.cas` + 自动摄取；`generate_scenarios_2d_family.py` 采样种子/溃口侧/流量/地形，70/15/15 split）。pilot 20 场景全过：97 帧、h_max 11.6–19.4 m、湿区终值 5–10%、体积守恒 |ε|≤3.3e-15、合计 24 min。扩到 50/130 场景纯参数化（~3 h）。调试坑位：Git Bash 改写 `-w /work`、源区域须在 cas 声明流量、qsl 需越界终点行、边基系统下 SUPG=0 | M3 ◐（训练待上） |
 | L8 | **mdx_downstream 复算段错误排查** | 保留历史 `.opt` 为真值；需原调度系统重导出工程或 Fortran 级排查 | 低优先 |
 | L9 | **加速比基线补全** | B2 场景的 `runtime_s` 需从历史 `.lis` 时间戳或复算实测补齐（当前仅家族场景有实测值） | M5 |
 | L10 | **git 提交 09-11/09-12 改动** | wqh/zxh 内化、Part A v2、server runbook、L1 两段式真值管线、L2/L3 实验链与结果、进展日志待提交 | 流程 |
