@@ -209,7 +209,7 @@ Flow-MDK/
 | L8 | **mdx_downstream 复算段错误排查** | 保留历史 `.opt` 为真值；需原调度系统重导出工程或 Fortran 级排查 | 低优先 |
 | L9 | **加速比基线补全** | B2 场景的 `runtime_s` 需从历史 `.lis` 时间戳或复算实测补齐（当前仅家族场景有实测值） | M5 |
 | L10 | **git 提交 09-11/09-12 改动** | wqh/zxh 内化、Part A v2、server runbook、L1 两段式真值管线、L2/L3 实验链与结果、进展日志待提交 | 流程 |
-| L11 | **Part A v2 失败场景修复** | ✅ 2026-09-12 内核补丁后 126→128/130：根因为 v8p4 源码树本地魔改的 XAJ 侧向入流块在 `Q_XAJ.txt` 缺失时 `nlines/num_columns` 未定义 → 堆越界随机段错误（亦是真实家族 zxh 22 例段错误的根因）；补丁 + 备份 + 重建镜像 `flow-mdk-telemac:v8p4r0p1`，见 `datasets/telemac-mascaret-v8p4r0/PATCHES.md`。剩余 4 例为 `s1geo` 负索引（干涸极限工况，干净报错），低优先单独排查。**真实家族差异评估进行中（2026-09-13）**：工具就绪（`run_real_family.py --runs-root/--force` + `scripts/compare_family_truth.py`），117 场景补丁内核 scratch 重跑至 `data/real_cases/_patchfix_diff/`；冒烟 zxh_fam000 与验证真值逐位一致，全量 verdict 待批跑完成后出 | ✅（评估中） |
+| L11 | **Part A v2 失败场景修复** | ✅ 2026-09-12 内核补丁后 126→128/130：根因为 v8p4 源码树本地魔改的 XAJ 侧向入流块在 `Q_XAJ.txt` 缺失时 `nlines/num_columns` 未定义 → 堆越界随机段错误（亦是真实家族 zxh 22 例段错误的根因）；补丁 + 备份 + 重建镜像 `flow-mdk-telemac:v8p4r0p1`，见 `datasets/telemac-mascaret-v8p4r0/PATCHES.md`。剩余 4 例为 `s1geo` 负索引（干涸极限工况，干净报错），低优先单独排查。**真实家族差异评估 ✅ 关闭（2026-09-13）**：117 场景（zxh 40 + mdx 37 + wqh 40）补丁内核 scratch 重跑全部成功，新旧真值**逐位一致**（max h-RMSE = 0.0，无一场景漂移）→ 已验证 B1/B2 真值不受内核缺陷影响，家族重跑不必要，L2/L3 结论在干净地基上成立；评估工具存档（`run_real_family.py --runs-root/--force` + `scripts/compare_family_truth.py`，报告在 `data/real_cases/_patchfix_diff/`）。衍生可选项：mdx 3 例被淘汰场景可在补丁内核下尝试复活（→ L6） | ✅ 关闭 |
 
 ## 进展日志
 
