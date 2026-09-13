@@ -1,0 +1,12 @@
+{
+  "case": "wqh",
+  "runtime_s": 10.830271099999663,
+  "rerun_frames": 48,
+  "abscissa_max_diff_m": 0.0005859374996362021,
+  "depth_max_rerun_m": 4.185999870300293,
+  "reference_frames": 48,
+  "depth_rmse_m": 0.0,
+  "discharge_rmse_m3s": 0.0,
+  "depth_max_reference_m": 4.185999870300293,
+  "passed": true
+}

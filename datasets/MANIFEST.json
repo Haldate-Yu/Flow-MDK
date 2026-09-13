@@ -1,7 +1,12 @@
 {
-  "created": "2026-09-11 17:31:28",
+  "created": "2026-09-13 10:38:47",
   "repo": "Flow-MDK repository root",
   "items": {
+    "real_sources": {
+      "role": "Complete second-provider 1D projects vendored into the repo (wqh + zxh): launcher files, Abaques, historical .opt/.lis — both validated by exact rerun reproduction (RMSE=0)",
+      "origin": "data/real_sources (repo working copy)",
+      "files": 56
+    },
     "swegnn-official": {
       "role": "Official SWE-GNN repository (RBTV1/SWE-GNN-paper-repository-) incl. raw_datasets (130 Delft3D-FM simulations)",
       "origin": "github RBTV1/SWE-GNN-paper-repository- + Zenodo 10214840/7764418",
@@ -12,14 +17,23 @@
       "origin": "schinta basin-flood-prevention subsystem (internal project; path not vendored)\\schinta-module-basin-flood-prevention-start\\src\\main\\resources\\template",
       "files": 183
     },
-    "real_sources": {
-      "role": "Complete second-provider 1D projects vendored into the repo (wqh + zxh): launcher files, Abaques, historical .opt/.lis — both validated by exact rerun reproduction (RMSE=0)",
-      "origin": "data/real_sources (repo working copy)",
-      "files": 56
+    "telemac-mascaret-v8p4r0": {
+      "role": "TELEMAC-MASCARET v8p4r0 self-contained docker build context: solver source tree (examples/notebooks/builds excluded — not needed by compile_telemac) + Dockerfile + build scripts + dependencies (JDK 8, timezone). Carries the Flow-MDK kernel patches (see PATCHES.md there). docker build directly from this directory after loading the base image (datasets/docker_images/telemac-debian_0.1.tar.gz)",
+      "origin": "TELEMAC-MASCARET v8p4r0 release tree (sources/ vendored; examples/notebooks/builds pruned)",
+      "files": 3726
+    },
+    "docker_images": {
+      "role": "Prebuilt solver docker images, docker-loadable tar.gz: telemac-debian_0.1 (base) + flow-mdk-telemac_v8p4r0 (original) + flow-mdk-telemac_v8p4r0p1 (patched kernel — the standard for all truth generation)",
+      "origin": "local docker (docker save); telemac-debian base image from the upstream tar distribution",
+      "files": 3
     },
     "partA_synthetic": {
       "role": "Part A: synthetic 1D scenario family (SWE-GNN-style), diffusive-wave reference truth",
       "files": 51
+    },
+    "partA_v2": {
+      "role": "Part A v2: paper-protocol synthetic family (A1 100 + A2 20 unseen hydrology + A3 10 large-domain), Mascaret full-SWE truth attached (128/130 valid; split.json filtered, original 130-scenario protocol kept in split_full_protocol.json; the 4 s1geo-failure scenarios keep their diffusive reference)",
+      "files": 133
     },
     "partB_family_mdx": {
       "role": "Part B1: real-master family (mdx geometry x synthetic hydrology), Mascaret docker truth",
@@ -35,25 +49,15 @@
     },
     "partB_real_cases": {
       "role": "Part B2: imported real cases (history .opt replay / rerun truth) + 2D meshes + inventory + validation reports",
-      "files": 12
+      "files": 13
     },
     "runs": {
       "role": "training/evaluation results (configs, history, metrics, checkpoints)",
-      "files": 32
-    },
-    "telemac-mascaret-v8p4r0": {
-      "role": "TELEMAC-MASCARET v8p4r0 self-contained docker build context: solver source tree (examples/notebooks/builds excluded) + Dockerfile + build scripts + dependencies (JDK 8, timezone)",
-      "origin": "TELEMAC-MASCARET v8p4r0 release tree",
-      "files": 3724
-    },
-    "docker_images": {
-      "role": "Prebuilt solver docker images, docker-loadable tar.gz: telemac-debian_0.1 (base) + flow-mdk-telemac_v8p4r0 (ready-to-run)",
-      "origin": "local docker (docker save); telemac-debian base image from the upstream tar distribution",
-      "files": 2
+      "files": 71
     }
   },
   "totals": {
-    "files": 9154,
-    "bytes": 5611086296
+    "files": 9330,
+    "bytes": 7453252472
   }
 }

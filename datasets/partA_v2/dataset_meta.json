@@ -1,0 +1,9 @@
+{
+  "protocol": "SWE-GNN HESS 2023 dataset alignment (130 simulations)",
+  "subsets": {
+    "A1": 100,
+    "A2": 20,
+    "A3": 10
+  },
+  "truth": "diffusive_wave_reference (cross-check) + mascaret (canonical, attached by scripts/run_partA_mascaret.py)"
+}

@@ -13,17 +13,20 @@ place and ready for Git LFS sync (patterns in `.gitattributes`; run
 | `real_projects/` | raw real-basin project templates: `telemac1d/{mdx,wqh,zxh,mdxUpStream,mdxDownStream}`, `telemac2d/{wqh,mdx}` (import fallback: `scripts/import_real_cases.py --source datasets/real_projects`) | schinta basin-flood-prevention subsystem (internal; path not vendored) | ~61 MB |
 | `real_sources/` | complete second-provider 1D projects (`wqh/`, `zxh/`) with launch files, Abaques and historical `.opt`/`.lis` — the templates all synthetic-project generation starts from (restore into `data/real_sources/`) | second provider, vendored at import time | ~5 MB |
 | `partA_synthetic/` | 50 generated 1D scenarios (`*.npz`) + `split.json` + `stats.json` — geometry × hydrology random family, diffusive-wave reference truth (v1 pipeline-regression set) | `scripts/generate_scenarios_1d.py` | ~10 MB |
+| `partA_v2/` | 130 paper-protocol scenarios (A1 100 + A2 unseen-hydrology 20 + A3 large-domain 10), Mascaret full-SWE truth attached on 128/130 (`split.json` filtered to the valid set; original 130-scenario protocol kept in `split_full_protocol.json`; the 4 `s1geo`-failure scenarios keep their diffusive reference) | `scripts/generate_partA_v2.py` + `scripts/run_partA_mascaret.py` | ~5 MB |
 | `partB_family_mdx/` | 37 real-master scenarios (mdx geometry × synthetic hydrology) + splits + `mascaret_runs/` (per-scenario workdirs with `.opt` results; `.lis` listings excluded as regenerable) | `flow_mdk/gen/scenarios_real.py` + `scripts/run_real_family.py` | ~0.6 GB |
-| `partB_family_zxh/` | 18 real-master scenarios (zxh geometry), same pipeline | idem | ~0.3 GB |
+| `partB_family_zxh/` | 40 real-master scenarios (zxh geometry, rebuilt from the complete vendored master), same pipeline | idem | ~0.3 GB |
 | `partB_real_cases/` | imported real cases (`scenarios_1d/*.npz`), 2D meshes (`meshes_2d/*.npz`), `inventory.json`, validation reports | `scripts/import_real_cases.py` | ~10 MB |
-| `runs/` | training/evaluation results: `config.yaml`, `history.json`, `best.pt`, `eval_*.json` per experiment | `scripts/train.py` / `scripts/evaluate.py` | small |
+| `runs/` | training/evaluation results: `config.yaml`, `history.json`, `best.pt`, `eval_*.json` per experiment; `results.csv` = append-only registry of every run | `scripts/train.py` / `scripts/evaluate.py` | small |
 
-> **Archive refresh pending (2026-09-13)**: this snapshot predates the
-> 2026-09-12 session — not yet included: `partA_v2` (128 Mascaret-truth
-> scenarios), the updated families (117 scenarios), and the v8p4r0p1 row in
-> `MANIFEST.json`. Run `python scripts/archive_datasets.py` before pushing
-> LFS; the patched image tar is already exported by hand
-> (`docker_images/flow-mdk-telemac_v8p4r0p1.tar.gz`).
+> **Archive state (2026-09-13)**: refreshed — `partA_v2/` and the L2/L3 run
+> archive are in, `docker_images/` carries the patched `v8p4r0p1` image, and
+> the v1 run dirs hold the final (post-training) checkpoints.
+> `telemac-mascaret-v8p4r0/` and `docker_images/` are maintained in place
+> (kernel patches are applied directly to the vendored tree, see
+> `telemac-mascaret-v8p4r0/PATCHES.md`): re-running
+> `python scripts/archive_datasets.py` counts them into `MANIFEST.json` but
+> never re-copies them.
 
 Reproduction chain:
 
