@@ -77,6 +77,8 @@ def main() -> None:
             "csi_0p3": csi(r.prediction[..., 0], r.truth[..., 0], 0.3),
             "seconds": r.seconds,
             "speedup": r.speedup,
+            # L5 over-smoothing monitor: per processor layer, per edge, per step
+            "dirichlet": r.dirichlet,
         })
     out_name = f"eval_{args.split}{suffix}.json"
     (out_dir / out_name).write_text(

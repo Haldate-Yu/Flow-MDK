@@ -10,11 +10,17 @@ import numpy as np
 import torch
 
 from flow_mdk.config import ExperimentConfig
-from flow_mdk.eval.metrics import csi, mae_per_variable, rmse_per_variable
+from flow_mdk.eval.metrics import csi, dirichlet_energy, mae_per_variable, rmse_per_variable
 from flow_mdk.models.factory import build_model
 from flow_mdk.utils.io import Scenario, ScenarioStore
 
-__all__ = ["RolloutReport", "load_model", "rollout_scenario", "evaluate_scenarios"]
+__all__ = [
+    "RolloutReport",
+    "attach_dirichlet_monitor",
+    "load_model",
+    "rollout_scenario",
+    "evaluate_scenarios",
+]
 
 
 @dataclass
@@ -25,12 +31,50 @@ class RolloutReport:
     seconds: float  # wall time of the surrogate rollout
     solver_seconds: float | None  # reference runtime from scenario metadata
     wet_thresholds: tuple[float, ...] = (0.05, 0.3)
+    dirichlet: list[float] | None = None  # per processor layer, per edge, per step
 
     @property
     def speedup(self) -> float | None:
         if self.solver_seconds and self.solver_seconds > 0:
             return self.solver_seconds / max(self.seconds, 1e-9)
         return None
+
+
+def attach_dirichlet_monitor(
+    model,
+) -> tuple[list[float], list[int], list]:
+    """Register forward hooks recording per-layer Dirichlet energy (L5).
+
+    Covers both harnesses: the Flow-MDK processor (``model.processor.layers``)
+    and the GCN/GAT baselines (``model.convs``). The edge_index is located
+    generically among the layer inputs as the integer [2, E] tensor. Energy is
+    normalised by edge count so scenarios of different size aggregate cleanly;
+    the collapse signal (later layers -> ~0) is unaffected by the choice.
+
+    Returns (per-layer energy totals, per-layer call counts, hook handles).
+    """
+    layers: list = list(getattr(getattr(model, "processor", None), "layers", []) or [])
+    layers += list(getattr(model, "convs", []) or [])
+    totals = [0.0] * len(layers)
+    calls = [0] * len(layers)
+
+    def make(idx: int):
+        def hook(_module, inputs, output) -> None:
+            edge_index = next(
+                (a for a in inputs
+                 if isinstance(a, torch.Tensor) and a.dtype == torch.long
+                 and a.dim() == 2),
+                None,
+            )
+            if (edge_index is None or edge_index.shape[1] == 0
+                    or not isinstance(output, torch.Tensor) or output.dim() != 2):
+                return
+            totals[idx] += dirichlet_energy(output, edge_index) / edge_index.shape[1]
+            calls[idx] += 1
+        return hook
+
+    handles = [layer.register_forward_hook(make(i)) for i, layer in enumerate(layers)]
+    return totals, calls, handles
 
 
 def load_model(
@@ -75,9 +119,17 @@ def rollout_scenario(
     static = torch.cat([base_static, (base_static[:, elevation_feature_idx] + last_depth)[:, None]], dim=1)
 
     start = time.perf_counter()
-    with torch.no_grad():
-        pred = model.rollout(static, dyn_seq, edge_index, edge_attr, n_steps)
+    totals, calls, handles = attach_dirichlet_monitor(model)
+    try:
+        with torch.no_grad():
+            pred = model.rollout(static, dyn_seq, edge_index, edge_attr, n_steps)
+    finally:
+        for handle in handles:
+            handle.remove()
     seconds = time.perf_counter() - start
+    dirichlet = (
+        [t / c for t, c in zip(totals, calls)] if calls and all(calls) else None
+    )
 
     truth = scenario.dynamic[model.cfg.num_previous_steps + 1 : model.cfg.num_previous_steps + 1 + n_steps]
     solver_seconds = scenario.meta.get("runtime_s")
@@ -87,6 +139,7 @@ def rollout_scenario(
         truth=truth.astype(np.float32),
         seconds=seconds,
         solver_seconds=float(solver_seconds) if solver_seconds else None,
+        dirichlet=dirichlet,
     )
 
 
