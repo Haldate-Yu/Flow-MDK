@@ -1,0 +1,25 @@
+--- backups/2026-09-12/mascaret.f90.orig	2026-09-13 00:10:36.575823800 +0800
++++ telemac-mascaret/sources/mascaret/Mascaret/mascaret.f90	2026-09-13 00:11:25.919863400 +0800
+@@ -623,6 +623,22 @@
+       YFIX   = ZFIX - COTR(IS)
+       KHYLIM = EXTREMITE(ICL)%TYPE
+       FROD   = dabs( FROUD(IS) )
++      ! [FLOW-MDK 2026-09-12] An upstream discharge-imposed boundary carries
++      ! no stage in PTZ(1) (ZFIX = 0), so YFIX degenerates to -bed(IS). When
++      ! the upstream section approaches critical flow (0.99 < FROD < FROLIM)
++      ! the continuity branch below evaluates CSUR(IS, YFIX) with this
++      ! negative depth, and the Riemann path (LIMITE) consumes it as well:
++      ! both look up the cross-section geometry tables with a negative
++      ! abscissa and SIGSEGV. Fall back to the current node depth: for a
++      ! discharge-imposed inflow the interior state is the only physically
++      ! consistent value in both branches. No-op for subcritical runs, where
++      ! YFIX is never consumed.
++      if( AMONT .and. (KHYLIM == CONDITION_TYPE_DEBIT_IMPOSE) ) then
++         if( YFIX <= 0.D0 ) then
++            YFIX = dmax1( SNODE(IS) - COTR(IS) , 1.D-2 )
++            ZFIX = COTR(IS) + YFIX
++         endif
++      endif
+       ! modification maurice
+       !      PRINT*,'ZFIX, QFIX, YFIX FROD =',ZFIX,QFIX,YFIX,FROD
+       !

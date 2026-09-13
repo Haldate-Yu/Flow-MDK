@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -36,7 +37,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from flow_mdk.utils.io import Scenario, load_scenario, save_scenario  # noqa: E402
 from import_real_cases import parse_opthyca  # noqa: E402
 
-IMAGE = "flow-mdk-telemac:v8p4r0"
+IMAGE = "flow-mdk-telemac:v8p4r0p1"  # patched kernel (datasets/telemac-mascaret-v8p4r0/PATCHES.md)
 RUNS_ROOT = Path("data/real_cases/mascaret_runs")
 
 
@@ -45,8 +46,16 @@ def run_mascaret(workdir: Path, xcas_name: str, image: str = IMAGE) -> float:
     workdir = workdir.resolve()
     # the image's setenv.sh omits the TELEMAC bin dir from PATH, and its
     # default WORKDIR is the source tree -> cd /work explicitly
+    extra_mounts = []
+    patched = os.environ.get("FLOW_MDK_MASCARET_BIN")
+    if patched:
+        # host-side patched kernel (e.g. the 2026-09-12 XAJ/YFIX fix) mounted
+        # over the image binary; see datasets/telemac-mascaret-v8p4r0/backups/
+        extra_mounts = [
+            "-v", f"{Path(patched).resolve()}:/opt/telemac-mascaret/v8p4r0/builds/openmpi/bin/mascaret:ro",
+        ]
     cmd = [
-        "docker", "run", "--rm", "-v", f"{workdir}:/work",
+        "docker", "run", "--rm", "-v", f"{workdir}:/work", *extra_mounts,
         image, "bash", "-lc",
         'export PATH="${HOMETEL}/builds/${USETELCFG}/bin:$PATH" && '
         f"cd /work && mascaret {xcas_name}",

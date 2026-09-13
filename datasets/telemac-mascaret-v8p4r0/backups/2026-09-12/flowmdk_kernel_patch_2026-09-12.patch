@@ -1,0 +1,61 @@
+--- backups/2026-09-12/mascaret.f90.orig	2026-09-13 00:10:36.575823800 +0800
++++ telemac-mascaret/sources/mascaret/Mascaret/mascaret.f90	2026-09-13 00:19:00.664810300 +0800
+@@ -28,6 +28,7 @@
+       character(len=256)  :: line
+       character(len=1),dimension(:),allocatable :: char_line
+       !
++      nlines = 0 ! [FLOW-MDK 2026-09-12] defined on every path (empty file edge)
+       PRINT*,'READING XAJ FILES'
+       open(unit=183,file='Q_XAJ.txt',status='old',action='read',iostat=iostat)
+       if (iostat == 0) then
+@@ -70,6 +71,12 @@
+       else
+          allocate(Q_XAJ(1,1))
+          Q_XAJ = 0.D0
++         ! [FLOW-MDK 2026-09-12] nlines is intent(out) and was left undefined
++         ! on this path; the caller's lateral-inflow loop then indexes
++         ! Q_XAJ/X_XAJ with garbage -> out-of-bounds heap reads and random
++         ! SIGSEGVs (any run without Q_XAJ.txt in the working directory).
++         ! An empty table (nlines=0) makes the caller loop a no-op.
++         nlines = 0
+          PRINT*,'NO XAJ FILES TO READ'
+       end if
+    END SUBROUTINE READ_Q_XAJ
+@@ -105,7 +112,13 @@
+          close(185)
+       ELSE
+          ALLOCATE(X_XAJ(1))
+-         X_XAJ = 0.D0
++         ! [FLOW-MDK 2026-09-12] num_columns is intent(out) and was left
++         ! undefined on this path; the caller then evaluates X_XAJ(NCOLO)
++         ! and X_XAJ(NCOLO-1) with garbage indices (random SIGSEGV).
++         ! num_columns=1 with a sentinel stage far beyond any reach makes
++         ! the caller's column scan (DO 1,0) and the trailing IF both no-ops.
++         num_columns = 1
++         X_XAJ(1) = 1.D20
+          PRINT*,'NO XAJ FILES TO READ'
+       ENDIF
+    end subroutine READ_X_XAJ
+@@ -623,6 +636,22 @@
+       YFIX   = ZFIX - COTR(IS)
+       KHYLIM = EXTREMITE(ICL)%TYPE
+       FROD   = dabs( FROUD(IS) )
++      ! [FLOW-MDK 2026-09-12] An upstream discharge-imposed boundary carries
++      ! no stage in PTZ(1) (ZFIX = 0), so YFIX degenerates to -bed(IS). When
++      ! the upstream section approaches critical flow (0.99 < FROD < FROLIM)
++      ! the continuity branch below evaluates CSUR(IS, YFIX) with this
++      ! negative depth, and the Riemann path (LIMITE) consumes it as well:
++      ! both look up the cross-section geometry tables with a negative
++      ! abscissa and SIGSEGV. Fall back to the current node depth: for a
++      ! discharge-imposed inflow the interior state is the only physically
++      ! consistent value in both branches. No-op for subcritical runs, where
++      ! YFIX is never consumed.
++      if( AMONT .and. (KHYLIM == CONDITION_TYPE_DEBIT_IMPOSE) ) then
++         if( YFIX <= 0.D0 ) then
++            YFIX = dmax1( SNODE(IS) - COTR(IS) , 1.D-2 )
++            ZFIX = COTR(IS) + YFIX
++         endif
++      endif
+       ! modification maurice
+       !      PRINT*,'ZFIX, QFIX, YFIX FROD =',ZFIX,QFIX,YFIX,FROD
+       !

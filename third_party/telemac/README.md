@@ -1,14 +1,16 @@
 # TELEMAC-MASCARET integration
 
-The training ground truth is produced by the **local TELEMAC-MASCARET
-source tree**. The full tree (~1.9 GB) deliberately stays *outside* the
-repository — it is either referenced in place or consumed through the
-prebuilt Docker image.
+The training ground truth is produced by TELEMAC-MASCARET v8p4r0 (+ the
+Flow-MDK kernel patches — see `datasets/telemac-mascaret-v8p4r0/PATCHES.md`).
+Everything needed to reproduce it ships with the repository: the prebuilt
+Docker images (`datasets/docker_images/`) and the self-contained build
+context (`datasets/telemac-mascaret-v8p4r0/`).
 
-## Source tree (local reference)
+## Source tree layout (inside the build context)
 
-- Path used during development: `D:\tmp\telemac-wz-260529\telemac-mascaret`
-  (override with the `FLOW_MDK_TELEMAC_ROOT` environment variable).
+- Canonical copy: `datasets/telemac-mascaret-v8p4r0/telemac-mascaret/`.
+  A full local release tree, when present on a working machine, can be
+  located via the `FLOW_MDK_TELEMAC_ROOT` environment variable.
 - Key subpaths:
   - `sources/mascaret` — 1D kernel Fortran sources (~9 MB, the only part
     worth vendoring if a self-contained repo is ever needed);
@@ -52,9 +54,17 @@ The context is the pruned tree (examples/notebooks/builds excluded — they are
 not inputs of `compile_telemac.py`); `scripts/archive_datasets.py` regenerates
 it from the local tree.
 
-The upstream base image was never built from a Dockerfile here — it was
-loaded from `D:\tmp\telemac-wz-260529\telemac-debian.tar`, now archived as
-`datasets/docker_images/telemac-debian_0.1.tar.gz` (see above).
+The upstream base image was distributed as a tar (no Dockerfile upstream);
+it is archived as `datasets/docker_images/telemac-debian_0.1.tar.gz`
+(see above).
+
+**Patched kernel (2026-09-12)**: the build context source now carries the
+Flow-MDK kernel fixes (XAJ undefined-behaviour guard + upstream Q-boundary
+YFIX clamp) — see `datasets/telemac-mascaret-v8p4r0/PATCHES.md`. Rebuilding
+the context produces `flow-mdk-telemac:v8p4r0p1` (tag used for all
+Part A v2 truth); the original `v8p4r0` image is kept for rollback. Without
+rebuilding, a host-compiled patched binary can be injected per run via
+`FLOW_MDK_MASCARET_BIN=<path>` (honoured by `scripts/run_real_family.py`).
 
 Then run scenarios headlessly:
 
