@@ -65,7 +65,7 @@
 - [x] 水力定向转移矩阵 P：流量加权（|q| 端点均值）× 水面梯度方向门控（上游→下游，静水时双向各 0.5、陡梯度退化为纯下游），每步按湿区子图行归一化、干节点不中继（`layers/mdk.py`：`hydraulic_edge_weights`/`direction_gates`/`_normalize_weights`）
 - [x] MDK 级数实现：geometric（S2GC）与 uniform（截断 Neumann）两种权重可选；截断阶数 K 由扩散长度匹配 K=⌈√(2DΔt)/dx̄⌉（`suggest_num_steps`）；纯 scatter 稀疏实现，不构造稠密矩阵
 - [x] 算子分裂：advection 分支（ψ 差值消息逐跳，逐跳独立权重矩阵，对齐官方 filter_matrix）+ diffusion 分支（MDK 滤波作用于增量），per-channel 可学习混合门 α（另支持 fixed / diffusive-only）；`mdk.use=false` 时精确退化为官方 SWE-GNN 层（`layers/splitting.py`）
-- [ ] λ₀·I 恒等项与平滑深度监控 —— ◐ λ₀·I 已实现（可学习 λ₀，`FlowMDKNet.mdk_lambda0` 可导出各层取值）、Dirichlet 能量已实现（`eval/metrics.py`）；表示相似度指标未实现，监控尚未接入 eval json 报告与训练曲线（→ L5）
+- [x] λ₀·I 恒等项与平滑深度监控 —— ✅ 2026-09-13 接入评测：λ₀ 逐 epoch 记录于 history.json（`trainer.py`）；Dirichlet 能量经 rollout forward hooks 逐层计算（逐边归一）写入 eval json（`eval/rollout.py` + `scripts/evaluate.py`）；曲线工具 `scripts/plot_mdk_lambda0.py`。首轮信号：flow_mdk 训练中末层 λ₀ 0.42→0.09 塌缩、GCN 逐层能量随深度增长（残差累积）。表示相似度指标未实现（可选项）
 - [ ] 大 Δt 实验：层/k 与时间步的权衡曲线（对应 SWE-GNN Fig. 8）—— 未开始（无实验脚本）
 
 **验收**：◐ 首轮达成（2026-09-12，本地预算 G=32/40ep，单种子）。三方消融（B1 合并训练 → B2 真实考卷）：SWE-GNN 1.67 / SSGC 1.83 / Flow-MDK 2.45（水深 RMSE 均值，m）——同量级，Flow-MDK 在 B1 域内欠拟合（1.95 vs 0.80），疑似预算不足；mdx/闸门耦合考卷上定向系（Flow-MDK/SSGC）占优、简单考卷（zxh/wqh）上 SWE-GNN 占优，体制分工初现端倪。**正式结论待 L4 论文预算复测**；数据见 `docs/results_partA_swe.md` 与 `runs/L3_B1_*/`。
@@ -202,14 +202,14 @@ Flow-MDK/
 | ~~L1~~ | ✅ **Part A v2 的 Mascaret 真值升级**（2026-09-12 完成 89/130） | 两段式初始化落地（SARAP 稳态 `.lig` → REZO，配方与坑位见 `docs/results_partA_swe.md`）；41 个失败场景转 L11；split 已过滤，原始 130 协议存 `split_full_protocol.json` | M1→M2 ✅ |
 | ~~L2~~ | ✅ **体制对齐后的正式对比**（2026-09-12 本地预算完成，干净真值 × 128 场景重跑版） | 域内 GCN 0.79 ≈ GAT 0.83 < Flow-MDK 1.42 < SWE-GNN 4.50；**MDK 混合对本体骨架拯救 ×3.2（4/5 评测域成立）**、fam_mdx 零样本 Flow-MDK 最优（2.63，退化 ×1.8 < GCN ×3.9）。pre-patchfix 轮"Flow-MDK 域内最优"系污染真值+少 40% 数据的假象，已修正。**论文级预算结论归 L4** | M2 ✅（本地预算） |
 | ~~L3~~ | ✅ **B1 训练 → B2 考卷消融**（2026-09-12 本地预算完成） | 三方消融首轮：SWE-GNN 1.67 / SSGC 1.83 / Flow-MDK 2.45，同量级无定论；Flow-MDK 域内欠拟合；体制分工初现端倪。**正式结论归 L4** | M2 ✅（本地预算） |
-| L4 | **论文级预算复测（转服务器）** | G=64、150 epochs、A100（`docs/server_setup.md` runbook；上传代码+data/，取回 runs/）；复测 L2/L3 全部结论（含 A→B 零样本矩阵与 KS 检验）；注意 A v2 目前仅 89 场景（L11） | M2/M5 |
-| L5 | **over-smoothing 监控接入评测** | Dirichlet 能量与 λ₀ 演化已实现（`eval/metrics.py`、`FlowMDKNet.mdk_lambda0`），尚未进入 eval json 报告与训练曲线 | M2 |
+| L4 | **论文级预算复测（转服务器）** | G=64、150 epochs、A100（`docs/server_setup.md` runbook；上传代码+data/，取回 runs/）；复测 L2/L3 全部结论（含 A→B 零样本矩阵与 KS 检验）。**2026-09-13 服务器已开跑**；分析工具就绪：`scripts/summarize_runs.py`（对比表/退化矩阵/B2 逐考卷/KS，`--out-md` 直接出 L4 报告）+ L5 监控已入 eval json（返回 checkpoint 可事后富评） | M2/M5 ◐ 进行中 |
+| ~~L5~~ | ✅ **over-smoothing 监控接入评测**（2026-09-13） | λ₀ 逐 epoch 已在 history.json；Dirichlet 能量经 rollout forward hooks 逐层计算（逐边归一）进 eval json（`eval/rollout.py`、`scripts/evaluate.py`）；曲线工具 `scripts/plot_mdk_lambda0.py`。首轮信号：flow_mdk 训练中末层 λ₀ 0.42→0.09 塌缩、GCN 逐层能量随深度增长。表示相似度指标未实现（可选，不再单列） | M2 ✅ |
 | L6 | **mdx 家族补齐至 50**（可选） | 现 37 个（3 个段错误淘汰）；补采 13 个使三家族对称，总计 ~130 与论文对齐 | M2 前 |
 | L7 | **2D 真值与训练（M3 主体）** | `wqh_2d`/`mdx_2d`（65k 节点）TELEMAC-2D 复算需 `.cli` 边界文件生成；65k 节点训练须上 A100 + 图分块/多尺度 | M3 |
 | L8 | **mdx_downstream 复算段错误排查** | 保留历史 `.opt` 为真值；需原调度系统重导出工程或 Fortran 级排查 | 低优先 |
 | L9 | **加速比基线补全** | B2 场景的 `runtime_s` 需从历史 `.lis` 时间戳或复算实测补齐（当前仅家族场景有实测值） | M5 |
 | L10 | **git 提交 09-11/09-12 改动** | wqh/zxh 内化、Part A v2、server runbook、L1 两段式真值管线、L2/L3 实验链与结果、进展日志待提交 | 流程 |
-| L11 | **Part A v2 失败场景修复** | ✅ 2026-09-12 内核补丁后 126→128/130：根因为 v8p4 源码树本地魔改的 XAJ 侧向入流块在 `Q_XAJ.txt` 缺失时 `nlines/num_columns` 未定义 → 堆越界随机段错误（亦是真实家族 zxh 22 例段错误的根因）；补丁 + 备份 + 重建镜像 `flow-mdk-telemac:v8p4r0p1`，见 `datasets/telemac-mascaret-v8p4r0/PATCHES.md`。剩余 4 例为 `s1geo` 负索引（干涸极限工况，干净报错），低优先单独排查。**真实家族（zxh 22 例）可用同补丁重跑恢复——待定，涉及已验证真值管线，需单独决策** | ✅（1 例遗留） |
+| L11 | **Part A v2 失败场景修复** | ✅ 2026-09-12 内核补丁后 126→128/130：根因为 v8p4 源码树本地魔改的 XAJ 侧向入流块在 `Q_XAJ.txt` 缺失时 `nlines/num_columns` 未定义 → 堆越界随机段错误（亦是真实家族 zxh 22 例段错误的根因）；补丁 + 备份 + 重建镜像 `flow-mdk-telemac:v8p4r0p1`，见 `datasets/telemac-mascaret-v8p4r0/PATCHES.md`。剩余 4 例为 `s1geo` 负索引（干涸极限工况，干净报错），低优先单独排查。**真实家族差异评估进行中（2026-09-13）**：工具就绪（`run_real_family.py --runs-root/--force` + `scripts/compare_family_truth.py`），117 场景补丁内核 scratch 重跑至 `data/real_cases/_patchfix_diff/`；冒烟 zxh_fam000 与验证真值逐位一致，全量 verdict 待批跑完成后出 | ✅（评估中） |
 
 ## 进展日志
 
@@ -217,3 +217,4 @@ Flow-MDK/
 |---|---|---|
 | 2026-09-11 | [update_progress_2026-09-11.md](update_progress_2026-09-11.md) | 两轮会话：wqh/zxh 完整工程内化（复算逐位复现）、真实母版家族重建至 117 场景、Part A v2 130 场景扩建、CUDA 训练环境就绪、首轮四模型×四域评测与 A→B gap 量化、服务器 runbook、datasets 归档入库（LFS） |
 | 2026-09-12 | [update_progress_2026-09-12.md](update_progress_2026-09-12.md) | L1–L3 本地推进：两段式初始化挂 Mascaret 全 SWE 真值；**内核源码级修复**（XAJ 魔改块未定义行为 + 上游 Q 边界垃圾 YFIX，备份/patch/镜像 `v8p4r0p1` 存档，真值 89→128/130，zxh 家族 22 例段错误同根因）；L2 四模型对比（干净真值重跑版：GCN 0.79 ≈ GAT 0.83 < Flow-MDK 1.42 < SWE-GNN 4.50，MDK 混合拯救本体 ×3.2 为稳健发现）；L3 三方消融首轮（B1→B2 同量级，待 L4 复测）；详见 `docs/results_partA_swe.md` |
+| 2026-09-13 | [update_progress_2026-09-13.md](update_progress_2026-09-13.md) | 收尾/工具日：归档缺口补全（partA_v2 + L2/L3 runs + 最终权重入库，archive 脚本三处回归修复）；L5 监控接入评测（Dirichlet 进 eval json + λ₀ 曲线工具，flow_mdk 末层 λ₀ 塌缩信号）；L4 分析工具 `summarize_runs.py`（分组对比表/退化矩阵/KS，与手工表全对上）；L11 真值差异评估启动（117 场景补丁内核 scratch 重跑，冒烟逐位一致）；服务器 L4 同日开跑 |
