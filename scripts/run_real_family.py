@@ -38,7 +38,7 @@ from flow_mdk.utils.io import Scenario, load_scenario, save_scenario  # noqa: E4
 from import_real_cases import parse_opthyca  # noqa: E402
 
 IMAGE = "flow-mdk-telemac:v8p4r0p1"  # patched kernel (datasets/telemac-mascaret-v8p4r0/PATCHES.md)
-RUNS_ROOT = Path("data/real_cases/mascaret_runs")
+RUNS_ROOT = Path("data/real_cases/mascaret_runs")  # canonical workdir root
 
 
 def run_mascaret(workdir: Path, xcas_name: str, image: str = IMAGE) -> float:
@@ -90,6 +90,8 @@ def _prepare_launcher_files(workdir: Path, stem: str) -> None:
             # Abaques.txt holds the standard Debord lookup tables (universal
             # constants of the Mascaret manual); borrow them from a project
             # that ships the file, otherwise write an empty placeholder.
+            # Always the CANONICAL root: a redirected workdir root (scratch
+            # diff reruns) starts empty and must not shadow this source.
             std = RUNS_ROOT / "validate_mdx" / "Abaques.txt"
             f.write_text(std.read_text(encoding="ascii") if std.exists() else "",
                          encoding="ascii")
@@ -147,14 +149,15 @@ def _scenario_x(node_static: np.ndarray, edge_attr: np.ndarray) -> np.ndarray:
 
 
 # --------------------------------------------------------------------- #
-def mode_validate(case: str, scenarios_root: Path, image: str) -> dict:
+def mode_validate(case: str, scenarios_root: Path, image: str,
+                  runs_root: Path = RUNS_ROOT) -> dict:
     """复算校验: re-run the master project and compare with the stored .opt."""
     scenario = load_scenario(scenarios_root / f"{case}.npz")
     source = Path(scenario.meta["source"])
     stem = next(
         c.stem for c in source.glob("*.xcas") if not c.name.endswith(".ftl")
     )
-    workdir = RUNS_ROOT / f"validate_{case}"
+    workdir = runs_root / f"validate_{case}"
     if workdir.exists():
         shutil.rmtree(workdir)
     shutil.copytree(source, workdir, ignore=shutil.ignore_patterns("*.ftl"))
@@ -213,8 +216,14 @@ def mode_validate(case: str, scenarios_root: Path, image: str) -> dict:
     return report
 
 
-def mode_family(family_dir: Path, image: str, limit: int | None) -> list[dict]:
-    """Materialise + run + attach truth for every pending family scenario."""
+def mode_family(family_dir: Path, image: str, limit: int | None,
+                runs_root: Path = RUNS_ROOT, force: bool = False) -> list[dict]:
+    """Materialise + run + attach truth for every pending family scenario.
+
+    ``force`` re-runs scenarios that already carry attached truth — only
+    meaningful on a *scratch copy* of the family dir (e.g. the patched-kernel
+    truth-diff check), never on the validated family itself.
+    """
     from flow_mdk.gen.scenarios_real import materialise_mascaret_project
 
     reports = []
@@ -224,9 +233,9 @@ def mode_family(family_dir: Path, image: str, limit: int | None) -> list[dict]:
         if limit and done >= limit:
             break
         scenario = load_scenario(npz_path)
-        if scenario.meta.get("solver") != "pending_mascaret_rerun":
+        if not force and scenario.meta.get("solver") != "pending_mascaret_rerun":
             continue
-        workdir = RUNS_ROOT / scenario.name
+        workdir = runs_root / scenario.name
         print(f"[family] {scenario.name}: running mascaret ...")
         try:
             xcas_path = materialise_mascaret_project(scenario, workdir)
@@ -294,14 +303,24 @@ def main() -> None:
     parser.add_argument("--image", default=IMAGE)
     parser.add_argument("--limit", type=int, default=None,
                         help="family mode: run at most N pending scenarios")
+    parser.add_argument("--runs-root", default=str(RUNS_ROOT),
+                        help="workdir root for the Mascaret projects (default: "
+                             "data/real_cases/mascaret_runs); redirect to a "
+                             "scratch root for patched-kernel truth diffs")
+    parser.add_argument("--force", action="store_true",
+                        help="family mode: re-run scenarios that already carry "
+                             "truth — ONLY on a scratch copy of the family, "
+                             "never on the validated family itself")
     args = parser.parse_args()
+    runs_root = Path(args.runs_root)
 
     if args.mode == "validate":
-        mode_validate(args.case, Path(args.scenarios_root), args.image)
+        mode_validate(args.case, Path(args.scenarios_root), args.image, runs_root)
     else:
         if not args.family_dir:
             parser.error("--family-dir is required in family mode")
-        reports = mode_family(Path(args.family_dir), args.image, args.limit)
+        reports = mode_family(Path(args.family_dir), args.image, args.limit,
+                              runs_root, args.force)
         (Path(args.family_dir) / "run_report.json").write_text(
             json.dumps(reports, indent=2), encoding="utf-8"
         )
