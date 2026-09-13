@@ -92,7 +92,27 @@ swegnn/flow_mdk/ssgc}，预算与单种子链完全一致（G=32/40ep），18 �
 - 无论架构结论如何都稳固的贡献：数据集 + 内核修复 + 诚实的多种子评测方法
   （方差表本身即发现）。
 
-## 六、与服务器 L4 的衔接
+## 六、M3 开线 · 真实 2D 工程真值（下午续）
+
+- **模板完整度超预期**：`datasets/real_projects/telemac2d/{wqh,mdx}` 渲染版
+  `.cas` + 边界 `.cli` + 几何 + 源项全部齐备（`.ftl` 仅 3 个时间占位符），
+  镜像内 `telemac2d` 二进制现成——L7 所虑的 `.cli` 生成只是合成场景族的事。
+- **预期修正**：模板 `old.slf` 是单帧初始化快照而非历史结果档案 → 2D 无
+  1D 式逐位复现校验；定位改为**重跑即真值 + 物理门控**（质量守恒、深度/
+  湿区/NaN）。
+- 冒烟（20 步）两工程均一次通过；全量真值当日完成：
+
+| 工程 | 工况 | 帧 @ 600s | h 范围 m | q_max m/s | 湿区 | 体积守恒 \|ε\| |
+|---|---|---|---|---|---|---|
+| wqh_2d | 25 h（5s×18000 步） | 151 | 0–19.6 | 39.9 | 0.26→0.46 | 7.3e-15 |
+| mdx_2d | 15 h（2s×27000 步） | 91 | 0–17.0 | 17.9 | 0.34→0.39 | 5.4e-15 |
+
+- 配方：`telemac2d.py --ncsize=4`（本机 docker，单工程 ~1.5 h）；摄取
+  `scripts/ingest_telemac2d_truth.py`（WATER DEPTH + (U,V)→|q| 挂 npz，
+  solver 翻转 `telemac2d_docker_rerun`，QC 报告存 `telemac2d_runs/*/`）。
+  B2 的 mdx_upstream/downstream 仍是独立 1D 腿；真耦合（M4）未动。
+
+## 七、与服务器 L4 的衔接
 
 - 服务器训练进行中；其 history.json 自带 mdk_lambda0（trainer 已记录），
   eval 时将带 dirichlet 字段（若服务器代码为本次更新后版本；否则取回后本地
@@ -101,7 +121,7 @@ swegnn/flow_mdk/ssgc}，预算与单种子链完全一致（G=32/40ep），18 �
   --prefix L3_B1_paper --ks --out-md docs/L4_report.md` 一条命令出报告；
   两机 results.csv 直接拼接合并（时间戳目录不撞名）。
 
-## 七、遗留与下一步
+## 八、遗留与下一步
 
 1. ~~L11 verdict~~ ✅ 当日关闭：三家族真值逐位一致，B1 无需重训。
 2. **L4 报告**（runs/ 取回后）：summarize 出表 → 复测 L2/L3 结论 → 更新

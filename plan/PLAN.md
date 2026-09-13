@@ -205,7 +205,7 @@ Flow-MDK/
 | L4 | **论文级预算复测（转服务器）** | G=64、150 epochs、A100（`docs/server_setup.md` runbook；上传代码+data/，取回 runs/）；复测 L2/L3 全部结论（含 A→B 零样本矩阵与 KS 检验）。**2026-09-13 服务器已开跑**；分析工具就绪：`scripts/summarize_runs.py`（对比表/退化矩阵/B2 逐考卷/KS，`--out-md` 直接出 L4 报告）+ L5 监控已入 eval json（返回 checkpoint 可事后富评）。**多种子本地前置结果（当日）**：GCN 域内优势跨种子稳固（0.85±0.14）；flow_mdk/swegnn 均高方差（λ₀ 诊断指向共享 ψ 消息主干的优化不稳定，非 MDK 门控）→ **L4 判据升级：论文预算下主干能否稳定**；单种子 L4 只是一个抽样，建议 L4 后补 3 种子 × 论文预算（A100 每 run 1–2 h） | M2/M5 ◐ 进行中 |
 | ~~L5~~ | ✅ **over-smoothing 监控接入评测**（2026-09-13） | λ₀ 逐 epoch 已在 history.json；Dirichlet 能量经 rollout forward hooks 逐层计算（逐边归一）进 eval json（`eval/rollout.py`、`scripts/evaluate.py`）；曲线工具 `scripts/plot_mdk_lambda0.py`。首轮信号：flow_mdk 训练中末层 λ₀ 0.42→0.09 塌缩、GCN 逐层能量随深度增长。表示相似度指标未实现（可选，不再单列） | M2 ✅ |
 | L6 | **mdx 家族补齐至 50**（可选） | 现 37 个（3 个段错误淘汰）；补采 13 个使三家族对称，总计 ~130 与论文对齐 | M2 前 |
-| L7 | **2D 真值与训练（M3 主体）** | `wqh_2d`/`mdx_2d`（65k 节点）TELEMAC-2D 复算需 `.cli` 边界文件生成；65k 节点训练须上 A100 + 图分块/多尺度 | M3 |
+| ~~L7a~~ | ✅ **真实 2D 工程真值（M3 开线，2026-09-13）** | `wqh_2d`/`mdx_2d` 全量重跑完成（telemac2d.py --ncsize=4，本机 docker；25h/15h 工况，151/91 帧 @ 600s），QC 通过（质量守恒 |ε|≤7.3e-15，深度/湿区/NaN 门控）；真值已挂 `meshes_2d/*.npz`（solver=telemac2d_docker_rerun）。**预期修正**：模板 old.slf 是单帧初始化快照而非历史结果档案——2D 无逐位复现校验，重跑即真值 + 物理门控。重跑工具 `ingest_telemac2d_truth.py` + 配方记档。L7 余项：合成 2D 场景族真值（需 `.cli` 生成器）+ 65k 节点训练（A100 + 图分块） | M3 ◐ |
 | L8 | **mdx_downstream 复算段错误排查** | 保留历史 `.opt` 为真值；需原调度系统重导出工程或 Fortran 级排查 | 低优先 |
 | L9 | **加速比基线补全** | B2 场景的 `runtime_s` 需从历史 `.lis` 时间戳或复算实测补齐（当前仅家族场景有实测值） | M5 |
 | L10 | **git 提交 09-11/09-12 改动** | wqh/zxh 内化、Part A v2、server runbook、L1 两段式真值管线、L2/L3 实验链与结果、进展日志待提交 | 流程 |
