@@ -58,9 +58,9 @@
 
 **L2 体制对齐后正式对比（2026-09-12，Mascaret 全 SWE 干净真值 × 128 场景，同预算，详见 `docs/results_partA_swe.md`）**：域内 GCN 0.79 ≈ GAT 0.83 < **Flow-MDK 1.42** < SWE-GNN 4.50——**MDK 混合对本体骨架的拯救效应（×3.2）是稳健发现**；v1 的"体制错配"解释在动力波体制下不再成立，对称平滑基线在 1D 链式场景依然很强；fam_mdx 零样本 Flow-MDK 最优（2.63）且退化幅度（×1.8）小于 GCN（×3.9）。正式体制归属结论归 L4 论文预算。
 
-**验收**：✅ 基线管线全链路收敛（首轮四模型对比 + A→B 零样本 gap 已产出，见 `docs/results_partA.md` 与 `datasets/runs/` 归档）；真实 1D 工程完成复算校验 ✅（详见 docs/real_cases.md）与首次零样本评估 ✅。剩余：论文级预算收敛复测（L4，转服务器）、B1→B2 考卷的真实域内对比（转入 M2）。
+**验收**：✅ 基线管线全链路收敛（首轮四模型对比 + A→B 零样本 gap 已产出，见 `docs/results_partA.md` 与 `datasets/runs/` 归档）；真实 1D 工程完成复算校验 ✅（详见 docs/real_cases.md）与首次零样本评估 ✅；论文级预算收敛复测（L4）✅ 2026-09-14 取回落定（见 M2）；B1→B2 考卷的真实域内对比完成（L3 + L4 复测）。
 
-## M2 · Flow-MDK 传播改造（预计 3–4 周，核心创新）◐ 进行中（核心实现就绪；三方消融本地预算首轮已跑，待论文预算复测）
+## M2 · Flow-MDK 传播改造（预计 3–4 周，核心创新）◐ 进行中（核心实现就绪；本地多种子 + L4 论文预算单种子已收口，待 3 种子论文预算钉死）
 
 - [x] 水力定向转移矩阵 P：流量加权（|q| 端点均值）× 水面梯度方向门控（上游→下游，静水时双向各 0.5、陡梯度退化为纯下游），每步按湿区子图行归一化、干节点不中继（`layers/mdk.py`：`hydraulic_edge_weights`/`direction_gates`/`_normalize_weights`）
 - [x] MDK 级数实现：geometric（S2GC）与 uniform（截断 Neumann）两种权重可选；截断阶数 K 由扩散长度匹配 K=⌈√(2DΔt)/dx̄⌉（`suggest_num_steps`）；纯 scatter 稀疏实现，不构造稠密矩阵
@@ -68,7 +68,7 @@
 - [x] λ₀·I 恒等项与平滑深度监控 —— ✅ 2026-09-13 接入评测：λ₀ 逐 epoch 记录于 history.json（`trainer.py`）；Dirichlet 能量经 rollout forward hooks 逐层计算（逐边归一）写入 eval json（`eval/rollout.py` + `scripts/evaluate.py`）；曲线工具 `scripts/plot_mdk_lambda0.py`。首轮信号：flow_mdk 训练中末层 λ₀ 0.42→0.09 塌缩、GCN 逐层能量随深度增长（残差累积）。表示相似度指标未实现（可选项）
 - [ ] 大 Δt 实验：层/k 与时间步的权衡曲线（对应 SWE-GNN Fig. 8）—— 未开始（无实验脚本）
 
-**验收**：◐ 首轮达成（2026-09-12，本地预算 G=32/40ep，单种子）。三方消融（B1 合并训练 → B2 真实考卷）：SWE-GNN 1.67 / SSGC 1.83 / Flow-MDK 2.45（水深 RMSE 均值，m）——同量级，Flow-MDK 在 B1 域内欠拟合（1.95 vs 0.80），疑似预算不足；mdx/闸门耦合考卷上定向系（Flow-MDK/SSGC）占优、简单考卷（zxh/wqh）上 SWE-GNN 占优，体制分工初现端倪。**正式结论待 L4 论文预算复测**；数据见 `docs/results_partA_swe.md` 与 `runs/L3_B1_*/`。
+**验收**：◐ 首轮达成（2026-09-12，本地预算 G=32/40ep，单种子）。三方消融（B1 合并训练 → B2 真实考卷）：SWE-GNN 1.67 / SSGC 1.83 / Flow-MDK 2.45（水深 RMSE 均值，m）——同量级，Flow-MDK 在 B1 域内欠拟合（1.95 vs 0.80），疑似预算不足；mdx/闸门耦合考卷上定向系（Flow-MDK/SSGC）占优、简单考卷（zxh/wqh）上 SWE-GNN 占优，体制分工初现端倪。**L4 论文预算复测（2026-09-14 落定，单种子，详见 `docs/results_partA_swe.md` L4 节与 `docs/L4_report.md`）**：①主干稳定性判据通过——flow_mdk 无本地 s1 型崩坏，崩坏转移到无门控 6 层基线（GCN 35.4 塌缩、GAT 1.92）；②合成 1D 域内浅层 8 跳最优（0.72 vs 1.42），真实家族域深层门控系全面占优（0.85/0.87 vs 2.15）；③定向 vs 对称仍无显著差异（B1 p=0.81、B2 p=1.0）——**MDK 定向优势假设至今无统计支持，降级为探索性对照**；④共性：best epoch 极早 + val 漂移 2–4×，best.pt 对照待查。剩余：3 种子论文预算、best.pt/Dirichlet 富评、2D 激波体制验证（M3）。
 
 ## M3 · 二维场景（预计 2–3 周）
 
@@ -202,7 +202,7 @@ Flow-MDK/
 | ~~L1~~ | ✅ **Part A v2 的 Mascaret 真值升级**（2026-09-12 完成 89/130） | 两段式初始化落地（SARAP 稳态 `.lig` → REZO，配方与坑位见 `docs/results_partA_swe.md`）；41 个失败场景转 L11；split 已过滤，原始 130 协议存 `split_full_protocol.json` | M1→M2 ✅ |
 | ~~L2~~ | ✅ **体制对齐后的正式对比**（2026-09-12 本地预算完成，干净真值 × 128 场景重跑版） | 域内 GCN 0.79 ≈ GAT 0.83 < Flow-MDK 1.42 < SWE-GNN 4.50；**MDK 混合对本体骨架拯救 ×3.2（4/5 评测域成立）**、fam_mdx 零样本 Flow-MDK 最优（2.63，退化 ×1.8 < GCN ×3.9）。pre-patchfix 轮"Flow-MDK 域内最优"系污染真值+少 40% 数据的假象，已修正。**论文级预算结论归 L4** | M2 ✅（本地预算） |
 | ~~L3~~ | ✅ **B1 训练 → B2 考卷消融**（2026-09-12 本地预算完成） | 三方消融首轮：SWE-GNN 1.67 / SSGC 1.83 / Flow-MDK 2.45，同量级无定论；Flow-MDK 域内欠拟合；体制分工初现端倪。**正式结论归 L4** | M2 ✅（本地预算） |
-| L4 | **论文级预算复测（转服务器）** | G=64、150 epochs、A100（`docs/server_setup.md` runbook；上传代码+data/，取回 runs/）；复测 L2/L3 全部结论（含 A→B 零样本矩阵与 KS 检验）。**2026-09-13 服务器已开跑**；分析工具就绪：`scripts/summarize_runs.py`（对比表/退化矩阵/B2 逐考卷/KS，`--out-md` 直接出 L4 报告）+ L5 监控已入 eval json（返回 checkpoint 可事后富评）。**多种子本地前置结果（当日）**：GCN 域内优势跨种子稳固（0.85±0.14）；flow_mdk/swegnn 均高方差（λ₀ 诊断指向共享 ψ 消息主干的优化不稳定，非 MDK 门控）→ **L4 判据升级：论文预算下主干能否稳定**；单种子 L4 只是一个抽样，建议 L4 后补 3 种子 × 论文预算（A100 每 run 1–2 h） | M2/M5 ◐ 进行中 |
+| ~~L4~~ | ✅ **论文级预算复测（服务器 A100，2026-09-13 跑 / 09-14 取回落定）** | G=64、150 epochs、单种子 seed=0，7 run 全部成功（Part A 四模型 + B1 三模型）。**判决**：①主干稳定性判据通过（flow_mdk 无崩坏；无门控 6 层 GCN 塌缩 35.4 m、GAT 1.92）；②合成 1D 域内 swegnn 2L×8 跳最优（0.72 vs flow_mdk 1.42），真实家族域深层门控系最优（ssgc 0.85 ≈ flow_mdk 0.87 << swegnn 2.15）；③定向 vs 对称无显著差异（KS p=0.81/p=1.0），**MDK 定向优势假设降级为探索性对照**；④共性 best epoch 极早（4–14）+ val 漂移 2–4×。报告 `docs/L4_report.md`（summarize_runs.py 一键生成）；λ₀ 曲线 `runs/lambda0_curves_paper.png`；runs 已入库归档。**剩余**：3 种子论文预算（收口）、best.pt 对照 + Dirichlet 富评（checkpoint 已取回，服务器 eval json 无 dirichlet 字段） | M2/M5 ◐ |
 | ~~L5~~ | ✅ **over-smoothing 监控接入评测**（2026-09-13） | λ₀ 逐 epoch 已在 history.json；Dirichlet 能量经 rollout forward hooks 逐层计算（逐边归一）进 eval json（`eval/rollout.py`、`scripts/evaluate.py`）；曲线工具 `scripts/plot_mdk_lambda0.py`。首轮信号：flow_mdk 训练中末层 λ₀ 0.42→0.09 塌缩、GCN 逐层能量随深度增长。表示相似度指标未实现（可选，不再单列） | M2 ✅ |
 | L6 | **mdx 家族补齐至 50**（可选） | 现 37 个（3 个段错误淘汰）；补采 13 个使三家族对称，总计 ~130 与论文对齐 | M2 前 |
 | ~~L7a~~ | ✅ **真实 2D 工程真值（M3 开线，2026-09-13）** | `wqh_2d`/`mdx_2d` 全量重跑完成（telemac2d.py --ncsize=4，本机 docker；25h/15h 工况，151/91 帧 @ 600s），QC 通过（质量守恒 |ε|≤7.3e-15，深度/湿区/NaN 门控）；真值已挂 `meshes_2d/*.npz`（solver=telemac2d_docker_rerun）。**预期修正**：模板 old.slf 是单帧初始化快照而非历史结果档案——2D 无逐位复现校验，重跑即真值 + 物理门控。重跑工具 `ingest_telemac2d_truth.py` + 配方记档。L7 余项：合成 2D 场景族真值（需 `.cli` 生成器）+ 65k 节点训练（A100 + 图分块） | M3 ◐ |
@@ -219,3 +219,4 @@ Flow-MDK/
 | 2026-09-11 | [update_progress_2026-09-11.md](update_progress_2026-09-11.md) | 两轮会话：wqh/zxh 完整工程内化（复算逐位复现）、真实母版家族重建至 117 场景、Part A v2 130 场景扩建、CUDA 训练环境就绪、首轮四模型×四域评测与 A→B gap 量化、服务器 runbook、datasets 归档入库（LFS） |
 | 2026-09-12 | [update_progress_2026-09-12.md](update_progress_2026-09-12.md) | L1–L3 本地推进：两段式初始化挂 Mascaret 全 SWE 真值；**内核源码级修复**（XAJ 魔改块未定义行为 + 上游 Q 边界垃圾 YFIX，备份/patch/镜像 `v8p4r0p1` 存档，真值 89→128/130，zxh 家族 22 例段错误同根因）；L2 四模型对比（干净真值重跑版：GCN 0.79 ≈ GAT 0.83 < Flow-MDK 1.42 < SWE-GNN 4.50，MDK 混合拯救本体 ×3.2 为稳健发现）；L3 三方消融首轮（B1→B2 同量级，待 L4 复测）；详见 `docs/results_partA_swe.md` |
 | 2026-09-13 | [update_progress_2026-09-13.md](update_progress_2026-09-13.md) | 收尾/工具日：归档缺口补全（partA_v2 + L2/L3 runs + 最终权重入库，archive 脚本三处回归修复）；L5 监控接入评测（Dirichlet 进 eval json + λ₀ 曲线工具，flow_mdk 末层 λ₀ 塌缩信号）；L4 分析工具 `summarize_runs.py`（分组对比表/退化矩阵/KS，与手工表全对上）；L11 真值差异评估启动（117 场景补丁内核 scratch 重跑，冒烟逐位一致）；服务器 L4 同日开跑 |
+| 2026-09-14 | [update_progress_2026-09-14.md](update_progress_2026-09-14.md) | **L4 落定日**：服务器 7 个 paper run 取回入库（results.csv 两机合并 121 行，归档刷新 9542 文件，MS_* 多种子 run 与 M3 真值 npz 顺带补档）；L4 判决——主干稳定性通过（GCN 塌缩 35.4 m 为反例）、合成 1D 域内浅层 8 跳最优（0.72 vs 1.42）、真实家族域深层门控系最优（0.85 vs 2.15）、定向 vs 对称仍无显著差异（p≥0.8）；**课题走向定调：继续，主张调整为「稳定深传播 + 基准 + 方法学」，定向性主战场移至 2D（M3）** |

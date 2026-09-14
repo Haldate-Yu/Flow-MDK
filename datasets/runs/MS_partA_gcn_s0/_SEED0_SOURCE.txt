@@ -1,0 +1,1 @@
+seed-0 copy of runs/L2_partA_gcn (results.csv rows live under the original name)
