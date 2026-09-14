@@ -81,6 +81,23 @@ fam_zxh/wqh 上 swegnn 最优。
 4. L9 加速比：本次 A100 eval 附带 `speedup` 94–316×（zxh 族），可入 M5 素材。
 5. Dirichlet 富评（checkpoint 已取回，服务器 eval json 无 dirichlet 字段）。
 
+## 七、E4 扩容完成 · 2D 家族 130 场景（同日续）
+
+- `generate_scenarios_2d_family.py --num 130 --out data/scenarios_2d_family`
+  （split 91/19/20）；逐场景确定性种子（SEED_BASE+k）验证前 20 个与 pilot
+  几何逐位一致 → **pilot 真值直接复用**，实际批跑 105+4 个。
+- TELEMAC-2D 真值批跑（本机 docker 4 路并行，单场景 1.7–4.2 min）：**130/130
+  全部 QC PASS**——97 帧 @ 1800s、h_max 10.5–20.4 m、湿区终值 4.5–9.8%、
+  体积守恒 |ε|≤3.3e-15、零 problems；家族 npz 共 35 MB（同步体量）。
+- 批跑坑位（Windows 特有，已记档）：`seq` 不补零 → Python 生成补零队列文件；
+  Python 写队列为 CRLF → xargs 文件名带 `\r` → `tr -d '\r'`；**TaskStop 不杀
+  孤儿子进程**（旧 runner 与新批跑在同场景上重叠竞争、多路 tee 互相截断日志）
+  → 后台批跑应用独立日志名 + 完成后按 inventory 对账补缺（本次即靠对账抓回
+  T2D_021–024）。
+- 服务器脚本 `scripts/run_M3_2d_paper.sh`（MS4_2d 组：swegnn/flow_mdk/ssgc ×
+  G=64/150ep/batch8，`_s<seed>` 命名 + best.pt 孪生，EXTRA 配方钩子）已提交；
+  E4 冒烟实测 23–50 s/epoch@batch4 → 论文预算约 2–4 h/模型。
+
 ## 六、E1 · best.pt 对照复评（同日追加，本机 3060，~5 min）
 
 上节"主干稳定性判据通过 / GCN 塌缩"的表述**被当日 best.pt 对照部分推翻**，
