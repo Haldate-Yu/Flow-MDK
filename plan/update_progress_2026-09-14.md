@@ -71,8 +71,13 @@ fam_zxh/wqh 上 swegnn 最优。
 2. **E3 三种子论文预算**：`scripts/run_L4_multiseed_paper.sh`（默认 seed 1/2
    × 7 模型，`EXTRA=` 可携带 E2 定出的新配方；run 名 `_s<seed>` 结尾，
    summarize 自动折 mean±std，s0 由 2026-09-13 run 复制）。
-3. **E4 2D 训练冒烟**：`scripts/run_M3_2d_smoke.sh`（pilot 20 场景 × 3 epochs
-   × swegnn/flow_mdk；2D schema 单测过但从未训过，失败输出即接线缺口清单）。
+3. **E4 2D 训练冒烟 ✅ 当日通过（服务器回报）**：`run_M3_2d_smoke.sh` 在同步
+   src 后全绿——swegnn/flow_mdk 各 3 epoch 正常收敛（A100 42–50 / 23–27
+   s/epoch @ batch 4×4096 节点），2D test（3 场景）h-RMSE 1.15/1.18 m，
+   speedup 54–59×。**首次 2D 训练成立**；3 epoch 下 CSI 0.25–0.5、best@ep1
+   均为欠训练表现，不作模型间比较。首次踩坑：服务器 src/scripts 版本不齐
+   （L5 的 `RolloutReport.dirichlet` 字段缺失）→ 修复约定：**src/scripts/
+   configs 永远打包同步**（服务器实际路径 `/data/ywh_data/Flow-MDK`）。
 4. L9 加速比：本次 A100 eval 附带 `speedup` 94–316×（zxh 族），可入 M5 素材。
 5. Dirichlet 富评（checkpoint 已取回，服务器 eval json 无 dirichlet 字段）。
 
