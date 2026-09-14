@@ -104,6 +104,12 @@ fam_zxh/wqh 上 swegnn 最优。
   flow_mdk best.pt 0.782 为全场最优——门控系在真实家族域的优势跨协议成立。
 - 评测走 ptbest_* 孪生目录（`evaluate.py` 输出名只含 split+data-root，直评
   best.pt 会覆盖 last.pt 的 eval json），registry 行 checkpoint 字段可辨。
+- **零样本/B2 域补齐（同日第二轮）**：fam_mdx 的"Flow-MDK 零样本最优"
+  （last 2.28）在 best.pt 下反转为 GCN 2.84 最优、flow_mdk 6.50（val-best
+  在课程期，零样本欠训练）；B2 均值两协议下 flow_mdk/ssgc 互有胜负。
+  **所有模型排序类信号均对 checkpoint 协议敏感**；唯一跨协议稳固的是 B1
+  真实家族域门控系优于浅层 swegnn。E1 至此完成，无独立后续——best.pt
+  对照已内嵌进 E2/E3 脚本（每个新 run 自动产出）。
 
 **对"调参能否反超"的更新**：反超概率未升（GCN best.pt 0.740 说明对手同样
 被漂移压制、治理后同涨），追平（0.7–0.8）概率进一步上升；1D 域内是拥挤赛道，

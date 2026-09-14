@@ -173,6 +173,24 @@ flow_mdk best.pt 0.782 为全场最优——门控系在真实家族域的优势
 第一问题，E2 防漂移探针升级为关键路径**；漂移治理后各模型在 partA 大概率
 收敛到 0.7–0.8 区间（反超存疑、追平大概率），区分度仍看稳定性/真实域/2D。
 
+零样本域与 B2 考卷的 best.pt 补充对照（同日补齐，h-RMSE m）：
+
+| run | fam_mdx last | fam_mdx best | B2 均值 last | B2 均值 best |
+|---|---|---|---|---|
+| partA swegnn | 3.018 | 4.63 | — | — |
+| partA flow_mdk | **2.280** | 6.50 | — | — |
+| partA gcn | 127.3 | **2.835** | — | — |
+| partA gat | 8.584 | 2.987 | — | — |
+| B1 swegnn | — | — | 2.583 | 1.792 |
+| B1 flow_mdk | — | — | **1.621** | 1.788 |
+| B1 ssgc | — | — | 1.684 | 2.847 |
+
+→ fam_mdx 的"Flow-MDK 零样本最优"同样**只在 last.pt 下成立**（best.pt 下
+GCN 2.84 反超，flow_mdk 6.50——其 val-best 在课程期、零样本欠训练）；B2 均值
+在两协议下 flow_mdk/ssgc 互有胜负。**至此所有"模型排序"类信号都被证明对
+checkpoint 协议敏感，唯一跨协议稳固的是 B1 真实家族域上门控系（flow_mdk/
+ssgc）优于浅层 swegnn——漂移治理（E2）是恢复可信排序的前提。**
+
 ## 复现
 
 ```bash
