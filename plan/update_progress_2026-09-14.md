@@ -51,8 +51,9 @@ fam_zxh/wqh 上 swegnn 最优。
 ## 四、课题走向结论（本日定调）
 
 **课题继续，主张调整。** 站得住的贡献三条腿：① 数据集与真值管线（Part A v2 +
-真实家族 + 2D 管线，全部可复现）；② 深传播稳定性（门控 vs 无门控深基线的对照 +
-λ₀/Dirichlet 诊断）；③ 诚实的多种子/多预算评测方法学。**「定向 MDK 显著优于
+真实家族 + 2D 管线，全部可复现）；② 训练漂移的量化与治理（best.pt/last.pt
+协议对照 + λ₀/Dirichlet 诊断；无门控模型漂移后果更重）；③ 诚实的多种子/多
+预算评测方法学。**「定向 MDK 显著优于
 对称核」作为主卖点不成立，降级为探索性对照**；定向性的下一个、也是最后一个
 主战场是 2D 激波体制（M3 已就位：真值管线 + pilot 20 场景全过，65k 节点训练
 需服务器）。收口路径：
@@ -65,8 +66,40 @@ fam_zxh/wqh 上 swegnn 最优。
 
 ## 五、遗留与下一步
 
-1. **服务器 3 种子论文预算**（决定性收口实验，判据同 L4）。
-2. **best.pt 对照评估 + Dirichlet 富评**（7 个 checkpoint 本地/服务器均可，评价
-   last.pt 协议是否低估模型上限）。
-3. M3：2D 场景族扩容 + 训练接入（`run_telemac2d_docker.py` 管线已通）。
+1. **E2 防漂移探针**（升级为关键路径）：`scripts/run_L4_probes.sh`（lr 减半/
+   3 层/早停三探针，A100 ~1 h）——E1 证明漂移是压在所有模型上的第一问题。
+2. **E3 三种子论文预算**：`scripts/run_L4_multiseed_paper.sh`（默认 seed 1/2
+   × 7 模型，`EXTRA=` 可携带 E2 定出的新配方；run 名 `_s<seed>` 结尾，
+   summarize 自动折 mean±std，s0 由 2026-09-13 run 复制）。
+3. **E4 2D 训练冒烟**：`scripts/run_M3_2d_smoke.sh`（pilot 20 场景 × 3 epochs
+   × swegnn/flow_mdk；2D schema 单测过但从未训过，失败输出即接线缺口清单）。
 4. L9 加速比：本次 A100 eval 附带 `speedup` 94–316×（zxh 族），可入 M5 素材。
+5. Dirichlet 富评（checkpoint 已取回，服务器 eval json 无 dirichlet 字段）。
+
+## 六、E1 · best.pt 对照复评（同日追加，本机 3060，~5 min）
+
+上节"主干稳定性判据通过 / GCN 塌缩"的表述**被当日 best.pt 对照部分推翻**，
+结论已按证据改写（详见 `docs/results_partA_swe.md` L4/E1 节）。核心表：
+
+| run | last h | best h | last CSI@.05 | best CSI@.05 |
+|---|---|---|---|---|
+| partA swegnn | **0.722** | 3.275 | 0.978 | 0.984 |
+| partA flow_mdk | 1.417 | 2.865 | 0.400 | **0.984** |
+| partA gcn | 35.378 | **0.740** | 0.984 | 0.946 |
+| partA gat | 1.918 | **0.748** | 0.158 | 0.891 |
+| B1 swegnn | 2.150 | 1.144 | 1.000 | 0.947 |
+| B1 flow_mdk | 0.875 | **0.782** | 1.000 | 1.000 |
+| B1 ssgc | **0.852** | 3.651 | 1.000 | 1.000 |
+
+- **GCN"塌缩"是漂移伪影**：epoch-14 状态 0.740 与最优持平——"深传播需要
+  门控"叙事在 best.pt 对照下不成立，收回；无门控模型漂移后果更重仍成立。
+- **val-best 选点不可靠**：一半 run 的 val-best 落在课程学习期（欠训练，
+  best.pt 反而更差）；两协议各有赢家 → 漂移治理才是第一优先级。
+- **flow_mdk 的 CSI@0.05 0.400 也是漂移伪影**（best.pt 0.984）；B1 上
+  flow_mdk best.pt 0.782 为全场最优——门控系在真实家族域的优势跨协议成立。
+- 评测走 ptbest_* 孪生目录（`evaluate.py` 输出名只含 split+data-root，直评
+  best.pt 会覆盖 last.pt 的 eval json），registry 行 checkpoint 字段可辨。
+
+**对"调参能否反超"的更新**：反超概率未升（GCN best.pt 0.740 说明对手同样
+被漂移压制、治理后同涨），追平（0.7–0.8）概率进一步上升；1D 域内是拥挤赛道，
+区分度仍看稳定性 / 真实域 / 2D。
