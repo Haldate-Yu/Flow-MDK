@@ -76,6 +76,21 @@ class Trainer:
         )
         self.out_dir = Path(config.out_dir)
         self.out_dir.mkdir(parents=True, exist_ok=True)
+        # E6: per-step EMA of the model weights (drift-robust checkpoint).
+        self.ema_state: dict[str, torch.Tensor] | None = None
+        if config.train.ema_decay:
+            self.ema_state = {
+                k: v.detach().clone() for k, v in self.model.state_dict().items()
+            }
+
+    def _ema_update(self) -> None:
+        if self.ema_state is None:
+            return
+        d = self.config.train.ema_decay
+        with torch.no_grad():
+            msd = self.model.state_dict()
+            for k, v in self.ema_state.items():
+                v.mul_(d).add_(msd[k], alpha=1.0 - d)
 
     def _epoch_loss(self, loader: DataLoader, horizon: int, train: bool) -> float:
         self.model.train(train)
@@ -103,6 +118,7 @@ class Trainer:
                             self.model.parameters(), self.config.train.grad_clip_value
                         )
                     self.optimizer.step()
+                    self._ema_update()
                 total += float(loss.detach())
                 count += 1
         return total / max(count, 1)
@@ -118,7 +134,11 @@ class Trainer:
             horizon = self.scheduler.horizon_at(epoch)
             t0 = time.perf_counter()
             train_loss = self._epoch_loss(self.train_loader, horizon, train=True)
-            val_loss = self._epoch_loss(self.val_loader, horizon, train=False)
+            # E6: fixed-horizon validation keeps val values comparable across
+            # epochs (the curriculum-following default makes val-best pick a
+            # low-horizon epoch — every L4/MS4 best.pt is an H=1 state).
+            val_h = cfg.train.val_horizon if cfg.train.val_horizon > 0 else horizon
+            val_loss = self._epoch_loss(self.val_loader, val_h, train=False)
             self.lr_sched.step()
             row = {
                 "epoch": epoch,
@@ -128,13 +148,15 @@ class Trainer:
                 "lr": self.optimizer.param_groups[0]["lr"],
                 "seconds": time.perf_counter() - t0,
                 "mdk_lambda0": self.model.mdk_lambda0(),
+                "val_horizon": val_h,
             }
             history.append(row)
             logger.info(
-                "epoch %3d | H=%d | train %.5f | val %.5f | %.1fs",
+                "epoch %3d | H=%d | train %.5f | val@H%d %.5f | %.1fs",
                 epoch,
                 horizon,
                 train_loss,
+                val_h,
                 val_loss,
                 row["seconds"],
             )
@@ -145,10 +167,14 @@ class Trainer:
                     best_path,
                 )
             else:
-                patience += 1
-                if patience >= cfg.train.early_stop_patience:
-                    logger.info("early stopping at epoch %d", epoch)
-                    break
+                if not (cfg.train.early_stop_after_curriculum
+                        and horizon < cfg.train.horizon_max):
+                    # E6: never accumulate patience mid-curriculum when the
+                    # gate is on (stopping at H<max truncates training).
+                    patience += 1
+                    if patience >= cfg.train.early_stop_patience:
+                        logger.info("early stopping at epoch %d", epoch)
+                        break
             # last-epoch checkpoint: with curriculum learning the best-val
             # selector tends to pick a low-horizon epoch, while the final
             # model trained at the full horizon rolls out more stably
@@ -156,6 +182,16 @@ class Trainer:
                 {"model_state": self.model.state_dict(), "config_epoch": epoch},
                 self.out_dir / "last.pt",
             )
+            if self.ema_state is not None:
+                torch.save(
+                    {
+                        "model_state": {k: v.clone()
+                                        for k, v in self.ema_state.items()},
+                        "config_epoch": epoch,
+                        "ema_decay": cfg.train.ema_decay,
+                    },
+                    self.out_dir / "ema.pt",
+                )
 
         return TrainResult(
             best_val_loss=best_val,

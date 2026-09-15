@@ -100,6 +100,22 @@ class TrainConfig:
     early_stop_patience: int = 30
     batch_size: int = 8
     grad_clip_value: float = 0.5
+    # E6 validation governance. By default (0) val_loss follows the CURRENT
+    # curriculum horizon (official recipe), which makes val values across
+    # epochs incomparable and biases best-val checkpoint selection toward
+    # low-horizon epochs — every best.pt in the L4/MS4 runs is an H=1 state
+    # (see docs/results_partA_swe.md E1/E2/MS5). Setting val_horizon > 0
+    # pins validation to a fixed rollout horizon (typically horizon_max)
+    # every epoch so the val curve tracks full-horizon rollout quality.
+    val_horizon: int = 0
+    # When True, early stopping never fires before the curriculum has
+    # reached horizon_max — mid-curriculum stopping truncates training
+    # (E2 L4probe_es stopped at epoch 32 with H=3).
+    early_stop_after_curriculum: bool = False
+    # Per-optimizer-step EMA of model weights (0 disables). The averaged
+    # weights are saved to ema.pt each epoch — a drift-robust alternative
+    # to both best.pt and last.pt.
+    ema_decay: float = 0.0
 
 
 @dataclass
