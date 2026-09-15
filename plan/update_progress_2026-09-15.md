@@ -134,3 +134,23 @@ Part A（A-test，last/best，m）与 B1（域内）逐种子数字见
    无模型子串的自定义臂名（如 MS5_partA_2x8mdk）此前不会跨种子折叠。
 6. E5 进行中：`MS4_2d_swegnn_s1` 尚在训练（仅 checkpoint 无评测），本次
    未入库，等整批完成后随 E5 一起取回（含 ptbest 孪生与完整 registry 行）。
+
+## 八、E6 · 选点治理：根因定位、三项训练侧改动与本地探针落定（同日第三轮）
+
+1. **根因**：val_loss 按当前课程视野计算，跨 epoch 不可比；课程语义为每
+   视野停 curriculum_steps 个 epoch（论文预算 H=8 于 ep106）——全部历史
+   best.pt 均为 H=1 状态。三项改动入 `trainer.py`/`config.py`（默认关闭）：
+   `val_horizon` / `early_stop_after_curriculum` / `ema_decay(+ema.pt)`。
+2. **本地探针**（flow_mdk 6L × 4 臂 × 3 种子 = 12 run，A-test）：
+   last 3.40±3.73 [0.93, 11.70] · best 2.95±2.00 · ema 2.19±1.08 [1.46, 4.34]。
+   判读：①biased val-best 0/6 判死（base+ema 臂同轨迹全败，best 落 ep3–4
+   H=1）；②val@H8 best 同轨迹 4/6 赢 last、选点语义修复但救不动 6L 漂移；
+   ③EMA-from-init 同轨迹 2/6 但跨 run 最稳（方差压缩器）→ 课程期污染 →
+   已补 `ema_after_curriculum`（E6.1，待服务器 run 验证）；④**混沌发现：
+   同种子 epoch-1 即分叉（CUDA 非确定性），last.pt 是 12.5× 彩票——漂移
+   体制下单 run 数字不可信，协议对照 + 多种子为必要条件**。
+3. **E6 配方**（后续 run 默认）：val_horizon=H_max + ema_after_curriculum +
+   早停门；best.pt 对照保留、ema.pt 第三协议。详见
+   `docs/results_partA_swe.md` E6 节与 `scripts/run_E6_val_governance.sh`。
+4. 花絮：base 臂期间 GPU 被其他负载挤占（33 个 CUDA 上下文、85–86°C 温度
+   降频至 915 MHz），节奏 21→153 s/epoch；释放资源后恢复。

@@ -77,14 +77,24 @@ class Trainer:
         self.out_dir = Path(config.out_dir)
         self.out_dir.mkdir(parents=True, exist_ok=True)
         # E6: per-step EMA of the model weights (drift-robust checkpoint).
-        self.ema_state: dict[str, torch.Tensor] | None = None
-        if config.train.ema_decay:
+        # With ema_after_curriculum the average starts only once the rollout
+        # horizon reaches horizon_max — averaging over curriculum-phase
+        # weights was shown to underperform last.pt (E6 probes).
+        self.ema_state: dict[str, torch.Tensor] | None = (
+            {k: v.detach().clone() for k, v in self.model.state_dict().items()}
+            if config.train.ema_decay and not config.train.ema_after_curriculum
+            else None
+        )
+
+    def _ema_update(self, curriculum_done: bool) -> None:
+        if not self.config.train.ema_decay:
+            return
+        if self.ema_state is None:
+            if self.config.train.ema_after_curriculum and not curriculum_done:
+                return
             self.ema_state = {
                 k: v.detach().clone() for k, v in self.model.state_dict().items()
             }
-
-    def _ema_update(self) -> None:
-        if self.ema_state is None:
             return
         d = self.config.train.ema_decay
         with torch.no_grad():
@@ -118,7 +128,7 @@ class Trainer:
                             self.model.parameters(), self.config.train.grad_clip_value
                         )
                     self.optimizer.step()
-                    self._ema_update()
+                    self._ema_update(horizon >= self.config.train.horizon_max)
                 total += float(loss.detach())
                 count += 1
         return total / max(count, 1)

@@ -5,12 +5,13 @@
 # val-best checkpoint lands mid-curriculum at H=1).
 #
 # Arms (3 fresh seeds each, run dirs E6_partA_<arm>_s<seed>):
+#   base    (no flags)                     — architecture-matched control
 #   valfix  train.val_horizon=8            — fixed-horizon validation only
 #   ema     train.ema_decay=0.995          — per-step weight EMA only
 #   full    val_horizon=8 + gated early stop (patience 10, never fires before
 #           H=8) + ema_decay=0.995         — combined E6 recipe
-# Control = the existing MS_partA_flow_mdk_s{0,1,2} runs (identical recipe,
-# no E6 flags); the script only adds their missing best.pt twin evals.
+# (The legacy 3-layer MS_partA_flow_mdk runs are NOT architecture-matched;
+# they remain in the registry but are not the probe control.)
 #
 # Each arm evals A-test with last.pt (in-dir), best.pt (ptbest_* twin) and,
 # for EMA arms, ema.pt (ptema_* twin). Judgment: per arm x seed A-test
@@ -60,6 +61,7 @@ train_arm () {
 }
 
 for seed in "${SEEDS[@]}"; do
+    train_arm base   $seed
     train_arm valfix $seed train.val_horizon=8
     train_arm ema    $seed train.ema_decay=0.995
     train_arm full   $seed train.val_horizon=8 \

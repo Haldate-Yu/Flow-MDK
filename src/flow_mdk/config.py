@@ -114,8 +114,13 @@ class TrainConfig:
     early_stop_after_curriculum: bool = False
     # Per-optimizer-step EMA of model weights (0 disables). The averaged
     # weights are saved to ema.pt each epoch — a drift-robust alternative
-    # to both best.pt and last.pt.
+    # to both best.pt and last.pt. E6 probes: EMA is the most run-stable
+    # protocol but EMA-from-init underperforms last.pt because the average
+    # is contaminated by curriculum-phase weights — set
+    # ema_after_curriculum=True to start averaging only once the rollout
+    # horizon reaches horizon_max.
     ema_decay: float = 0.0
+    ema_after_curriculum: bool = False
 
 
 @dataclass

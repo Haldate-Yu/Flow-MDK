@@ -337,6 +337,51 @@ E2 3L 探针 0.778 / 1.231（单种子）。
    协议稳固（E4）**——与"MDK 门控混合 = 稳定深传播机制、主战场在真实域/2D"
    的课题主张自洽。
 
+## E6 · 选点治理探针（2026-09-15，本机 3060，`run_E6_val_governance.sh`）
+
+**根因定位**：`val_loss` 按当前课程视野计算（`trainer.py`），跨 epoch 不可
+比；`HorizonScheduler` 每个视野停 curriculum_steps 个 epoch（论文预算下
+H=8 于 epoch 106 才达到）——**L4/MS4/MS5 全部 best.pt 均为 H=1 状态**，
+biased val-best 的失效是结构性的。三项训练侧治理已实施（默认关闭）：
+`train.val_horizon`（固定视野验证）、`train.early_stop_after_curriculum`
+（早停门）、`train.ema_decay`（逐步权重 EMA，存 ema.pt）。
+
+探针：flow_mdk 6L、本地预算（G=32/40ep/课程 4）× 4 臂 × 3 种子 = 12 run；
+A-test h-RMSE（last / best / ema，m）：
+
+| 臂 | s0 | s1 | s2 |
+|---|---|---|---|
+| base（无旗标对照） | 1.316 / 2.414 / — | 1.207 / 5.910 / — | 3.138 / 3.206 / — |
+| valfix（val_horizon=8） | 3.632 / **1.681** / — | 11.695 / **7.891** / — | **1.785** / 2.721 / — |
+| ema（ema_decay=0.995） | **0.934** / 1.675 / 1.636 | **1.044** / 1.226 / 1.459 | **1.514** / 2.710 / 2.166 |
+| full（组合配方） | 10.647 / **3.006** / 4.336 | 2.349 / **1.266** / 1.663 | **1.553** / 1.734 / 1.866 |
+
+协议池统计：last **3.40±3.73**（[0.93, 11.70]，n=12）· best 2.95±2.00（n=12）·
+ema **2.19±1.08**（[1.46, 4.34]，n=6）。
+
+**判读**：
+
+1. **biased val-best 正式判死**：同轨迹内 0/6 赢 last（base + ema 臂），
+   val-best 无一例外落在 ep3–4（H=1）——本地预算完整复现论文预算的 E1/MS5
+   机制。官方 SWE-GNN 配方的"150 epochs + val 选点"在该训练动态下不可用。
+2. **val_horizon 修复选点语义但只是部分解药**：val@H8 best 同轨迹 4/6 赢
+   last，选点从 ep3（H=1）搬到 ep13–37 的真实全视野状态；但救不动 6 层
+   架构本身的漂移（valfix s1 的 7.89）。
+3. **EMA 是方差压缩器而非均值冠军**：同轨迹 2/6 赢 last（last 偶有 0.93 的
+   好签），但跨 run 最稳（±1.08 vs last ±3.73，把 12.5× 彩票区间压到
+   [1.46, 4.34]）。EMA-from-init 被课程期权重污染——已实施
+   `ema_after_curriculum`（课程达到 H_max 才开始平均）待下一轮 run 验证。
+4. **混沌发现（方法学核心）**：同种子各臂在 epoch 1 训练损失即分叉
+   （14.430 vs 14.458 vs 14.478，CUDA 非确定性算子）× 漂移放大 ⇒ last.pt
+   是 [0.93, 11.70] 的彩票。**漂移体制下任何单 run 数字都不可信，协议对照
+   （last/best/ema）与多种子是必要条件**——这直接写进论文的方法学主张。
+
+**E6 配方（后续 run 默认）**：`val_horizon=horizon_max` +
+`ema_after_curriculum=true`（decay ~0.995–0.999，按每 epoch 步数量级调）+
+`early_stop_after_curriculum=true`；best.pt 对照保留、ema.pt 作为第三协议
+一并评测。**生效范围：E7 起的全部新 run；E5 全批维持旧配方**——多种子
+折叠要求同种子同配方，E5 的 s1/s2 必须与 s0（旧配方）可比。
+
 ## 复现
 
 ```bash
