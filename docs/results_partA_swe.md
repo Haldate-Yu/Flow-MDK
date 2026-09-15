@@ -143,7 +143,8 @@ B2 = 5 个真实历史考卷。水深 RMSE（m）：
 4. **真实家族域（B1，论文核心域）：深层门控系占优**（last.pt：ssgc 0.852 ≈
    flow_mdk 0.875 << swegnn 2.150，KS p≈7e-4）；best.pt 下 flow_mdk 0.782 为
    全场最优，但 ssgc best.pt 3.65（ep4 欠训练）——排序对协议敏感，3 种子+
-   统一配方后才可下最终结论。
+   统一配方后才可下最终结论。**（E3 三种子后记：此条未复现，见 E3 节——
+   swegnn s1/s2 在 B1 域内同样落到 0.79/0.80。）**
 5. **定向（flow_mdk）vs 对称（ssgc）仍无显著差异**：last.pt B1 p=0.81、B2
    p=1.0，逐考卷 2:2 分胜负。**"水力定向 MDK 优于对称核"的核心假设至今
    （本地 3 种子 + 论文单种子）无统计支持。**
@@ -191,6 +192,111 @@ GCN 2.84 反超，flow_mdk 6.50——其 val-best 在课程期、零样本欠训
 checkpoint 协议敏感，唯一跨协议稳固的是 B1 真实家族域上门控系（flow_mdk/
 ssgc）优于浅层 swegnn——漂移治理（E2）是恢复可信排序的前提。**
 
+**E3 三种子后记（2026-09-15）**：上一句"唯一跨协议稳固"的判断也被三种子
+复测部分推翻——B1 域内 swegnn 的 s1/s2 与门控系同档（见 E3 节）；E3 之后
+仍然稳固的只有两条：**①所有 1D 排序信号对种子同样敏感（方差 > 模型间距）；
+②B1 域内 flow_mdk 是唯一在两种协议下都稳定在 0.8 档的模型**（last 1.39±0.99 /
+best 0.826±0.105，后者为三模型中方差最小）。
+
+## E2 · 防漂移探针（2026-09-14 服务器，`run_L4_probes.sh`）
+
+三个探针均为 flow_mdk 论文配置（6L+MDK，seed 0）的单变量变体，A-test 评
+last.pt 与 best.pt（baseline = partA_paper_flow_mdk s0）：
+
+| 探针 | 变更 | last h | best h | 判读 |
+|---|---|---|---|---|
+| baseline | — | 1.417 | 2.865 | 6 层+MDK 参照 |
+| `L4probe_lr` | lr 减半 0.0035、decay 0.85@5ep | 8.499 | 17.014 | 慢退火在 150ep 固定预算内欠训练，全面恶化 |
+| `L4probe_L3` | 3 层（深度减半） | **0.778** | 1.231 | **与浅层 8 跳骨架（s0 0.722）同档** |
+| `L4probe_es` | 早停 patience=20 | 2.669 | 1.931 | ep32 于课程期 H=3 触发即停——早停与课程学习冲突，不可用 |
+
+**判读**：①漂移的现实治理杠杆是**降深度**，不是动优化器——3 层 flow_mdk
+直接进入 0.78 档，而 lr/早停两个"训练配方"探针都恶化；"6 层深传播在合成 1D
+无域内收益"的 L4 判读由此获得机制性支撑（深度是漂移的主载体）。②best.pt
+排序与 last.pt 一致，protocol 之争不改变本节结论。③一个 6 层混合模型要吃到
+深传播收益，需要的是防漂移的结构/训练手段（见 E4 的 2D 正面结果），不是更
+保守的 lr。
+
+## E3 · 论文预算三种子复测（2026-09-14 服务器，`run_L4_multiseed_paper.sh`）
+
+14 个 run（Part A 四模型 × seed 1/2 + B1 三模型 × seed 1/2，s0 由 09-13 论文
+run 副本并入；`runs/MS4_partA_*`、`runs/MS4_B1_*`）。逐种子 A-test / B1 域内
+h-RMSE（last.pt / best.pt，m）：
+
+**Part A（合成 1D，A-test）**
+
+| 模型 | s0 | s1 | s2 | last mean±std | best mean±std |
+|---|---|---|---|---|---|
+| swegnn | 0.722 / 3.275 | 2.177 / 1.257 | 1.557 / 0.833 | 1.485±0.730 | 1.788±1.305 |
+| gat | 1.918 / 0.748 | 0.750 / 0.924 | 0.735 / 0.927 | 1.134±0.679 | **0.866±0.102** |
+| gcn | 35.378 / 0.740 | 0.738 / 0.794 | 1.034 / 0.796 | 12.383±19.915 | **0.777±0.032** |
+| flow_mdk | 1.417 / 2.865 | 6.246 / 7.657 | 7.456 / 3.911 | 5.040±3.195 | 4.811±2.520 |
+
+**B1（真实家族域内）→ B2（零样本）**
+
+| 模型 | B1 s0 | B1 s1 | B1 s2 | B1 last mean±std | B1 best mean±std | B2 last mean±std |
+|---|---|---|---|---|---|---|
+| swegnn | 2.150 / 1.144 | 0.792 / 0.815 | 0.803 / 0.699 | 1.249±0.781 | 0.886±0.231 | 2.004±0.503 |
+| flow_mdk | 0.875 / 0.782 | 2.528 / 0.750 | 0.772 / 0.945 | 1.392±0.986 | **0.826±0.105** | 2.084±0.482 |
+| ssgc | 0.852 / 3.651 | 4.809 / 0.507 | 1.958 / 0.681 | 2.540±2.042 | 1.613±1.767 | 3.575±1.750 |
+
+**判读（对照 09-14 L4 单种子判决）**：
+
+1. **种子方差碾压模型间距，1D 排序问题在当前配方下无解**。last.pt 下 s0 的
+   两个"戏剧性"结果——GCN 35.4 塌缩、flow_mdk 1.42——都不具代表性（gcn
+   s1/s2 为 0.74/1.03，flow_mdk s1/s2 恶化到 6.25/7.46）。合并种子 KS 检验：
+   A-test 上 flow_mdk 显著差于 gat/swegnn（p~1e-30），B1 上三模型两两无显著
+   差异（p≥0.06）。
+2. **B1"门控系全面占优"未复现**：swegnn 的 s1/s2 在真实家族域同样落到
+   0.79/0.80（s0 的 2.15 是坏种子）。B1 域内跨协议仍稳的只剩一条：
+   **flow_mdk 是唯一两种协议都稳定在 0.8 档的模型**（best.pt 0.826±0.105 为
+   三模型方差最小）；ssgc 的 best.pt 均值被 s0 欠训练（ep4）拖垮。
+3. **E1 的"反超/追平"预测部分修正**：gcn/gat 的 best.pt 跨种子稳定在
+   0.74–0.93（±0.03/±0.10，全场最稳）——无门控基线并没有被漂移同等压制，
+   它们的 val-best 选点（ep1–2）反而稳；**"治理后各模型收敛到 0.7–0.8"对
+   基线成立、对 6 层混合模型不成立**（flow_mdk best.pt 4.81±2.52，其 val-best
+   选点在三种子上系统性失败）。
+4. val-best 选点不可靠的机制清单再加一条：gcn/gat 的 val-best 落在 ep1–2
+   （课程期 H≤2）却给出全场最好的 best.pt——课程期欠训练 ≠ 8 步 rollout 差，
+   E1 的"课程期=欠训练"归因对短 horizon 种子不成立；漂移与选点问题只能
+   逐模型实证，无捷径。
+5. B2 考卷（真实历史事件）三模型 last.pt 无显著差异（KS p≥0.68），均值
+   swegnn 2.00 ≈ flow_mdk 2.08 < ssgc 3.58。
+
+## E4 · 2D 论文预算训练（2026-09-14 服务器，`run_M3_2d_paper.sh`）
+
+MS4_2d 组：swegnn（2L×8 跳）/ flow_mdk（6L+MDK）/ ssgc（6L 对称 MDK），
+G=64、150ep、batch 8 × 4096 节点合成网格（`data/scenarios_2d_family`，E4 扩容
+130 场景，test 20 场景），seed 0，训练 2.4–6.0 h/run。2D test h-RMSE（m）：
+
+| 模型 | last.pt | best.pt | CSI@0.05（last/best） | 推理加速 |
+|---|---|---|---|---|
+| swegnn（2L×8 跳） | 1.818 | 1.044 | 0.459 / 0.312 | 216–808× |
+| **flow_mdk（6L+MDK）** | **0.359** | **0.778** | **0.708** / 0.408 | 233–875× |
+| ssgc（6L 对称） | **0.324** | 1.957 | **0.751** / 0.239 | 225–965× |
+
+**判读**：
+
+1. **首次出现 ×5 级模型分离，方向有利于门控系——2D 激波体制是深传播的
+   正面战场**。预注册 last.pt 协议下 6 层门控模型（flow_mdk 0.359 / ssgc
+   0.324）大幅优于浅层 8 跳骨架 swegnn（1.818）；best.pt 对照下 flow_mdk
+   仍最优（0.778 vs 1.044），ssgc 反转（1.957）。**两种协议下 flow_mdk 均
+   不劣于 swegnn**——这是 1D 上从未出现过的跨协议稳固优势。
+2. **定向 vs 对称在 2D 内部仍无一致优势**：last.pt ssgc 0.324 ≈ flow_mdk
+   0.359，best.pt 反转（0.778 vs 1.957）。与 1D 结论一致：**收益属于
+   "MDK 门控混合使深传播稳定"，不属于"水力定向"本身**——课题主张维持
+   09-14 定调（稳定深传播 + 基准 + 方法学，定向性为探索性对照）。
+3. 机理信号干净：末层 Dirichlet 能量（逐边归一，L5 监控）swegnn 0.98 vs
+   flow_mdk 0.011 / ssgc 0.0035——**两个数量级分离**；λ₀ 末层在 2D 保留
+   0.03–0.21（1D 上收缩到 ~0.05）。浅层多跳骨架在 2D 激波体制下的表示能量
+   远高于 MDK 滤波链。
+4. 漂移现象跨维度存在（best epoch 10/15/11，val 漂移 2.3–2.7×），但 2D 的
+   last.pt 受损者恰好是 swegnn（last 1.82 > best 1.04），flow_mdk 反而
+   last < best——协议之争在 2D 不改变"门控系占优"的方向。
+5. 局限：单种子、合成 4096 节点网格、未含真实 2D 工程（65k 节点）。E4 后续：
+   2D 三种子（`run_M3_2d_paper.sh` 已支持 `_s<seed>` 命名与 EXTRA 钩子）+
+   定向消融（directed on/off 已由 flow_mdk/ssgc 覆盖）+ 真实 2D 考卷接入。
+
 ## 复现
 
 ```bash
@@ -200,7 +306,24 @@ python scripts/run_partA_mascaret.py --root data/scenarios_partA_v2 --all --work
 bash scripts/run_L3_B1B2_ablation.sh
 # L2 正式对比（等待 L1 标记后自动执行）
 bash scripts/run_L2_partA_swe.sh
+# L4 论文预算单种子（Part A 四模型 + B1 三模型，2026-09-13 服务器）
+bash scripts/run_partA_paper.sh && bash scripts/run_L3_B1B2_paper.sh
+# E2 防漂移探针（lr/3层/早停）
+bash scripts/run_L4_probes.sh
+# E3 论文预算三种子（s1/s2 训练，s0 复制 09-13 run）
+bash scripts/run_L4_multiseed_paper.sh
+# E4 2D 论文预算（MS4_2d 组，支持 EXTRA 配方覆盖）
+bash scripts/run_M3_2d_paper.sh
+# 汇总报告（docs/L4_report.md 的七个分组）
+python scripts/summarize_runs.py --prefix partA_paper --prefix L3_B1_paper --ks
+python scripts/summarize_runs.py --prefix MS4_partA --prefix MS4_B1 --ks
+python scripts/summarize_runs.py --prefix MS4_2d --ks
+python scripts/summarize_runs.py --prefix L4probe --ks
+python scripts/summarize_runs.py --prefix ptbest
 ```
 
-结果归档：`runs/L2_partA_*/`、`runs/L3_B1_*/`（config/history/eval json）；批跑报告
-`data/partA_v2_mascaret_runs/_batch_report.json`、逐场景日志 `batch_log.jsonl`。
+结果归档：`runs/L2_partA_*/`、`runs/L3_B1_*/`、`runs/partA_paper_*`、
+`runs/L3_B1_paper_*`、`runs/MS4_*`、`runs/L4probe_*`、`runs/ptbest_*`
+（config/history/eval json + 双 checkpoint；best.pt 对照在 ptbest_* 孪生目录）；
+批跑报告 `data/partA_v2_mascaret_runs/_batch_report.json`、逐场景日志
+`batch_log.jsonl`。

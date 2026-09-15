@@ -43,6 +43,8 @@ TIMESTAMP_RE = re.compile(r"_\d{8}_\d{6}$")
 
 def domain_label(data_root: str, split: str) -> str:
     name = Path(data_root).name
+    if name == "test" and split in {"A2", "A3"}:
+        return split  # fallback parse of eval_<split>_test.json (registry-less runs)
     if name == "scenarios_partA_v2":
         return {"test": "A-test", "A2_test": "A2", "A3_test": "A3",
                 "val": "A-val", "train": "A-train"}.get(split, f"A:{split}")
