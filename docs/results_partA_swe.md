@@ -297,6 +297,46 @@ G=64、150ep、batch 8 × 4096 节点合成网格（`data/scenarios_2d_family`�
    2D 三种子（`run_M3_2d_paper.sh` 已支持 `_s<seed>` 命名与 EXTRA 钩子）+
    定向消融（directed on/off 已由 flow_mdk/ssgc 覆盖）+ 真实 2D 考卷接入。
 
+## MS5 · E1 收官尝试：浅层多跳骨架 + MDK 混合（2026-09-15）
+
+E2/E3 之后唯一未测且有机制理由的 1D 配置：官方 SWE-GNN 骨架（2L×8 跳、tanh）
++ 定向 MDK 分支（`configs/1d_swegnn_mdk.yaml`，与骨架唯一差异是 mdk 块；脚本
+`run_MS5_shallow_mdk.sh`）。3 个新鲜种子 × 论文预算，判读协议预注册：headline
+= A-test last.pt mean±std 对照 MS4 表；**追平判据 = best.pt 进入 gcn
+0.777±0.032 档**。A-test h-RMSE（m，last / best）：
+
+| 种子 | last | best |
+|---|---|---|
+| s0 | 1.952 | 1.406 |
+| s1 | 2.091 | 1.044 |
+| s2 | 5.676 | 1.057 |
+| **mean±std** | 3.239±2.111 | **1.169±0.206** |
+
+对照（MS4/E3 参考表）：gcn 12.38±19.92 / **0.777±0.032**，gat 1.13±0.68 /
+0.87±0.10，swegnn 1.49±0.73 / 1.79±1.31，flow_mdk(6L) 5.04±3.20 / 4.81±2.52；
+E2 3L 探针 0.778 / 1.231（单种子）。
+
+**判读（E1 至此正式关闭）**：
+
+1. **追平判据未达成，"调参达到最佳"不可达**：best.pt 1.169±0.206 位于
+   GCN/GAT 基线档（0.78–0.87）与骨架 best.pt 均值（1.79）之间，差基线约
+   1.5×。测试过的全部方向——lr 减半、早停、降深度（3L/浅层骨架混合）——
+   无一进入 0.8 档。1D 合成域内排位定论：**GCN/GAT（best.pt 0.78–0.87）>
+   浅层+MDK（1.17）≈ 3L+MDK > 其余**；对称平滑基线在合成 1D 域内就是最强。
+2. **浅层化是 MDK 系在 1D 的最优形态，且 MDK 分支在浅层骨架上是净收益**：
+   best.pt 1.169±0.206 为全部 MDK 系配置中最优、跨种子最稳（6L flow_mdk
+   4.811±2.520）——E2"深度=漂移主载体"再获一发确认；mean 与方差双双优于
+   无 MDK 的同骨架 best.pt（1.788±1.305）。与 6 层时"MDK 无域内收益"并不
+   矛盾：浅层下漂移不再是主导误差源，扩散分支的归纳偏置才得以兑现。
+3. 排序对协议敏感的规律在 MS5 内部同样成立：last.pt 下骨架占优（1.49 vs
+   3.24，被 s2 坏种子主导）、best.pt 下本臂占优——再次确认两协议各有赢家。
+   s2 还暴露**漂移在零样本域被数量级放大**（域内 5.68 → fam_mdx 350、B2
+   124，退化 ×123）：last.pt 评测的零样本数字对坏种子极其脆弱。
+4. MDK 系的价值域就此完全划清：**合成 1D 域内不占优（本文给出最优配置后
+   仍差基线 1.5×）；真实家族域 B1 双协议 0.8 档（E3）；2D 激波体制 ×5 且跨
+   协议稳固（E4）**——与"MDK 门控混合 = 稳定深传播机制、主战场在真实域/2D"
+   的课题主张自洽。
+
 ## 复现
 
 ```bash
@@ -314,11 +354,14 @@ bash scripts/run_L4_probes.sh
 bash scripts/run_L4_multiseed_paper.sh
 # E4 2D 论文预算（MS4_2d 组，支持 EXTRA 配方覆盖）
 bash scripts/run_M3_2d_paper.sh
-# 汇总报告（docs/L4_report.md 的七个分组）
+# MS5 / E1 收官臂（浅层 2L×8 骨架 + MDK，3 新鲜种子）
+bash scripts/run_MS5_shallow_mdk.sh
+# 汇总报告（docs/L4_report.md 的八个分组）
 python scripts/summarize_runs.py --prefix partA_paper --prefix L3_B1_paper --ks
 python scripts/summarize_runs.py --prefix MS4_partA --prefix MS4_B1 --ks
 python scripts/summarize_runs.py --prefix MS4_2d --ks
 python scripts/summarize_runs.py --prefix L4probe --ks
+python scripts/summarize_runs.py --prefix MS5_partA --ks
 python scripts/summarize_runs.py --prefix ptbest
 ```
 

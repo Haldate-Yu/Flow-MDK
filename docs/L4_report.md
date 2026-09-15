@@ -6,18 +6,19 @@
 >     python scripts/summarize_runs.py --prefix MS4_partA --prefix MS4_B1 --ks
 >     python scripts/summarize_runs.py --prefix MS4_2d --ks
 >     python scripts/summarize_runs.py --prefix L4probe --ks
+>     python scripts/summarize_runs.py --prefix MS5_partA --ks
 >     python scripts/summarize_runs.py --prefix ptbest
 >
 > 分组：`partA_paper_*` / `L3_B1_paper_*` = 2026-09-13 论文预算单种子（s0）；
 > `MS4_partA_*` / `MS4_B1_*` = E3 论文预算三种子（s0 为 09-13 run 的副本，见各目录
-> `_SEED0_SOURCE.txt`，registry 行在原名下）；`MS4_2d_*` = E4 2D 论文预算（s0）；
-> `L4probe_*` = E2 防漂移探针（flow_mdk 论文配置变体）；`ptbest_*` = best.pt 协议
-> 对照大表（E1 的 s0 别名目录 + MS4 s1/s2 + 2D s0 同组折叠）。人工判读见
-> [`results_partA_swe.md`](results_partA_swe.md) L4–E4 节。
+> `_SEED0_SOURCE.txt`，registry 行在原名下）；`MS4_2d_*` = E4 2D 论文预算（s0，
+> s1/s2 见 E5，跑完后并入）；`L4probe_*` = E2 防漂移探针；`MS5_partA_2x8mdk` =
+> MS5/E1 收官臂（浅层 2L×8 骨架 + 定向 MDK，3 新鲜种子）；`ptbest_*` = best.pt
+> 协议对照大表。人工判读见 [`results_partA_swe.md`](results_partA_swe.md) L4–E4/MS5 节。
 
 # runs/partA_paper_*
 
-Generated 2026-09-15 08:58 · metric: h RMSE · 4 runs
+Generated 2026-09-15 11:35 · metric: h RMSE · 4 runs
 
 - **flow_mdk** — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=112 train=0.3h
 - **gat** — arch=baseline_gat G=64 layers=6 hops=1 mdk=False epochs=100 train=0.3h
@@ -101,7 +102,7 @@ Generated 2026-09-15 08:58 · metric: h RMSE · 4 runs
 
 # runs/L3_B1_paper_*
 
-Generated 2026-09-15 08:58 · metric: h RMSE · 3 runs
+Generated 2026-09-15 11:35 · metric: h RMSE · 3 runs
 
 - **flow_mdk** — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=112 train=0.6h
 - **ssgc** — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=103 train=0.5h
@@ -147,7 +148,7 @@ Generated 2026-09-15 08:58 · metric: h RMSE · 3 runs
 
 # runs/MS4_partA_*
 
-Generated 2026-09-15 08:58 · metric: h RMSE · 12 runs
+Generated 2026-09-15 11:35 · metric: h RMSE · 12 runs
 
 - **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=112 (from config.yaml)
 - **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=112 train=0.3h
@@ -241,7 +242,7 @@ Generated 2026-09-15 08:58 · metric: h RMSE · 12 runs
 
 # runs/MS4_B1_*
 
-Generated 2026-09-15 08:58 · metric: h RMSE · 9 runs
+Generated 2026-09-15 11:35 · metric: h RMSE · 9 runs
 
 - **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=112 (from config.yaml)
 - **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=114 train=0.7h
@@ -295,7 +296,7 @@ Generated 2026-09-15 08:58 · metric: h RMSE · 9 runs
 
 # runs/MS4_2d_*
 
-Generated 2026-09-15 08:58 · metric: h RMSE · 3 runs
+Generated 2026-09-15 11:35 · metric: h RMSE · 3 runs
 
 - **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=114 train=2.5h
 - **ssgc** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=110 train=2.4h
@@ -322,7 +323,7 @@ Generated 2026-09-15 08:58 · metric: h RMSE · 3 runs
 
 # runs/L4probe_*
 
-Generated 2026-09-15 08:58 · metric: h RMSE · 3 runs
+Generated 2026-09-15 11:36 · metric: h RMSE · 3 runs
 
 - **L4probe_es** — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=32 train=0.1h
 - **L4probe_L3** — arch=flow_mdk G=64 layers=3 hops=1 mdk=True epochs=109 train=0.3h
@@ -345,9 +346,48 @@ Generated 2026-09-15 08:58 · metric: h RMSE · 3 runs
 
 ---
 
+# runs/MS5_partA_*
+
+Generated 2026-09-15 11:36 · metric: h RMSE · 3 runs
+
+- **MS5_partA_2x8mdk** (s0) — arch=flow_mdk G=64 layers=2 hops=8 mdk=True epochs=111 train=0.5h
+- **MS5_partA_2x8mdk** (s1) — arch=flow_mdk G=64 layers=2 hops=8 mdk=True epochs=110 train=0.5h
+- **MS5_partA_2x8mdk** (s2) — arch=flow_mdk G=64 layers=2 hops=8 mdk=True epochs=113 train=0.5h
+
+## h-RMSE by domain
+
+| model | A2 | A-test | A3 | →B2 (val) | →family_mdx | →family_wqh | →family_zxh |
+|---|---|---|---|---|---|---|---|
+| MS5_partA_2x8mdk | 2.411±0.372 | 3.239±2.111 | 4.812±5.098 | 45.508±68.084 | 124.199±195.929 | 23.767±33.793 | 30.058±48.270 |
+
+## Zero-shot degradation (× vs in-domain)
+
+| model | A-test | A3 | →B2 (val) | →family_mdx | →family_wqh | →family_zxh |
+|---|---|---|---|---|---|---|
+| MS5_partA_2x8mdk | ×1.3 | ×2.0 | ×18.9 | ×51.5 | ×9.9 | ×12.5 |
+
+## B2 per-exam (→B2 (val))
+
+| exam | MS5_partA_2x8mdk |
+|---|---|
+| mdx | 62.132 |
+| mdx_downstream | 5.365 |
+| mdx_upstream | 118.324 |
+| wqh | 33.122 |
+| zxh | 8.596 |
+
+## KS tests (per-scenario RMSE distributions, pooled over seeds)
+
+- (no domain with ≥2 models and ≥5 scenarios)
+
+( · seeds s0/s1/s2; ± is the std of per-seed domain means)
+
+
+---
+
 # runs/ptbest_*
 
-Generated 2026-09-15 08:58 · metric: h RMSE · 27 runs
+Generated 2026-09-15 11:36 · metric: h RMSE · 31 runs
 
 - **flow_mdk** — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
 - **ssgc** — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
@@ -372,6 +412,9 @@ Generated 2026-09-15 08:58 · metric: h RMSE · 27 runs
 - **gcn** (s2) — arch=baseline_gcn G=64 layers=6 hops=1 mdk=False epochs=? (from config.yaml)
 - **swegnn** (s1) — arch=flow_mdk G=64 layers=2 hops=8 mdk=False epochs=? (from config.yaml)
 - **swegnn** (s2) — arch=flow_mdk G=64 layers=2 hops=8 mdk=False epochs=? (from config.yaml)
+- **ptbest_MS5_partA_2x8mdk** (s0) — arch=flow_mdk G=64 layers=2 hops=8 mdk=True epochs=? (from config.yaml)
+- **ptbest_MS5_partA_2x8mdk** (s1) — arch=flow_mdk G=64 layers=2 hops=8 mdk=True epochs=? (from config.yaml)
+- **ptbest_MS5_partA_2x8mdk** (s2) — arch=flow_mdk G=64 layers=2 hops=8 mdk=True epochs=? (from config.yaml)
 - **flow_mdk** — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
 - **gat** — arch=baseline_gat G=64 layers=6 hops=1 mdk=False epochs=? (from config.yaml)
 - **gcn** — arch=baseline_gcn G=64 layers=6 hops=1 mdk=False epochs=? (from config.yaml)
@@ -389,6 +432,8 @@ Generated 2026-09-15 08:58 · metric: h RMSE · 27 runs
 | ptbest_L4probe_lr | 17.014 | — | — | — | — |
 | gat | 0.866±0.102 | — | — | — | 2.987±0.000 |
 | gcn | 0.777±0.032 | — | — | — | 2.835±0.000 |
+| ptbest_MS5_partA_2x8mdk | 1.169±0.206 | — | — | — | — |
+| ptbest_smoke_MS5_2x8mdk | 1.240 | — | — | — | — |
 
 ## Zero-shot degradation (× vs in-domain)
 
@@ -402,16 +447,18 @@ Generated 2026-09-15 08:58 · metric: h RMSE · 27 runs
 | ptbest_L4probe_lr | — | — | — |
 | gat | — | — | ×3.4 |
 | gcn | — | — | ×3.7 |
+| ptbest_MS5_partA_2x8mdk | — | — | — |
+| ptbest_smoke_MS5_2x8mdk | — | — | — |
 
 ## B2 per-exam (→B2 (val))
 
-| exam | flow_mdk | ssgc | swegnn | ptbest_L4probe_es | ptbest_L4probe_L3 | ptbest_L4probe_lr | gat | gcn |
-|---|---|---|---|---|---|---|---|---|
-| mdx | 4.722 | 6.398 | 5.606 | — | — | — | — | — |
-| mdx_downstream | 2.302 | 1.272 | 0.691 | — | — | — | — | — |
-| mdx_upstream | 1.522 | 2.630 | 2.077 | — | — | — | — | — |
-| wqh | 0.272 | 2.092 | 0.481 | — | — | — | — | — |
-| zxh | 0.123 | 1.845 | 0.105 | — | — | — | — | — |
+| exam | flow_mdk | ssgc | swegnn | ptbest_L4probe_es | ptbest_L4probe_L3 | ptbest_L4probe_lr | gat | gcn | ptbest_MS5_partA_2x8mdk | ptbest_smoke_MS5_2x8mdk |
+|---|---|---|---|---|---|---|---|---|---|---|
+| mdx | 4.722 | 6.398 | 5.606 | — | — | — | — | — | — | — |
+| mdx_downstream | 2.302 | 1.272 | 0.691 | — | — | — | — | — | — | — |
+| mdx_upstream | 1.522 | 2.630 | 2.077 | — | — | — | — | — | — | — |
+| wqh | 0.272 | 2.092 | 0.481 | — | — | — | — | — | — | — |
+| zxh | 0.123 | 1.845 | 0.105 | — | — | — | — | — | — | — |
 
 ( · seeds s0/s1/s2; ± is the std of per-seed domain means)
 

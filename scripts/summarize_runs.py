@@ -39,6 +39,7 @@ from flow_mdk.eval.metrics import ks_test  # noqa: E402
 REPO = Path(__file__).resolve().parents[1]
 MODELS = ("swegnn", "flow_mdk", "gcn", "gat", "ssgc", "persistence")
 TIMESTAMP_RE = re.compile(r"_\d{8}_\d{6}$")
+SEED_SUFFIX_RE = re.compile(r"_s\d+$")
 
 
 def domain_label(data_root: str, split: str) -> str:
@@ -59,6 +60,7 @@ def domain_label(data_root: str, split: str) -> str:
 
 def model_name(run_dir: Path) -> str:
     name = TIMESTAMP_RE.sub("", run_dir.name)
+    name = SEED_SUFFIX_RE.sub("", name)  # seed is not part of model identity
     for m in sorted(MODELS, key=len, reverse=True):
         if m in name:
             return m
