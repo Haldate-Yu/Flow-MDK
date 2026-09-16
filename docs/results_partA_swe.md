@@ -296,6 +296,48 @@ G=64、150ep、batch 8 × 4096 节点合成网格（`data/scenarios_2d_family`�
 5. 局限：单种子、合成 4096 节点网格、未含真实 2D 工程（65k 节点）。E4 后续：
    2D 三种子（`run_M3_2d_paper.sh` 已支持 `_s<seed>` 命名与 EXTRA 钩子）+
    定向消融（directed on/off 已由 flow_mdk/ssgc 覆盖）+ 真实 2D 考卷接入。
+   → 单种子局限已由 E5 收口（见下节），真实 2D 考卷仍待接入。
+
+## E5 · 2D 三种子复测（2026-09-15 服务器开跑、09-16 取回落定，`run_M3_2d_paper.sh`）
+
+`SEEDS=1 2` 补齐 MS4_2d 的 s1/s2（三模型 × 2 新鲜种子，配方与 E4 完全一致；
+swegnn 4.5–5.1 h/run、门控系 2.3–2.6 h/run，整批 ~19 h）。2D test h-RMSE
+（m；s0 列即 E4，± 为跨种子样本 std）：
+
+| 模型 | last.pt（s0/s1/s2） | last mean±std | best.pt（s0/s1/s2） | best mean±std |
+|---|---|---|---|---|
+| swegnn（2L×8 跳） | 1.818 / 12.655 / 0.708 | 5.060±6.600 | 1.044 / 7.925 / 0.941 | 3.303±4.002 |
+| **flow_mdk（6L+MDK）** | **0.359 / 0.849 / 0.379** | **0.529±0.277** | **0.778 / 0.452 / 0.373** | **0.534±0.214** |
+| ssgc（6L 对称） | 0.324 / 3.460 / 1.676 | 1.820±1.573 | 1.957 / 0.525 / 1.382 | 1.288±0.721 |
+
+KS 检验（逐场景 RMSE，合并三种子，全部显著）：last.pt 下 flow_mdk vs ssgc
+D=0.633 p=1.3e-11、flow_mdk vs swegnn D=0.550 p=1.1e-08、ssgc vs swegnn
+D=0.367 p=5.6e-04；best.pt 下 flow_mdk vs ssgc D=0.667 p=6.1e-13、
+flow_mdk vs swegnn D=0.850 p=2.2e-22、ssgc vs swegnn D=0.383 p=2.6e-04。
+CSI@0.05（last，三种子均值）flow_mdk 0.656 vs ssgc 0.437 vs swegnn 0.367。
+
+**判读**：
+
+1. **E4 的优势三种子钉死，且 flow_mdk 升级为「唯一跨协议/跨种子稳固的
+   模型」**：两种协议下均值、中位数、KS 全部最优，last≈best（0.529 vs
+   0.534）——数字对选点协议免疫；全部 6 个 flow_mdk run 落在 0.36–0.85 m
+   （max/min = 2.4×），ssgc 跨度 10.7×、swegnn 17.9×。
+2. **E4 单种子的「ssgc ≈ flow_mdk」不复现**：ssgc s1/s2 恶化到 3.46/1.68，
+   best.pt 的反转也不再出现。定向 vs 对称的天平在多种子下明确偏向定向版
+   （两种协议 KS 均显著），但仍非逐种子干净扫掠（s0 last ssgc 0.324 更优）——
+   表述收口为「**定向门控 = 门控系中唯一跨种子/跨协议稳固的形态**」。课题主张
+   不变（MDK 门控混合 = 稳定深传播机制），定向性从「探索性对照」升级为
+   「2D 域内稳定性优势」。
+3. **swegnn s1 是坏种子而非选点问题**：best.pt 同样差（7.92），val 平台
+   0.0181（门控系 0.0155–0.0164）——浅层多跳骨架在 2D 的训练成功率本身
+   不稳；E4 单种子 1.818 恰落在三种子分布中位。±6.6 的种子方差再次印证
+   E6「单 run 数字不可信」在 2D 同样成立，只是 2D 的 last.pt 受损者恰好是
+   无门控基线而非 flow_mdk。
+4. 机理信号随种子保持：末层 Dirichlet 能量（逐边归一，三种子合并均值）
+   swegnn 3.61 vs flow_mdk 0.013 / ssgc 0.062——约两个数量级分离不变
+   （L4 报告 MS4_2d 节）。
+5. 剩余局限收窄为一条：合成 4096 节点网格、无真实 2D 考卷（L12 剩余项，
+   wqh_2d/mdx_2d 65k 节点需图分块/下采样）。
 
 ## MS5 · E1 收官尝试：浅层多跳骨架 + MDK 混合（2026-09-15）
 
@@ -399,12 +441,14 @@ bash scripts/run_L4_probes.sh
 bash scripts/run_L4_multiseed_paper.sh
 # E4 2D 论文预算（MS4_2d 组，支持 EXTRA 配方覆盖）
 bash scripts/run_M3_2d_paper.sh
+# E5 2D 三种子（s1/s2 补齐，s0 复用 E4 run）
+SEEDS=1 2 bash scripts/run_M3_2d_paper.sh
 # MS5 / E1 收官臂（浅层 2L×8 骨架 + MDK，3 新鲜种子）
 bash scripts/run_MS5_shallow_mdk.sh
 # 汇总报告（docs/L4_report.md 的八个分组）
 python scripts/summarize_runs.py --prefix partA_paper --prefix L3_B1_paper --ks
 python scripts/summarize_runs.py --prefix MS4_partA --prefix MS4_B1 --ks
-python scripts/summarize_runs.py --prefix MS4_2d --ks
+python scripts/summarize_runs.py --prefix MS4_2d --ks --dirichlet
 python scripts/summarize_runs.py --prefix L4probe --ks
 python scripts/summarize_runs.py --prefix MS5_partA --ks
 python scripts/summarize_runs.py --prefix ptbest
