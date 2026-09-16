@@ -424,6 +424,50 @@ ema **2.19±1.08**（[1.46, 4.34]，n=6）。
 一并评测。**生效范围：E7 起的全部新 run；E5 全批维持旧配方**——多种子
 折叠要求同种子同配方，E5 的 s1/s2 必须与 s0（旧配方）可比。
 
+## L12 · 真实 2D 考卷：E4/E5 模型零样本迁移（2026-09-16，本机 3060，`run_L12_real2d_exam.sh`）
+
+真实 TELEMAC-2D 工程 wqh_2d（65,589 节点 / 25 h）与 mdx_2d（65,126 节点 /
+15 h）作为考卷，E4/E5 训练的 9 个 2D run（3 模型 × 3 种子）直接零样本评测，
+不重训。考卷构建（`scripts/build_real_2d_exam.py`）：帧距降采样到训练
+Δt=1800 s（600 s 真值每 3 帧取 1；wqh 151→51、mdx 91→31 帧）；静态特征
+对齐到合成 6 列布局——[面积, 床面高程（移局部基准）, 坡度×2（对偶图逐节点
+最小二乘）, Manning n, 入流边界 breach 标记（.cli 解析，wqh 20 / mdx 24
+节点）]；真值本身不动。登记的未调整域差距：|q| 真实 ~1–8 m/s vs 合成
+≤0.035 m/s（约 2 个数量级）、床面起伏 262 m vs 3.7 m、非结构三角形 vs
+均匀 100 m 网格。**双协议评测**（E6 方法学纪律的零样本版）：H=8（训练
+视野，4 h rollout）与全时程（24 h rollout）。
+
+h-RMSE（m，3 种子 mean±std；每格 = mdx_2d / wqh_2d）：
+
+| 模型 | H=8 best.pt | H=8 last.pt | 全时程 best.pt | 全时程 last.pt |
+|---|---|---|---|---|
+| swegnn（2L×8 跳） | 2.36±0.16 / 2.93±0.49 | 2.94±1.08 / 3.48±0.87 | 5.52±3.76 / 9.16±7.69 | 13.14±8.71 / 22.72±15.24 |
+| **flow_mdk（6L+MDK）** | **2.05±0.06 / 2.90±0.21** | 2.51±0.58 / 3.50±0.42 | 8.87±1.32 / 24.30±5.21 | 10.80±6.42 / 25.87±9.34 |
+| ssgc（6L 对称） | 2.06±0.31 / 3.33±0.65 | 2.84±1.07 / 3.52±0.96 | 6.78±1.02 / 15.36±1.71 | 10.88±4.18 / 24.98±5.56 |
+
+CSI@0.05（H=8 best）：flow_mdk 0.86/0.81 ≈ ssgc 0.86/0.81 > swegnn
+0.82/0.76；全时程全体跌至 0.46–0.64。
+
+**判读**：
+
+1. **训练视野内零样本迁移成立**：H=8 下全体模型 h-RMSE 2.0–3.5 m
+   （h_max 17–19.6 m 的 12–19%）、CSI 0.69–0.88——合成域训练的模型在
+   真实工程网格上直接可用（短时程）。相对合成域内（flow_mdk best 0.534）
+   退化 ×4–5.5，远小于 1D 轨道的 fam_mdx 零样本（×1.8）但属可用量级。
+2. **flow_mdk 再次是最稳的**：best.pt 双考卷最优（mdx 2.05±0.06 全场
+   最小方差）且 last≈best 模式在零样本下保持；1D B1 域内「双协议稳定
+   0.8 档」的格局在 2D 真实域以「best.pt 2–3 m 档 + 跨种子最稳」复现。
+   域差距压制了模型间距（三模型同档），但稳定性排序不变。
+3. **全时程外推（24 h）全体发散**：last.pt 10–39 m、best.pt 5–24 m，
+   相对 H=8 恶化 ×4–10——自回归漂移在分布外域被放大（E6 结论的零样本
+   版），且 |q| 输入差距使误差逐帧复合。**长时程零样本不可用；泛化矩阵
+   的零样本格必须配训练视野对照，否则数字无意义。** 与 1D 侧 MS5 发现
+   （坏种子零样本 ×123 放大）互为印证。
+4. 补齐路径（未排期，供 M5 讨论）：2D 真实母版家族（真实几何 × 合成水情
+   批跑 TELEMAC-2D，单场景小时级）做 B1 式域内微调；或特征空间对齐
+   （|q| 对数域/标准化、地形归一）后再零样本。1D 侧先例：B1 家族
+   微调把 flow_mdk 域内稳定在 0.8 档。
+
 ## 复现
 
 ```bash
@@ -445,6 +489,11 @@ bash scripts/run_M3_2d_paper.sh
 SEEDS=1 2 bash scripts/run_M3_2d_paper.sh
 # MS5 / E1 收官臂（浅层 2L×8 骨架 + MDK，3 新鲜种子）
 bash scripts/run_MS5_shallow_mdk.sh
+# L12 真实 2D 考卷（构建考卷 npz + 9 run × last/best 双协议零样本评测）
+python scripts/build_real_2d_exam.py
+bash scripts/run_L12_real2d_exam.sh
+# L12 对照协议（训练视野 H=8，输出 eval_test_exams_2d_h8.json）
+EXAM_ROOT=data/real_cases/exams_2d_h8 STEPS=8 bash scripts/run_L12_real2d_exam.sh
 # 汇总报告（docs/L4_report.md 的八个分组）
 python scripts/summarize_runs.py --prefix partA_paper --prefix L3_B1_paper --ks
 python scripts/summarize_runs.py --prefix MS4_partA --prefix MS4_B1 --ks
