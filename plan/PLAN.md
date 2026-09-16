@@ -81,18 +81,18 @@
 
 ## M4 · 一二维耦合（预计 2–3 周）◐ 进行中（数据结构骨架落地，耦合真值生成未开始）
 
-- [x] 异构图：河网链子图 + 网格子图 + 接口边（河段↔漫滩单元）—— **v1 骨架落地（2026-09-16）**：`data/graph_coupled.py` 同构消息传递方案（节点类型静态通道 1D=1/2D=0 + 接口边簿记，子图边特征保留各自局部语义），`tests/test_graph_coupled.py` 4 项通过；真正的异构卷积为候选升级。**待接真实数据**：mdx 链（mdx_upstream → mdx_2d → mdx_downstream）装配脚本需 .cli 出流边界解析 + 节点对应关系核实
+- [x] 异构图：河网链子图 + 网格子图 + 接口边（河段↔漫滩单元）—— **v1 骨架落地（2026-09-16）**：`data/graph_coupled.py` 同构消息传递方案（节点类型静态通道 1D=1/2D=0 + 接口边簿记，子图边特征保留各自局部语义），`tests/test_graph_coupled.py` 4 项通过；真正的异构卷积为候选升级。**mdx 链装配完成（同日）**：`build_mdx_chain_graph.py` → 65,189 节点单图（34+65,126+29，48 条接口边，1800s 共同网格 31 帧），演习版 npz 端到端 CPU 冒烟训练通过（loss 下降）；时间对齐发现 upstream 帧时刻 ~1798s 漂移——印证真耦合必须显式定义交换时间网格
 - [ ] 接口质量守恒：损失项或结构约束（接口边通量显式建模）—— 依赖耦合真值的链侧 Q 与网格侧通量对齐语义，随耦合数据生成一起做
 - [ ] Mascaret + TELEMAC-2D 耦合数据生成（复用本地源码树的耦合运行能力）—— 耦合编排器（docker 交替驱动 + 交换帧对齐 + QC）未开始；这是 M4 服务器训练的前置条件
 
 **验收**：耦合场景误差报告 + 接口水量守恒诊断（闭合误差 < 设定阈值）。
 
-## M5 · 系统评测与论文（预计 2 周）
+## M5 · 系统评测与论文（预计 2 周）◐ 进行中（聚合资产落地，消融批待服务器 round 2，初稿未动）
 
-- [ ] 完整基线对比：GCN / GAT / U-Net / 纯 SWE-GNN / Flow-MDK 消融版
-- [ ] Pareto 前沿（精度–速度–复杂度）+ KS 显著性检验（对齐 SWE-GNN 协议）
-- [ ] 泛化矩阵：未见参数组合 / 未见几何 / 更大域 / 更长时程 / **synthetic→real 真实案例 gap（1D、2D 各一）**
-- [ ] 论文初稿（候选期刊：HESS / EM&S / WRR）
+- [~] 完整基线对比：GCN / GAT / U-Net / 纯 SWE-GNN / Flow-MDK 消融版——主表三种子已齐（E3/E5）；**-MDK 深度匹配消融 = L16（round 2 脚本已备）**；U-Net 未实现（可选）；`-分裂`臂可选
+- [~] Pareto 前沿（精度–速度–复杂度）+ KS 显著性检验——**聚合脚本已落地（2026-09-16）**：`plot_pareto.py`（参数量×加速比×RMSE，`docs/pareto_frontier.md` + `runs/pareto_frontier.png`，数字与泛化矩阵一致）；KS 在 `summarize_runs.py`
+- [~] 泛化矩阵：**一键聚合已落地（2026-09-16）**：`build_generalization_matrix.py` → `docs/generalization_matrix.md`（5 模型 × 11 域 × 双协议，72 格）；2D 无 A2/A3 类比记为局限
+- [ ] 论文初稿（候选期刊：HESS / EM&S / WRR；主推 EM&S）——未动笔；图表清单 F1–F6(+F7 耦合)已定，主张口径 = 机制主张（稳定深传播 + 诚实评测方法学 + 基准），不报 SOTA
 
 ## M6 ·（可选）Agent 集成
 
@@ -206,6 +206,7 @@ Flow-MDK/
 | ~~L12~~ | ✅ **E5 · 2D 三种子 + 真实 2D 考卷**（2026-09-16 全部收口） | **E5 2D 三种子**：`SEEDS=1 2 bash scripts/run_M3_2d_paper.sh` 六 run 全部成功——flow_mdk 双协议最优（last 0.529±0.277 / best 0.534±0.214）且跨种子最稳（2.4× vs ssgc 10.7×/swegnn 17.9×）、last≈best 对选点协议免疫、KS 全显著（p≤1e-8）；ssgc 单种子 0.324 不复现，定向门控 = 门控系唯一跨种子/跨协议稳固形态；swegnn s1 坏种子（best.pt 同差 7.92，训练失败而非选点问题）。**真实 2D 考卷（本机 3060，零样本）**：wqh_2d/mdx_2d 构建考卷（Δt 对齐 + 特征列对齐 + 局部基准，`build_real_2d_exam.py`），9 run × last/best 双协议——H=8 训练视野内迁移成立（全体 2.0–3.5 m、CSI 0.69–0.88，flow_mdk best 2.05/2.90 最优且 ±0.06/±0.21 最稳），全时程 24h 全体发散（长时程零样本不可用）；65k 节点推理无需分块。详见 `docs/results_partA_swe.md` E5/L12 节。衍生可选项：2D 真实母版家族微调轨道（B1 式）；~~E6~~ ✅ 选点治理已收口（2026-09-15） | M3 ✅ |
 | ~~L13~~ | ✅ **MS5 · E1 收官尝试：浅层多跳骨架 + MDK 混合**（2026-09-15 当日跑完落定） | best.pt **1.169±0.206**（A-test，3 种子）vs gcn 0.777±0.032——**追平判据未达成，E1 正式关闭**：全部已测方向（lr/早停/降深度/骨架混合）均不可达 0.8 档；但浅层化为 MDK 系 1D 最优形态（跨种子最稳、优于无 MDK 同骨架 1.79±1.31），MDK 价值域划清 = B1 真实域（双协议 0.8 档）+ 2D 激波（E4 ×5）；1D 排位定论 GCN/GAT（best.pt 0.78–0.87）> 浅层+MDK > 其余。详见 `docs/results_partA_swe.md` MS5 节 | M2 ✅ |
 | L14 | **大 Δt 实验（M2 收口）** | **服务器 round 1 已备（2026-09-16）**：`run_L14_big_dt.sh` + `subsample_scenarios_dt.py`（数据根 `data/scenarios_partA_v2_dt{2,3}` 已本地构建，×4 会杀死 34 帧场景故弃用）。设计：dt ×2/×3，arms = flow_mdk 6L×1hop 物理匹配 K（K0=2 按 √m 缩放 → 3/4）vs swegnn 2L×8（感受野固定），3 种子 × A-test last/best 双协议；对照 = E3 的 MS4_partA 同种子 run（dt×1）。已知混杂：dt×3 每 scenario 窗口数 p50=4（训练样本变少属权衡本身）。12 run ≈ 4–10 h | M2 ◐ |
+| L16 | **-MDK 深度匹配消融（M5 基线表收口）** | **round 2 已备（2026-09-16）**：`run_L16_ablation.sh`——`configs/1d_swegnn_baseline.yaml`（6L×1hop mdk.use=false，与 flow_mdk 唯一差异是 MDK 旗标）1D/2D × 3 种子 = 6 run；成对控制 = E3 MS4_partA_flow_mdk / E5 MS4_2d_flow_mdk 同种子；判读目标 = 把 ×5 优势归因于 MDK 分支而非深度。1D 路径已本地冒烟 | M5 ◐ |
 | E6.1 | **E6 配方服务器验证（论文预算）** | **已备（2026-09-16）**：`run_E61_recipe_validation.sh`——flow_mdk 6L 论文预算 + 全配方（val_horizon=8 / gated 早停 patience=10 / ema_decay=0.999 + ema_after_curriculum），3 种子与 E3 控制（MS4_partA_flow_mdk 同种子）成对比较；last/best/ema 三协议评测；配方路径（含 ema.pt 产出）已本地冒烟验证。3 run ≈ 1–3 h，随 L14 同批上服务器 | M2 ◐ |
 | ~~L5~~ | ✅ **over-smoothing 监控接入评测**（2026-09-13） | λ₀ 逐 epoch 已在 history.json；Dirichlet 能量经 rollout forward hooks 逐层计算（逐边归一）进 eval json（`eval/rollout.py`、`scripts/evaluate.py`）；曲线工具 `scripts/plot_mdk_lambda0.py`。首轮信号：flow_mdk 训练中末层 λ₀ 0.42→0.09 塌缩、GCN 逐层能量随深度增长。表示相似度指标未实现（可选，不再单列） | M2 ✅ |
 | L6 | **mdx 家族补齐至 50**（可选） | 现 37 个（3 个段错误淘汰）；补采 13 个使三家族对称，总计 ~130 与论文对齐 | M2 前 |

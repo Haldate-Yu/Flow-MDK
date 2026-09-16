@@ -101,3 +101,24 @@ h-RMSE（m，3 种子 mean±std，mdx_2d / wqh_2d）：
      可选补强：2D 真实母版家族微调轨道（B1 式，需 TELEMAC-2D 批跑）。
 - 照旧挂起：L6（mdx 家族补 50）、L9（加速比基线补全）、L8（mdx_downstream
   排查）、λ₀ 曲线图多种子刷新（低优先）。
+
+## 五、本地工作流准备（同日第三轮：round 2 消融 + M5 资产 + M4 链装配）
+
+1. **L16 消融脚本**（`run_L16_ablation.sh`，round 2 服务器）：`-MDK` 深度
+   匹配臂（6L×1hop mdk.use=false）1D/2D × 3 种子，成对控制 = E3/E5 的
+   flow_mdk 同种子 run；1D 路径本地冒烟通过。
+2. **M5 聚合资产**：`build_generalization_matrix.py` →
+   `docs/generalization_matrix.md`（5 模型 × 11 域 × last/best 双协议，
+   72 格，数字与既有判读逐一对上）；`plot_pareto.py` →
+   `docs/pareto_frontier.md` + `runs/pareto_frontier.png`（参数量 34k–343k
+   × 加速比 30–623× × 域内 RMSE）。registry 有 108 行本地预算 eval 被
+   白名单排除（设计如此）。
+3. **M4 链装配（结构演习）**：`build_mdx_chain_graph.py`——mdx_upstream +
+   mdx_2d + mdx_downstream 拼单图（65,189 节点 / 48 条接口边 / 1800s 共同
+   网格 31 帧），静态特征映射到共享 4 列布局（1D Strickler K→Manning n、
+   2D area→宽度代理、.cli 两类流边界按几何定位：SW 17 节点=入流、NE 7
+   节点=出流）；演习 npz 端到端 CPU 冒烟训练通过。两个如实记录的发现：
+   upstream 帧时刻相对名义 1800s 有 ~1798s 漂移（真耦合必须显式定义交换
+   时间网格）；65k 节点训练 batch 8 超本机 6GB（训练归 A100，与 PLAN
+   判断一致）。**接口水量不守恒——演习版不是训练真值**，耦合编排器仍是
+   M4 的下一个硬骨头。
