@@ -468,6 +468,41 @@ CSI@0.05（H=8 best）：flow_mdk 0.86/0.81 ≈ ssgc 0.86/0.81 > swegnn
    （|q| 对数域/标准化、地形归一）后再零样本。1D 侧先例：B1 家族
    微调把 flow_mdk 域内稳定在 0.8 档。
 
+## L14 · 大 Δt 权衡实验（2026-09-16 服务器，`run_L14_big_dt.sh`，M2 收口）
+
+层/k 与时间步的权衡（SWE-GNN Fig.8 同构）：帧距 ×2/×3（`subsample_scenarios_dt.py`
+从 partA_v2 派生，×4 弃用——96/130 场景帧数不足），flow_mdk 6L×1hop 的 MDK
+截断 K 按 √m 物理匹配（K0=2 → 3/4）vs swegnn 2L×8（感受野固定），3 种子，
+A-test last/best 双协议。对照 = E3 的 dt×1 同种子 run。已知混杂：dt 每升
+一档训练窗口数减半（p50 11→4），Δt 大档在更少数据上训练。
+
+A-test h-RMSE（m，3 种子 mean±std）：
+
+| 档位 | flow_mdk last | flow_mdk best | swegnn last | swegnn best |
+|---|---|---|---|---|
+| dt×1（K=2 / 8 跳） | 5.040±3.195 | 4.811±2.520 | 1.485±0.730 | 1.788±1.305 |
+| dt×2（K=3） | **2.678±2.104** | **2.356±0.179** | **1.342±0.476** | 1.395±0.721 |
+| dt×3（K=4） | 4.026±2.084 | 2.378±1.441 | 2.284±1.321 | **0.910±0.053** |
+
+**判读**：
+
+1. **1D 域内排位对 Δt 稳健**：swegnn 三档全优（best 0.91–1.79），MDK 系在
+   1D 域内不占优的结论对 Δt 稳健——「层/k–Δt 权衡」的交叉点在 1D 未出现。
+2. **但 flow_mdk 的相对差距随 Δt 收窄**：last.pt 比值 3.4×→2.0×→1.8×；
+   且 flow_mdk dt×2 best（2.36±0.18，全场方差最小）显著优于自身 dt×1
+   （4.81±2.52）——H=8 物理视野翻倍的更难任务上反而更好，物理匹配 K
+   生效；K=4 无失稳（√m 缩放的深传播本身稳定）。
+3. swegnn dt×3 best 0.910±0.053 为全场最稳单元格；固定感受野骨架对时间
+   分辨率粗化不敏感。
+4. **M2 大 Δt 实验收口**：深传播的正面战场在 2D 激波体制（E4/E5），1D
+   合成域内不复现——MDK 价值域结论（真实域 + 2D）第三次独立确认。
+
+**E6.1 状态更正**：round 1 的 E61 三 run 因编排脚本漏传 `data.root` 而训练在
+旧 v1 数据集（scenarios_1d）上，与 E3 控制（partA_v2）不可比，预注册判决
+无效——runs 留档为 scenarios_1d 变体（last 15.2/170.8/10.9，best
+4.3/19.4/8.2，ema≈last：EMA-after-curriculum 在漂移持续时跟随漂移，未起
+压缩器作用）。修复后以 E61b 臂名重跑（partA_v2 + 全配方），判决待 E61b。
+
 ## 复现
 
 ```bash
@@ -494,6 +529,16 @@ python scripts/build_real_2d_exam.py
 bash scripts/run_L12_real2d_exam.sh
 # L12 对照协议（训练视野 H=8，输出 eval_test_exams_2d_h8.json）
 EXAM_ROOT=data/real_cases/exams_2d_h8 STEPS=8 bash scripts/run_L12_real2d_exam.sh
+# L14 大 Δt 权衡（dt ×2/×3 数据根 + K 物理匹配臂）
+python scripts/subsample_scenarios_dt.py --src data/scenarios_partA_v2 --dst data/scenarios_partA_v2_dt2 --stride 2
+python scripts/subsample_scenarios_dt.py --src data/scenarios_partA_v2 --dst data/scenarios_partA_v2_dt3 --stride 3
+bash scripts/run_L14_big_dt.sh
+# E6.1 配方服务器验证（E61b = partA_v2 修正轮）
+bash scripts/run_E61_recipe_validation.sh
+# L16 -MDK 深度匹配消融（1D/2D × 3 种子）
+bash scripts/run_L16_ablation.sh
+# M4 耦合链可行性训练（mdx_chain_v1，单场景能力验证轮）
+bash scripts/run_M4_coupled_v1.sh
 # 汇总报告（docs/L4_report.md 的八个分组）
 python scripts/summarize_runs.py --prefix partA_paper --prefix L3_B1_paper --ks
 python scripts/summarize_runs.py --prefix MS4_partA --prefix MS4_B1 --ks

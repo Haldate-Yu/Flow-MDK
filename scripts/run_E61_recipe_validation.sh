@@ -44,11 +44,16 @@ twin_eval () {  # prefix run_dir checkpoint
 }
 
 for seed in "${SEEDS[@]}"; do
-    run=runs/E61_partA_full_s${seed}
+    # E61b: the first round (E61_*) missed the data.root override and trained
+    # on the deprecated scenarios_1d v1 family — not comparable with the E3
+    # partA_v2 controls; those runs stay in the registry as the scenarios_1d
+    # variant. This round runs the pre-registered partA_v2 pairing.
+    run=runs/E61b_partA_full_s${seed}
     if [ -f "$run/config.yaml" ]; then echo "[skip] $run exists"; continue; fi
     echo "=== [E6.1 full s${seed}] training (paper budget + E6 recipe) -> $run ==="
     python scripts/train.py --config configs/1d_flow_mdk.yaml --set \
         out_dir=$run seed=${seed} \
+        data.root=data/scenarios_partA_v2 \
         train.val_horizon=8 \
         train.early_stop_after_curriculum=true \
         train.early_stop_patience=10 \
