@@ -52,11 +52,16 @@ FAMILIES = [
     (re.compile(r"^MS5_partA_2x8mdk_s\d+$"), "2x8mdk"),
     (re.compile(r"^L16_mdkoff_(partA|2d)_s\d+$"), "flow_mdk(-MDK)"),
     (re.compile(r"^E61_partA_full_s\d+$"), "flow_mdk(E6配方)"),
+    # U-Net 2D baseline (round 3): real-exam zero-shot cells stay empty by
+    # design — a grid CNN cannot ingest the unstructured 65k-node meshes
+    # (UNetSurrogate refuses non-grid node counts); noted in the matrix doc.
+    (re.compile(r"^unet_2d_s\d+$"), "unet"),
 ]
 MODEL_PATTERNS = [  # order matters: first hit wins
     (re.compile(r"2x8mdk"), "2x8mdk"),
     (re.compile(r"mdkoff"), "flow_mdk(-MDK)"),
     (re.compile(r"E61|E6配方"), "flow_mdk(E6配方)"),
+    (re.compile(r"unet"), "unet"),
     (re.compile(r"flow_mdk"), "flow_mdk"),
     (re.compile(r"ssgc"), "ssgc"),
     (re.compile(r"swegnn"), "swegnn"),
