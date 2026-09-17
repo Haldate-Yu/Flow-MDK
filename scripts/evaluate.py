@@ -52,12 +52,15 @@ def main() -> None:
 
     # feature layout: 1D elev idx 0, 2D elev idx 1
     elev_idx = 0 if config.data.name.startswith("1d") else 1
-    probe = sorted(p for p in Path(data_root).glob("*.npz"))
-    if not probe:
+    # probe the layout on a scenario from the requested split: the
+    # alphabetically-first npz can carry a different static layout when one
+    # data root mixes domains (e.g. the coupled chain dir also holds the 2D leg)
+    probe_names = list(names) or sorted(p.stem for p in Path(data_root).glob("*.npz"))
+    if not probe_names:
         raise SystemExit(f"no scenarios under {data_root}")
     from flow_mdk.utils.io import load_scenario
 
-    scenario0 = load_scenario(probe[0])
+    scenario0 = load_scenario(Path(data_root) / f"{probe_names[0]}.npz")
     num_static = scenario0.node_static.shape[1] + 1
     num_edge = scenario0.edge_attr.shape[1]
 

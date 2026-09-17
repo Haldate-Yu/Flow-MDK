@@ -501,7 +501,122 @@ A-test h-RMSE（m，3 种子 mean±std）：
 旧 v1 数据集（scenarios_1d）上，与 E3 控制（partA_v2）不可比，预注册判决
 无效——runs 留档为 scenarios_1d 变体（last 15.2/170.8/10.9，best
 4.3/19.4/8.2，ema≈last：EMA-after-curriculum 在漂移持续时跟随漂移，未起
-压缩器作用）。修复后以 E61b 臂名重跑（partA_v2 + 全配方），判决待 E61b。
+压缩器作用）。修复后以 E61b 臂名重跑（partA_v2 + 全配方），判决见 E6.1 节。
+
+## L16 · -MDK 深度匹配消融（2026-09-16 服务器，`run_L16_ablation.sh`，M5 基线表收口）
+
+E3/E5 主表把 flow_mdk（6L×1hop+MDK）与 swegnn（2L×8 跳）对比，深度与 hops
+混杂。本轮跑**深度匹配 -MDK 臂**：同一 6L×1hop 分裂层 harness、`mdk.use=false`
+（与 flow_mdk 唯一差异 = MDK 旗标），1D/2D × 3 种子；成对控制 = E3
+`MS4_partA_flow_mdk_s*` / E5 `MS4_2d_flow_mdk_s*` 同种子同预算。
+
+h-RMSE（m，3 种子 mean±std；2D test / A-test）：
+
+| 对比 | flow_mdk（控制） | **L16 -MDK（6L×1hop）** | ssgc（6L 对称） | swegnn（2L×8） |
+|---|---|---|---|---|
+| **2D last** | **0.529±0.277** | 0.835±0.641 | 1.820±1.573 | 5.060±6.600 |
+| **2D best** | **0.534±0.214** | 0.622±0.343 | 1.288±0.721 | 3.303±4.002 |
+| 1D last | 5.040±3.195 | 17.183±22.847 | — | 1.485±0.730 |
+| 1D best | 4.811±2.520 | 4.277±4.115 | — | 1.788±1.305 |
+
+KS（逐场景合并三种子）全部显著：2D flow_mdk vs -MDK p=4.6e-03 / -MDK vs
+ssgc p=3.5e-07 / flow_mdk vs ssgc p=1.3e-11；1D flow_mdk vs -MDK p=4.2e-12。
+
+**判读**：
+
+1. **2D ×5 优势须重新归因：主载体是深度匹配的深传播 harness，MDK 分支
+   提供显著但次级的增益**。深度匹配 -MDK 臂独自拿到对 swegnn 的大部分
+   优势（last ×6.1、best ×5.3），MDK 分支在其上再加 last ×1.6 / best
+   ×1.2（均 KS 显著、双协议同向）——「MDK 分支单独承载 ×5」的朴素读法
+   不成立，论文表述收口为「**残差式深传播 harness ×6 + 定向 MDK 扩散
+   分支 ×1.2–1.6（稳定器：方差 0.641→0.277）**」。
+2. **匹配深度下的三分排序：定向 MDK（0.529）< 无扩散分支（0.835）<
+   对称扩散 ssgc（1.820），全部 KS 显著**——对称扩散在 2D 深度 6 是净
+   伤害（over-smoothing），定向门控是唯一在深传播上有正增益的扩散形态；
+   「定向 vs 对称」从 E5 的「偏向定向版」收紧为「定向是唯一可用形态」。
+3. **1D 域内 -MDK 同样崩**（17.2±22.8，s0 43.29 单种子发散）且不优于
+   flow_mdk 控制——1D 排位结论（浅层最优）不因去掉 MDK 而改变，1D 的
+   flow_mdk 劣势不能归咎 MDK 分支（去掉它并不更好），体制问题在骨架
+   与任务本身；1D last.pt 的方差（±22.8）再次演示单种子结论不可信。
+4. **M5 基线表收口**：主表 5 模型 × 3 种子 + 深度匹配消融臂齐备；剩余
+   可选项（U-Net、-分裂臂）维持不做。-MDK 臂 2D Dirichlet 能量 = 0.0
+   （无扩散分支，监控自洽）。
+
+## E6.1 · E6 配方服务器验证（2026-09-16 服务器，`run_E61_recipe_validation.sh`，E61b 轮）
+
+E6 配方（val_horizon=8 固定语义 + 课程后早停 patience=10 + EMA-after-
+curriculum 0.999）在本地 3060 探针（G=32/40ep）上导出，本轮在**论文预算**
+（G=64/150ep）× flow_mdk 6L（漂移主载体）× E3 同种子上验证；三检查点协议
+（last/best/ema）齐评。round 1（E61）因 data.root 漏传作废（见 L14 节末），
+E61b 为修正轮。
+
+A-test h-RMSE（m，3 种子 mean±std）：
+
+| 协议 | E61b（E6 配方） | E3 控制（旧配方） |
+|---|---|---|
+| last.pt | 3.758±2.544 | 5.040±3.195 |
+| best.pt | **1.751±1.417** | 4.811±2.520 |
+| ema.pt | 1.936±0.909（方差最小） | （无此协议） |
+
+KS（逐场景合并三种子）全部显著：E61b vs 控制 p=2.4e-11（更优方向）、
+E61b vs L16 -MDK p=3.3e-06。
+
+**判读**：
+
+1. **配方在论文预算下成立**：best.pt 4.811→1.751（×2.7）、last.pt
+   5.040→3.758，KS 显著——E6 本地探针的三项训练侧改动在真实预算复现；
+   ema.pt 以最小方差（±0.91）成为最稳协议，本地结论「EMA = 方差压缩器」
+   成立（round 1 的「ema 跟随漂移」是 scenarios_1d 域的假象）。
+2. **漂移本体未被治理，治理的是选点**：val@H8 自 best（ep 17–45）到早停
+   （ep 115）恶化 ×1.1–1.9（25.6–29.5 → 32.2–48.6；旧配方的「2–4× 漂移」
+   是 ramping-horizon 语义，不可直接比），test 侧 last 仍差 best ×2.1——
+   配方让 best/ema 可靠，未阻止缓慢漂移；「漂移根因」仍开放（E2 已锁定
+   深度载体，机制解释未完成）。
+3. **best epoch（17/23/45）全部落在课程期内**——val_horizon=8 语义下
+   val-best 落课程期的 E6 已知病理在论文预算复现：best.pt 是「课程期
+   欠训练但漂移未起」的窗口，ema.pt（课程后启动）语义更干净。
+4. **决策开放**：论文主 run 是否整体切换 E6 配方（换取 best/ema 可靠 +
+   最小方差协议）vs 维持旧配方可比性——主表数字量级不变（排序不变），
+   倾向主表维持 E3/E5 旧配方 + 方法学节单列 E6.1 作为选点治理证据；
+   见 PLAN 待办。
+
+## M4 · 耦合链可行性训练（2026-09-16 服务器，`run_M4_coupled_v1.sh`，单场景能力验证轮）
+
+`mdx_chain_v1.npz`（65,189 节点 / 389,928 边 / 31 帧 @1800s，单向 Q 耦合
+真值，见 `couple_mdx_chain.py`）上首次端到端训练：split 有意全指到单场景
+（能力验证而非泛化主张），flow_mdk 6L×1hop G=64 batch 4、60 epochs、E6
+配方、K=2（1D 论文值，物理匹配留 v2）。
+
+**训练**：A100 上 60 ep / 0.30 h（~18 s/epoch），65k 节点耦合图 batch 4
+无 OOM、内核零改动——**管线能力验证通过**。
+
+**评测**（h-RMSE m / Q-RMSE m³/s；服务器评测因 evaluate.py 探测 bug 全部
+失败，修复后本机 3060 补跑，29 步 rollout 6.5 s）：
+
+| 协议 | h-RMSE | Q-RMSE | CSI@0.05/0.3 |
+|---|---|---|---|
+| best.pt（ep 19） | **1.110** | 49.90 | 0.733 / 0.774 |
+| last.pt（ep 60） | 1.735 | 213.28 | 0.634 / 0.665 |
+| ema.pt | 2.794 | **43.91** | 0.684 / 0.703 |
+
+**判读**：
+
+1. **可行性 ✅**：1D-2D 耦合单图（异构 1D 链 + 65k 节点 2D 网格 + 接口边）
+   可训、可评、可收敛——M4 最大的工程不确定性消除；训练 18 s/epoch 意味
+   多场景耦合家族在 A100 上成本可控。
+2. **过拟合检查（本轮唯一指标语义）**：val@H8 自 43.3（ep 19）漂移至
+   ~238（ep 60，×5.5），last.pt h 差 best.pt ×1.56、Q 差 ×4.3——**单场景
+   过拟合设定下漂移照样发生**，与 E6.1 结论（漂移是训练动力学而非泛化
+   现象）互为印证；EMA 在 Q 上最优（43.9）但 h 上发散（2.79），0.999
+   decay 对 60ep 短预算过大（课程后仅 ~10ep EMA 窗口）。
+3. 量级感：best 1.11 m 对照链内 2D 段 h_max 11.6–19.4 m、床面起伏 262 m
+   ——量级可用但粗糙；v1 无接口边守恒约束、无闸门调度、K 未物理匹配，
+   三者均为正式轮待办。
+4. **评测 bug 记档（已修）**：`evaluate.py` 用数据目录字典序第一个 npz
+   探测特征布局——`coupled_chain/` 目录混装 2D 腿（`mdx_2d_coupled`，
+   3 静态列）与链真值（`mdx_chain_v1`，5 静态列），探测取错场景 → 模型
+   4 列 vs 检查点 6 列，三协议评测全挂。修复 = 探测场景取自待评测 split
+   （尊重 split.json）；27 项单测通过后本机补评。
 
 ## 复现
 
@@ -537,19 +652,27 @@ bash scripts/run_L14_big_dt.sh
 bash scripts/run_E61_recipe_validation.sh
 # L16 -MDK 深度匹配消融（1D/2D × 3 种子）
 bash scripts/run_L16_ablation.sh
-# M4 耦合链可行性训练（mdx_chain_v1，单场景能力验证轮）
+# M4 耦合链可行性训练（mdx_chain_v1，单场景能力验证轮；评测本机补跑）
 bash scripts/run_M4_coupled_v1.sh
-# 汇总报告（docs/L4_report.md 的八个分组）
+python scripts/evaluate.py --config runs/M4_chain_v1_flow_mdk_s0/config.yaml --checkpoint runs/M4_chain_v1_flow_mdk_s0/last.pt --split test
+python scripts/evaluate.py --config runs/ptbest_M4_chain_v1_flow_mdk_s0/config.yaml --checkpoint runs/M4_chain_v1_flow_mdk_s0/best.pt --split test
+python scripts/evaluate.py --config runs/ptema_M4_chain_v1_flow_mdk_s0/config.yaml --checkpoint runs/M4_chain_v1_flow_mdk_s0/ema.pt --split test
+# 汇总报告（docs/L4_report.md 的十二个分组）
 python scripts/summarize_runs.py --prefix partA_paper --prefix L3_B1_paper --ks
 python scripts/summarize_runs.py --prefix MS4_partA --prefix MS4_B1 --ks
 python scripts/summarize_runs.py --prefix MS4_2d --ks --dirichlet
 python scripts/summarize_runs.py --prefix L4probe --ks
 python scripts/summarize_runs.py --prefix MS5_partA --ks
+python scripts/summarize_runs.py --prefix L16_mdkoff_partA --ks
+python scripts/summarize_runs.py --prefix L16_mdkoff_2d --ks --dirichlet
+python scripts/summarize_runs.py --prefix E61b_partA_full --ks
+python scripts/summarize_runs.py --prefix M4_chain_v1 --ks
 python scripts/summarize_runs.py --prefix ptbest
 ```
 
 结果归档：`runs/L2_partA_*/`、`runs/L3_B1_*/`、`runs/partA_paper_*`、
-`runs/L3_B1_paper_*`、`runs/MS4_*`、`runs/L4probe_*`、`runs/ptbest_*`
+`runs/L3_B1_paper_*`、`runs/MS4_*`、`runs/L4probe_*`、`runs/L14_*`、
+`runs/L16_mdkoff_*`、`runs/E61b_*`、`runs/M4_chain_v1_*`、`runs/ptbest_*`
 （config/history/eval json + 双 checkpoint；best.pt 对照在 ptbest_* 孪生目录）；
 批跑报告 `data/partA_v2_mascaret_runs/_batch_report.json`、逐场景日志
 `batch_log.jsonl`。
