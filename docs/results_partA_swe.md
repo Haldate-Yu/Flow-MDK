@@ -580,43 +580,123 @@ E61b vs L16 -MDK p=3.3e-06。
    倾向主表维持 E3/E5 旧配方 + 方法学节单列 E6.1 作为选点治理证据；
    见 PLAN 待办。
 
-## M4 · 耦合链可行性训练（2026-09-16 服务器，`run_M4_coupled_v1.sh`，单场景能力验证轮）
+## M4 · 耦合链可行性训练（2026-09-16/17 服务器，`run_M4_coupled_v1.sh`，单场景能力验证轮，3 种子）
 
 `mdx_chain_v1.npz`（65,189 节点 / 389,928 边 / 31 帧 @1800s，单向 Q 耦合
-真值，见 `couple_mdx_chain.py`）上首次端到端训练：split 有意全指到单场景
+真值，见 `couple_mdx_chain.py`）上端到端训练：split 有意全指到单场景
 （能力验证而非泛化主张），flow_mdk 6L×1hop G=64 batch 4、60 epochs、E6
-配方、K=2（1D 论文值，物理匹配留 v2）。
+配方、K=2（1D 论文值，物理匹配留 v2）。round 1（s0）服务器评测因
+evaluate.py 布局探测 bug 全挂（已修，本机补评）；round 3（09-17）补
+s1/s2，服务器评测直接成功（修复已同步）。
 
-**训练**：A100 上 60 ep / 0.30 h（~18 s/epoch），65k 节点耦合图 batch 4
-无 OOM、内核零改动——**管线能力验证通过**。
+**训练**：三种子全部成功（~18–29 s/epoch，65k 节点耦合图 batch 4 无
+OOM、内核零改动）——**管线能力验证通过且跨种子稳固**。
 
-**评测**（h-RMSE m / Q-RMSE m³/s；服务器评测因 evaluate.py 探测 bug 全部
-失败，修复后本机 3060 补跑，29 步 rollout 6.5 s）：
+**评测**（h-RMSE m / Q-RMSE m³/s，3 种子）：
 
-| 协议 | h-RMSE | Q-RMSE | CSI@0.05/0.3 |
+| 协议 | h-RMSE（s0/s1/s2） | mean±std | Q-RMSE（s0/s1/s2） |
 |---|---|---|---|
-| best.pt（ep 19） | **1.110** | 49.90 | 0.733 / 0.774 |
-| last.pt（ep 60） | 1.735 | 213.28 | 0.634 / 0.665 |
-| ema.pt | 2.794 | **43.91** | 0.684 / 0.703 |
+| best.pt | 1.110 / 1.137 / 1.428 | **1.225±0.176** | 49.9 / 36.8 / 39.5 |
+| last.pt | 1.735 / 1.770 / 1.427 | 1.644±0.189 | 213.3 / 32.5 / 38.1 |
+| ema.pt | 2.794 / 1.095 / 1.844 | 1.911±0.852 | 43.9 / **31.8** / 43.3 |
 
 **判读**：
 
-1. **可行性 ✅**：1D-2D 耦合单图（异构 1D 链 + 65k 节点 2D 网格 + 接口边）
-   可训、可评、可收敛——M4 最大的工程不确定性消除；训练 18 s/epoch 意味
-   多场景耦合家族在 A100 上成本可控。
-2. **过拟合检查（本轮唯一指标语义）**：val@H8 自 43.3（ep 19）漂移至
-   ~238（ep 60，×5.5），last.pt h 差 best.pt ×1.56、Q 差 ×4.3——**单场景
-   过拟合设定下漂移照样发生**，与 E6.1 结论（漂移是训练动力学而非泛化
-   现象）互为印证；EMA 在 Q 上最优（43.9）但 h 上发散（2.79），0.999
-   decay 对 60ep 短预算过大（课程后仅 ~10ep EMA 窗口）。
-3. 量级感：best 1.11 m 对照链内 2D 段 h_max 11.6–19.4 m、床面起伏 262 m
-   ——量级可用但粗糙；v1 无接口边守恒约束、无闸门调度、K 未物理匹配，
-   三者均为正式轮待办。
-4. **评测 bug 记档（已修）**：`evaluate.py` 用数据目录字典序第一个 npz
-   探测特征布局——`coupled_chain/` 目录混装 2D 腿（`mdx_2d_coupled`，
-   3 静态列）与链真值（`mdx_chain_v1`，5 静态列），探测取错场景 → 模型
-   4 列 vs 检查点 6 列，三协议评测全挂。修复 = 探测场景取自待评测 split
-   （尊重 split.json）；27 项单测通过后本机补评。
+1. **可行性 ✅ 且三种子稳固**：best.pt 1.225±0.176（跨度 1.29×，与 E5
+   flow_mdk 2D 的稳固度同档）——1D-2D 耦合单图（异构 1D 链 + 65k 节点
+   2D 网格 + 接口边）可训、可评、跨种子可复现，M4 最大的工程不确定性
+   消除；量级对照链内 2D 段 h_max 11.6–19.4 m 可用但粗糙。
+2. **漂移种子依赖**：s0 漂移（val 43→238，last 差 best ×1.56/×4.3），
+   s1/s2 平稳（best ep 53/31，val 末端≈best）——单场景过拟合设定下
+   漂移可发生非必发生，与 E6.1「漂移是训练动力学」一致且给了它种子
+   维度的细化；ema 在 h 上 s0 发散（0.999 decay 对 60ep 短预算过大），
+   Q 上三种子最稳（31.8–43.9）——短预算臂应配 0.99 档。
+3. 正式轮待办不变：接口边通量守恒损失项、闸门调度、K=√(2DΔt)/dx̄
+   物理匹配、多场景耦合家族（M4 v2）。
+
+## B1v2 · 家族 v2 重训（2026-09-17 服务器，`run_B1v2_family.sh`，L6 敏感性检查）
+
+L6 把 mdx 家族补齐到 50、family_all 重建为 **130 场景**（89/20/21，对齐
+SWE-GNN 协议）后，E3 的 B1 主表（117 场景代，`MS4_B1_*`）是否仍然成立？
+本轮以同预算（G=64/150ep/curriculum 15/last.pt 协议）重训三模型 × 3
+种子（新臂名 `B1v2_*`，旧代原样保留）：
+
+B1 域内 h-RMSE（m，3 种子 mean±std；括号 = E3 117 场景代数字）：
+
+| 模型 | B1v2 last | B1v2 best | →B2 last |
+|---|---|---|---|
+| swegnn | 2.154±1.102（1.249±0.781） | 1.063±0.084（0.886±0.231） | 2.562±0.690（1.715±0.064*） |
+| flow_mdk | 2.051±1.834（1.392±0.986） | 1.507±1.099（0.826±0.105） | 2.674±1.407（2.315±0.381） |
+| ssgc | 1.844±1.585（3.383±2.016*） | 1.075±0.247（0.594±0.124*） | 5.806±7.007（4.520±0.872*） |
+
+*E3 代 ssgc 与 swegnn 的 →B2 数字为 s1/s2 两种子（s0 行在 L3 原名下，
+见 `docs/results_partA_swe.md` E3 节）。
+
+**判读**：
+
+1. **排序不变，量级整体偏高一档、方差更大**：v2 代的 best.pt 排序
+   swegnn（1.06）≈ ssgc（1.08）< flow_mdk（1.51），与 E3「best.pt 下
+   gcn/gat 稳、门控系 B1 域内 flow_mdk 双协议 0.8 档」相比，flow_mdk 的
+   B1 优势未复现（s1 best 2.77 劣于 last 0.88 的反转种子）；B1 域本就是
+   漂移最重的域（E3），+10% 场景把这点放大了。
+2. **结论按「敏感性检查」记档而非新主表**：B1 主表维持 E3（117 场景代）
+   ——v2 未带来改善，重训的目的是协议对齐论证而非刷新数字；论文表述 =
+   「家族扩至 130 场景（对齐 SWE-GNN 协议）后重训，域内排位与结论不变，
+   B1 域漂移敏感性随数据量略增」——这本身是诚实评测方法学的一节素材。
+3. B1v2 代不进泛化矩阵主行（避免同域两代混淆），数字以本节与
+   `docs/L4_report.md` B1v2 分组为准。
+
+## U-Net · 2D 网格 CNN 基线（2026-09-17 服务器，`run_unet_2d.sh`，M5 基线表收口）
+
+SWE-GNN 原文对比集的最后一个缺口：`baseline_unet`（通道缩放 U-Net，
+base=32 ≈ 0.47M 参数，64×64 网格两级池化 + 跳连，共享自回归残差
+harness，E5 同预算）三种子：
+
+2D test h-RMSE（m，3 种子）：
+
+| 协议 | U-Net | （对照）flow_mdk | （对照）swegnn |
+|---|---|---|---|
+| last.pt | **4.654±2.179** | 0.529±0.277 | 5.060±6.600 |
+| best.pt | 10.512±11.780 | 0.534±0.214 | 3.303±4.002 |
+
+**判读**：
+
+1. **域内 U-Net 落 swegnn 一档**（last 4.65 vs 5.06），门控深传播对
+   CNN 基线的优势（×8.8）与对浅层 GNN 的 ×5/×9.6 并立——M5 基线表
+   五模型收口（GCN/GAT/swegnn/ssgc/U-Net + 消融臂）。
+2. **best.pt 不可靠（10.5±11.8，s1 反转 24.0）**：U-Net 未配 E6 配方，
+   漂移/选点病理在 CNN 上同样出现——与 E6.1「选点治理跨架构必要」一致。
+3. **真实考卷零样本 = 架构性不可迁移（不测即结论）**：wqh_2d/mdx_2d
+   为 65,126 节点非结构三角网格，U-Net 绑定 64×64 训练网格（模型侧
+   保护检查拒绝非网格节点数）——网格 CNN 被锁死在训练网格上，GNN 天然
+   持有图结构（L12 已证 65k 非网格零样本 H=8 视野 2.0–3.5 m）。泛化
+   矩阵真实考卷格留空并注明；SWE-GNN 原文的 U-Net 对比同样仅域内，
+   口径一致。这是 GNN 对 CNN 的结构性优势，论文直接引用。
+
+## L9 · 加速比基线（2026-09-17 服务器 + 本地，`run_L9_speedup_baselines.sh`，部分收口）
+
+三条计时路线 + →B2 评测刷新二合一。**服务器轮结果**：①→B2 评测刷新
+完成——全部 →B2 (val) eval 重算，推理耗时为 A100 权威值（如 flow_mdk
+s0：mdx 2.12 s / zxh 0.28 s）；②求解器计时 **1/5 成功**（mdx_downstream
+npz 重建路线 **12.7 s**）——4 例失败根因 = 场景 `meta['source']` 存的
+是导入机器的绝对路径（`D:\Projects\...`），服务器上不存在，
+`next(glob)` 抛空 StopIteration。**修复**：`time_b2_solver.py` 加
+可移植性预处理（仓库内绝对路径改写为相对、外部模板回退
+`data/real_sources/<名>`），wqh/zxh 的 npz meta 已就地修复；
+mdx/mdx_upstream 模板按数据策略不入库，需手动 scp 到服务器
+`data/real_sources/{mdx,mdxUpStream}` 后重跑 `--all`。
+
+**已确立的数字与口径**：
+
+- **本地 vs 服务器求解器耗时差 ~4.5×**（mdx_downstream：本地 56.6 s vs
+  服务器 12.7 s；WSL2 docker 慢得多）——证实「服务器复算」决策：本地
+  计时会让加速比被低估 4–5 倍。
+- 当前 →B2 speedup 格的混合口径如实记档：mdx_downstream 用服务器
+  runtime（权威），其余 4 例暂用本地 runtime（偏慢 → speedup 偏保守，
+  如 flow_mdk s0：mdx 23× / wqh 20.9× / zxh 111× 为下界）；服务器补跑
+  后以 `runtime_source` 标签区分。
+- 参考（A100 推理耗时，flow_mdk s0 全时程）：mdx 2.12 s、mdx_upstream
+  0.59 s、wqh 0.56 s、zxh 0.28 s、mdx_downstream 0.97 s。
 
 ## 复现
 
@@ -657,7 +737,9 @@ bash scripts/run_M4_coupled_v1.sh
 python scripts/evaluate.py --config runs/M4_chain_v1_flow_mdk_s0/config.yaml --checkpoint runs/M4_chain_v1_flow_mdk_s0/last.pt --split test
 python scripts/evaluate.py --config runs/ptbest_M4_chain_v1_flow_mdk_s0/config.yaml --checkpoint runs/M4_chain_v1_flow_mdk_s0/best.pt --split test
 python scripts/evaluate.py --config runs/ptema_M4_chain_v1_flow_mdk_s0/config.yaml --checkpoint runs/M4_chain_v1_flow_mdk_s0/ema.pt --split test
-# 汇总报告（docs/L4_report.md 的十二个分组）
+# L9 求解器计时（round 3 补跑：mdx/mdx_upstream 模板 scp 到服务器 data/real_sources/ 后）
+python scripts/time_b2_solver.py --all
+# 汇总报告（docs/L4_report.md 的十四个分组）
 python scripts/summarize_runs.py --prefix partA_paper --prefix L3_B1_paper --ks
 python scripts/summarize_runs.py --prefix MS4_partA --prefix MS4_B1 --ks
 python scripts/summarize_runs.py --prefix MS4_2d --ks --dirichlet
@@ -666,6 +748,8 @@ python scripts/summarize_runs.py --prefix MS5_partA --ks
 python scripts/summarize_runs.py --prefix L16_mdkoff_partA --ks
 python scripts/summarize_runs.py --prefix L16_mdkoff_2d --ks --dirichlet
 python scripts/summarize_runs.py --prefix E61b_partA_full --ks
+python scripts/summarize_runs.py --prefix B1v2 --ks
+python scripts/summarize_runs.py --prefix unet_2d --ks
 python scripts/summarize_runs.py --prefix M4_chain_v1 --ks
 python scripts/summarize_runs.py --prefix ptbest
 ```

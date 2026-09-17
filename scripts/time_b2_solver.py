@@ -54,6 +54,41 @@ from run_real_family import (  # noqa: E402
 )
 
 SCENARIOS_1D = Path("data/real_cases/scenarios_1d")
+REPO = Path(__file__).resolve().parents[1]
+
+
+def preflight_portable_sources(cases: list[str]) -> None:
+    """Make template paths portable before timing (round-3 lesson: the stored
+    ``meta['source']`` values are machine-specific absolute paths from the
+    importing machine; the server round failed 4/5 with empty StopIteration
+    errors because of exactly this).
+
+    - repo-internal absolute paths are rewritten repo-relative (portable);
+    - external templates (schinta mdx / mdxUpStream, not vendored in the repo
+      by data policy) fall back to ``data/real_sources/<name>`` — scp the
+      project dir there on the target machine before running.
+    """
+    for case in cases:
+        p = SCENARIOS_1D / f"{case}.npz"
+        sc = load_scenario(p)
+        src = Path(sc.meta["source"])
+        if src.exists():
+            try:
+                rel = src.resolve().relative_to(REPO)
+                sc.meta["source"] = str(rel)
+                save_scenario(sc, p)
+                print(f"[time] {case}: source normalized to repo-relative ({rel})")
+            except ValueError:
+                pass  # external path that exists on this machine: keep
+            continue
+        fb = Path("data/real_sources") / src.name
+        if fb.exists():
+            sc.meta["source"] = str(fb)
+            save_scenario(sc, p)
+            print(f"[time] {case}: source missing here -> rewrote to {fb}")
+        else:
+            print(f"[time] {case}: WARNING template not available ({src}); "
+                  f"scp it to data/real_sources/{src.name} and rerun")
 
 
 def _label(route: str) -> dict:
@@ -137,6 +172,7 @@ def main() -> None:
     if not args.all and not args.case:
         parser.error("need --case or --all")
     cases = sorted(ROUTES) if args.all else [args.case]
+    preflight_portable_sources(cases)
     failures = []
     for case in cases:
         try:
