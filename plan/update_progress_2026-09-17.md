@@ -181,3 +181,22 @@ M4 节升级三种子 + 新增 B1v2 / U-Net / L9 三节。
 服务器遗留最小项：L9 补 4 例计时（需 scp 两个模板目录，~10 min）；
 M4 v2 耦合家族生产（本地 docker 编排器参数化，round 4）；其余全部让位
 写作。
+
+## 九、round 4 准备（同日第九轮：模板入库 + M4 v2 批跑脚本落地）
+
+1. **schinta 模板入工作数据包**：`telemac1d/{mdx,mdxUpStream}` 拷入
+   `data/real_sources/`（git-ignore 工作数据，不入 git、不进 datasets/
+   LFS——数据策略不变）；mdx/mdx_upstream 考卷的 `meta['source']` 在
+   服务器上由 preflight 自动改写到该副本。**服务器待办**：同步两个
+   模板目录 + 重跑 `run_L9_speedup_baselines.sh`（L9 最后 4 例计时）。
+2. **M4 v2 参数化批跑脚本**（`build_coupled_family.py`）：复用 v1 三阶段
+   编排，每场景扰动入链流量律（q_scale ∈ 0.5–2 × time_stretch ∈ 0.8–1.6，
+   B1 家族同款协议；fam000 = 基线对拍 draw）→ 2D 重跑（~30 min）→
+   下游重建（~25 s）→ 组装链 npz（v1 同款规则，逐场景命名
+   `mdx_chain_famXXX.npz` + 扰动参数入 meta）。**等价性证明**：prep-only
+   冒烟下 fam000 的 qsl 与 sections 对 v1 工件逐字节一致。勘误一处 v1
+   记档：sections 计数行实际**无需**递增（可用工件 `2 -1` + 3 断面，
+   TELEMAC 照收；出口 Q 本就解析自 listing FLUX BOUNDARY）。幂等续跑、
+   逐场景 report json。**服务器待办**：同步 2D 基座工程 + 网格 npz +
+   scripts 后 `python scripts/build_coupled_family.py --num 12 --seed 11`
+   （纯 CPU，~6.5 h）。
