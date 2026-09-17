@@ -1,5 +1,5 @@
 {
-  "created": "2026-09-17 08:56:56",
+  "created": "2026-09-17 10:16:00",
   "repo": "Flow-MDK repository root",
   "items": {
     "real_sources": {
@@ -37,7 +37,7 @@
     },
     "partB_family_mdx": {
       "role": "Part B1: real-master family (mdx geometry x synthetic hydrology), Mascaret docker truth",
-      "files": 2162
+      "files": 2865
     },
     "partB_family_zxh": {
       "role": "Part B1: real-master family (zxh geometry x synthetic hydrology), Mascaret docker truth",
@@ -53,11 +53,11 @@
     },
     "runs": {
       "role": "training/evaluation results (configs, history, metrics, checkpoints)",
-      "files": 1018
+      "files": 1023
     }
   },
   "totals": {
-    "files": 10277,
-    "bytes": 7728587910
+    "files": 10985,
+    "bytes": 7987716573
   }
 }

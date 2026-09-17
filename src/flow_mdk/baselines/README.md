@@ -13,7 +13,7 @@ SWE-GNN paper itself compared against GCN/GAT/CNN (its App. A).
 | `baseline_gcn` | `GCNConv` (symmetric normalization + self-loops), stacked input `X=(Xd, Xs)` | no | paper App. A1 protocol |
 | `baseline_gat` | `GATConv` with edge features in attention | no | paper App. A2 protocol |
 | `baseline_persistence` | none (`U_{t+1} = U_t`) | trivially | metric floor / harness sanity |
-| U-Net (grid CNN) | conv encoder-decoder | no | **planned M5** (needs regular-grid reshaping, only for the 2D family) |
+| `baseline_unet` | conv encoder-decoder on the structured grid | no | 2D family only; flat node tensors reshaped via the row-major layout (`unet_grid_nx/ny`), `configs/2d_baseline_unet.yaml` |
 
 Configs: `configs/1d_baseline_gcn.yaml`, `configs/1d_baseline_gat.yaml`,
 `configs/1d_baseline_persistence.yaml`. Train exactly like the main model:

@@ -1,6 +1,6 @@
 {
   "case": "mdx_upstream",
-  "runtime_s": 25.61150439999983,
+  "runtime_s": 23.430323800000224,
   "rerun_frames": 48,
   "abscissa_max_diff_m": 0.00390625,
   "depth_max_rerun_m": 7.216000080108643,

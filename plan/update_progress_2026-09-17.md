@@ -115,3 +115,32 @@ E6.1（推荐，本日倾向）or 主表整体切 E6 配方。
 （三模型 × 3 种子，建议随家族 v2 一并）+ U-Net 2D 三种子 + M4 v2 训练；
 **本地先行**：U-Net 实现、L6 家族生成（~10 min）、L9 复算脚本准备；
 **主线不变**：M5 论文初稿最高优先（round 3 是并行数据生产，不阻塞写作）。
+
+## 七、本地先行落地（同日第七轮：U-Net + L6 + L9 三线完成）
+
+1. **U-Net 2D 基线实现**：`baseline_unet` arch（`baselines/unet.py`）——
+   通道缩放 U-Net（3 级编解码 + 跳连，base=hidden_dim，config 32 →
+   0.47M 参数；64×64 网格两级池化），平面节点张量按行主序网格
+   reshape（`unet_grid_nx/ny`），共享同一自回归残差 harness / 输出掩码 /
+   递归多步损失。`configs/2d_baseline_unet.yaml` = E5 同预算；harness
+   值与 2D 控制组逐项对齐（含 `elevation_feature_idx=0` 的既有刷新行为
+   ——2D 各臂共有的 quirk，改动即破坏可比性，头注记档）。10 项单测
+   通过；真实 2D 家族冒烟训练 2 epoch（41–53 s/epoch @3060，loss 正常
+   下降）+ 8 步 rollout 评测冒烟通过。round 3 排三种子正式训练。
+2. **L6 · mdx 家族补齐至 50**：`extend_family.py`（幂等 top-up）——
+   原打算重放 rng 流复活 fam005/017/034，实证**流不可重放**（09-11 批跑
+   于 bootstrap 提交前的工作区；q_scale 精确复现而 time_stretch 分叉，
+   说明当时生成器代码与提交版有差异）→ 3 例永久退役，改用新种子 545
+   补采 fam040–052（13 个）。补丁内核批跑**13/13 成功**（120 帧 @~720s，
+   h_max 7.96–12.19 m，物理合理）。split 保留既有 37 个分配 + 8/3/2 →
+   **33/8/9**；family_all 重建 = **130 场景（89/20/21）**，SWE-GNN 协议
+   对齐达成。**B1 主表随家族 v2 重训**（round 3，三模型 × 3 种子）。
+3. **L9 · 加速比基线**：`time_b2_solver.py` 三条路线 + `run_L9_speedup_
+   baselines.sh`（计时 + →B2 评测刷新二合一，服务器 round 3 出权威
+   数字）。**本地全流程冒烟 5/5 成功**：wqh 11.6 s / zxh 30.8 s /
+   mdx_upstream 23.4 s（validate 路线，rerun 真值刷新）；mdx 48.7 s
+   （scratch 计时复算，历史 .opt 真值不动，h_max 31.2 m 复核无损）；
+   mdx_downstream 56.6 s（npz 重建 + **2 h 爬坡入流**——冷启动满流量
+   在 ~5.8 h 处垂向离散不收敛，爬坡后干净；真值不动）。→B2 评测刷新
+   ~61 run 全部执行，speedup 五格全通（服务器 round 3 以同环境数字
+   覆盖）。注册表 +62 行（→530）。

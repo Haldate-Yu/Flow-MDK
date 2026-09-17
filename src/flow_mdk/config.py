@@ -80,6 +80,10 @@ class ModelConfig:
     # Clamp predicted depth to >= 0 at every rollout step (extra safety not
     # present in the official code; off by default to stay faithful).
     clamp_depth: bool = False
+    # U-Net baseline only: structured-grid shape used to reshape the flat
+    # node tensors into images (2D family: 64x64 = 4096 nodes).
+    unet_grid_nx: int = 64
+    unet_grid_ny: int = 64
     mdk: MDKConfig = field(default_factory=MDKConfig)
 
 

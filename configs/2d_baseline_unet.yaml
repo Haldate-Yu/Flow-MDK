@@ -1,0 +1,49 @@
+# U-Net baseline on the structured 2D grid (M5 baseline table; SWE-GNN paper
+# comparison set). Budget mirrors the E4/E5 2D paper runs exactly (same
+# train section as configs/1d_flow_mdk.yaml resolved on MS4_2d_*) — only the
+# processor differs: a channel-scaled U-Net (base width hidden_dim) replaces
+# the message-passing layers, on the same 64x64 grid / autoregressive
+# residual harness / output masking.
+#
+# Harness parity: elevation_feature_idx stays 0 (the value the 2D control
+# runs actually used), NOT the 2D layout's bed column 1 — all 2D arms share
+# the same water-level refresh behaviour, changing it here would break the
+# apples-to-apples comparison (see baselines/unet.py header).
+model:
+  arch: baseline_unet
+  hidden_dim: 32               # U-Net base width (~0.5M params at 64x64)
+  num_previous_steps: 1
+  num_dynamic_vars: 2
+  water_level_feature_idx: -1
+  elevation_feature_idx: 0     # parity with the E4/E5 2D control runs (see header)
+  unet_grid_nx: 64             # scenarios_2d_family grid (4096 nodes)
+  unet_grid_ny: 64
+  wet_depth_threshold: 0.001
+  mask_small_depth: true
+  small_depth_epsilon: 0.001
+  clamp_depth: false
+
+train:
+  horizon_max: 8
+  curriculum_steps: 15
+  var_weights: [1.0, 3.0]
+  only_where_water: true
+  lr: 0.007
+  lr_decay: 0.9
+  lr_step_epochs: 7
+  max_epochs: 150
+  early_stop_patience: 99
+  batch_size: 8
+  grad_clip_value: 0.5
+
+data:
+  name: 2d_grid
+  root: data/scenarios_2d_family
+  split: {}
+  train_frac: 0.6
+  val_frac: 0.2
+  seed: 0
+
+seed: 0
+device: auto
+out_dir: runs/unet_2d_s0

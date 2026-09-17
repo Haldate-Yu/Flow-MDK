@@ -24,14 +24,25 @@
     "mdx_fam035",
     "mdx_fam037",
     "mdx_fam038",
-    "mdx_fam039"
+    "mdx_fam039",
+    "mdx_fam041",
+    "mdx_fam042",
+    "mdx_fam043",
+    "mdx_fam045",
+    "mdx_fam047",
+    "mdx_fam049",
+    "mdx_fam050",
+    "mdx_fam051"
   ],
   "val": [
     "mdx_fam006",
     "mdx_fam008",
     "mdx_fam013",
     "mdx_fam014",
-    "mdx_fam030"
+    "mdx_fam030",
+    "mdx_fam040",
+    "mdx_fam044",
+    "mdx_fam048"
   ],
   "test": [
     "mdx_fam015",
@@ -40,6 +51,8 @@
     "mdx_fam027",
     "mdx_fam031",
     "mdx_fam033",
-    "mdx_fam036"
+    "mdx_fam036",
+    "mdx_fam046",
+    "mdx_fam052"
   ]
 }

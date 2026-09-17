@@ -10,7 +10,7 @@ Included
 - ``gcn``           — GCNConv processor (Kipf & Welling symmetric normalization)
 - ``gat``           — GATConv processor with edge features in the attention
 - ``persistence``   — zero-increment reference (U_{t+1} = U_t)
-- U-Net (grid CNN)  — planned for M5, requires regular-grid reshaping
+- ``unet``          — U-Net CNN processor on structured 2D grids (M5)
 
 Note: unlike Flow-MDK, the standard-GNN baselines do *not* preserve the
 dry-node guarantee (their node encoders carry bias and their propagation
@@ -21,5 +21,6 @@ comparison measures.
 from flow_mdk.baselines.gat import GATSurrogate
 from flow_mdk.baselines.gcn import GCNSurrogate
 from flow_mdk.baselines.persistence import PersistenceSurrogate
+from flow_mdk.baselines.unet import UNetSurrogate
 
-__all__ = ["GATSurrogate", "GCNSurrogate", "PersistenceSurrogate"]
+__all__ = ["GATSurrogate", "GCNSurrogate", "PersistenceSurrogate", "UNetSurrogate"]

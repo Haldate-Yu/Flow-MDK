@@ -4,6 +4,7 @@
 - ``flow_mdk``             — Flow-MDK (SWE-GNN backbone + directed MDK branch)
 - ``baseline_gcn``         — GCN processor baseline
 - ``baseline_gat``         — GAT processor baseline
+- ``baseline_unet``        — U-Net CNN baseline (structured 2D grids only)
 - ``baseline_persistence`` — zero-increment reference
 """
 
@@ -14,7 +15,8 @@ from flow_mdk.models.flow_mdk_gnn import FlowMDKNet
 
 __all__ = ["build_model", "ARCHITECTURES"]
 
-ARCHITECTURES = ("flow_mdk", "baseline_gcn", "baseline_gat", "baseline_persistence")
+ARCHITECTURES = ("flow_mdk", "baseline_gcn", "baseline_gat", "baseline_unet",
+                 "baseline_persistence")
 
 
 def build_model(cfg: ModelConfig, num_static_features: int, num_edge_features: int):
@@ -28,6 +30,10 @@ def build_model(cfg: ModelConfig, num_static_features: int, num_edge_features: i
         from flow_mdk.baselines.gat import GATSurrogate
 
         return GATSurrogate(cfg, num_static_features, num_edge_features)
+    if cfg.arch == "baseline_unet":
+        from flow_mdk.baselines.unet import UNetSurrogate
+
+        return UNetSurrogate(cfg, num_static_features, num_edge_features)
     if cfg.arch == "baseline_persistence":
         from flow_mdk.baselines.persistence import PersistenceSurrogate
 
