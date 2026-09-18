@@ -1,9 +1,10 @@
 # 进展日志 · 2026-09-18
 
 > 总览、里程碑状态与待办清单见 [`PLAN.md`](PLAN.md)。本日为 **round 4
-> 取回日**：无新训练 run——纯数据生产轮按计划落地，**M4 v2 耦合家族
-> 12/12 构建成功**（正式训练数据就绪），L9 修复轮再次失败但根因彻底
-> 定位并已在本地修复。主线判定不变：**M5 论文初稿是唯一主线**。
+> 取回 + round 5 执行与取回日**：M4 v2 耦合家族 12/12 构建 → 三臂训练
+> → **正式轮判决落定（M4 ✅ 收口）**；L9 三轮修复后 **5/5 权威计时收口**
+> （含口径方向勘误）。**实验侧全部收口：M1/M2/M3/M4 ✅，M5 只剩论文
+> 初稿。**
 
 ## 一、runs 取回与入库（`runs_server_260918_v1`）
 
@@ -151,3 +152,42 @@ baselines.sh`）：
   ——崩溃的 run 只留 config.yaml（训练前 stamp），按旧条件会被误跳，
   现在自愈重跑，**无需手动清理服务器上的三个失败目录**。同批附带
   prepare 脚本 symlink 竞态加固（FileExistsError 容忍，并发启动安全）。
+
+## 八、round 5 取回与判决（同日第八轮：L9 全部收口 + M4 正式轮落定，M4 ✅）
+
+`runs_server_260918_v2` 取回：27 个新 run 目录（M4v2 三臂 × 3 种子 +
+ptbest/ptema 孪生）+ 40 条 L9 刷新 eval + `coupled_family_report.json`
+（round 4 漏取件，已存 `data/real_cases/coupled_chain/`，12/12 ok，
+q_scale 0.61–1.97 × t_stretch 0.82–1.54）；registry +83 行（**668→751**）。
+`docs/L4_report.md` 重生成（15 组，新增 M4v2 组）。
+
+1. **L9 收口 ✅（5/5 权威）**：修复后脚本服务器 `--all` 全部成功——
+   mdx 33.1 / downstream 12.7 / upstream 15.1 / wqh 7.3 / zxh 24.6 s；
+   从刷新 eval 反推 runtime 跨 run 零散布。**口径方向勘误**：本地 WSL2
+   求解器慢 1.25–4.5×，round 4「本地格是保守下界」的表述方向反了——
+   本地口径实为**乐观上界**（wqh 63.3×→19.3×、mdx 34.5×→22.8×）；
+   论文效率表一律用权威值（flow_mdk s0：22.8× / 22.0× / 40.5× /
+   19.3× / 134.7×）。
+2. **M4 正式轮判决（三臂 × 3 种子，test = fam000+fam011）**：
+   - **守恒罚项 = 负结果**：main vs nocons——last 打平、best/ema 差
+     ×1.21/×1.22、Q 无一致收益、CSI 种子噪声主导。负消融如实入档，
+     接口守恒留作 future work 结构约束；机制主张不依赖它。
+   - **flow_mdk h 全面占优**（nocons 1.419/1.202/1.157 vs swegnn
+     1.572/1.491/1.574，last/best/ema ×1.11/×1.24/×1.36，Q 打平）——
+     门控深传播优势在 1D-2D 耦合域**首次获得对照成立**；协议混杂
+     （swegnn batch 2）如实披露。
+   - **强工况分化**：fam011（q_scale 1.97）swegnn 恶化至 1.90 档，
+     flow_mdk 1.34–1.63——极端事件优势与 2D 主张一致。
+   - **ema 0.99 修正生效**（无发散），nocons ema 1.157±0.110 全场最优
+     ——E6.1 的 ema 第三协议在耦合域复现；三臂种子依赖漂移依旧。
+   - **扩展性确认**：12 场景家族训练（nocons best 1.202±0.154）不劣于
+     v1 单场景过拟合（1.225±0.176）。
+3. **执行波折记档**：swegnn batch 4 在 65k 节点 × 16 跳上 OOM（55+ GiB
+   激活足迹，边维堆积）→ batch 2 重跑成功；runner 管道吞错（`| tail`
+   绕过 set -e）与 skip 条件缺陷已修（pipefail + last.pt 自愈）。
+   CRLF 事故（Windows Python write_text 覆写 .sh → Linux bash 报
+   `set: pipefail: invalid option name`）→ 工作副本归一 LF。
+4. **课题状态：M1/M2/M3/M4 ✅，M5 只剩论文初稿**——实验侧再无待办；
+   M4 论文节素材齐备（三臂表 + 负消融 + 强工况分化 + 扩展性 + 批处理
+   协议披露）。可选挂起项不变（耦合链 solver 计时 → speedup 分母、
+   ssgc 耦合对照、L6/2D 母版微调）。

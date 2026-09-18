@@ -93,9 +93,9 @@ B2 = 5 个真实历史考卷。水深 RMSE（m）：
 - mdx / mdx_upstream（闸门调度 + 耦合链考卷）上 Flow-MDK/SSGC 占优，简单考卷
   （zxh/wqh）上 SWE-GNN 占优——体制分工初现端倪。
 - 全部考卷 CSI≈1.0（1D 链式场景湿区判别几乎无难度，区分度在水量精度上）。
-- B2 加速比：全部 5 考卷已有时效（19–206×，round 4 刷新后全 eval 范围
-  10–510×；mdx/mdx_downstream 初期缺格已于 L9 补齐，4 例现用本地保守
-  口径，见 L9）。
+- B2 加速比（L9 权威口径，round 5）：全部 5 考卷 15–461×（flow_mdk s0
+  代表 run：mdx 22.8× / downstream 22.0× / upstream 40.5× / wqh 19.3× /
+  zxh 134.7×，见 L9）。
 
 ## L4 · 论文预算复测（服务器 A100，2026-09-13 跑、09-14 取回）
 
@@ -649,6 +649,47 @@ fam000 = 基线对拍 draw）→ 2D 重跑 → 下游重建 → 组装链 npz（
   nocons（K=4，守恒消融）/ swegnn（official 2L×8 对照）；E6 配方 +
   ema 0.99（v1 短预算修正）。预算 ~2.5 h/run A100。
 
+### M4 v2 · 正式轮判决（2026-09-18 服务器 round 5，三臂 × 3 种子，M4 训练腿收口 ✅）
+
+家族 12 场景（9/1/2，test = fam000 对拍 + fam011 最强工况），三臂全部
+60 epoch 训练成功（swegnn 臂因 65k 节点 × 16 跳激活足迹 batch 4 OOM，
+按 batch 2 重跑——协议混杂见下）。test 逐场景均值（h-RMSE m /
+Q-RMSE m³/s，3 种子 mean±std）：
+
+| 臂 | last | best | ema |
+|---|---|---|---|
+| main（K4+守恒罚 0.1） | 1.404±0.123 / 40.3 | 1.455±0.078 / 33.1 | 1.412±0.277 / 33.7 |
+| nocons（K4） | 1.419±0.096 / 35.1 | 1.202±0.154 / 43.6 | **1.157±0.110 / 31.6** |
+| swegnn（2L×8，batch 2） | 1.572±0.032 / 33.1 | 1.491±0.082 / 32.6 | 1.574±0.018 / 33.4 |
+
+**五条判读**：
+
+1. **接口守恒罚项 = 负结果（如实报负消融）**：main vs nocons——last
+   打平（1.404 vs 1.419）、best/ema 反而差 ×1.21/×1.22；Q 无一致收益
+   （best Q 33.1 vs 43.6±23.7，后者由 nocons s0 单点 70.9 拉高）；
+   CSI 无一致差异（种子噪声主导）。weight 0.1 的通量罚项在此协议下
+   中性偏负——接口守恒留作结构约束（future work），机制主张不依赖它。
+2. **门控深传播 vs SWE-GNN 骨架对照：flow_mdk h 全面占优**（nocons）：
+   last ×1.11（1.419 vs 1.572）、best ×1.24（1.202 vs 1.491）、
+   ema ×1.36（1.157 vs 1.574）；Q 三协议打平（31.6–35.1 vs 32.6–33.4）。
+   **×5 优势叙事在 1D-2D 耦合域首次获得对照成立**（2D E5/L16 的延伸）。
+   协议混杂披露：swegnn batch 2 vs flow_mdk batch 4（同 lr，方向对
+   flow_mdk 有利）；swegnn s0 best@3（漂移病理，best.pt 近未训练态）。
+3. **强工况分化**：fam011（q_scale 1.97，h_max 12.62 m）swegnn 恶化
+   最重（三种子 1.90 档），flow_mdk 1.34–1.63——深门控在极端事件保持
+   优势，与 2D 主张一致。
+4. **漂移与选点**：三臂均现种子依赖漂移（main s1/s2 val 末端 ×1.06–1.16、
+   nocons s2 ×1.52、swegnn s0/s2 ×1.32）；**ema 0.99 修正生效无发散**
+   （v1 的 0.999 教训），nocons ema 1.157±0.110 为全场最优协议——
+   E6.1 的「ema 第三协议」在耦合域复现。
+5. **v1→v2 扩展性**：12 场景家族训练不劣于单场景过拟合（nocons best
+   1.202±0.154 vs v1 1.225±0.176）——M4 管线多场景扩展确认；fam000
+   对拍（跨家族测试）1.04–1.32 vs v1 过拟合 1.110。
+
+CSI 注记：swegnn wet/dry 判别跨种子稳（0.85–0.90），flow_mdk 种子敏感
+（0.53–0.90 跨度）——h/Q 精度优势与湿区线一致性的权衡记档（1D 排位
+的种子敏感性模式在耦合域复现）。
+
 ## B1v2 · 家族 v2 重训（2026-09-17 服务器，`run_B1v2_family.sh`，L6 敏感性检查）
 
 L6 把 mdx 家族补齐到 50、family_all 重建为 **130 场景**（89/20/21，对齐
@@ -708,46 +749,35 @@ harness，E5 同预算）三种子：
    矩阵真实考卷格留空并注明；SWE-GNN 原文的 U-Net 对比同样仅域内，
    口径一致。这是 GNN 对 CNN 的结构性优势，论文直接引用。
 
-## L9 · 加速比基线（2026-09-17/18 服务器两轮 + 本地，`run_L9_speedup_baselines.sh`，5/5 格已填、4 例口径待服务器权威化）
+## L9 · 加速比基线（2026-09-17/18 三轮服务器 + 本地修复，round 5 全部收口 ✅ 5/5 权威）
 
-三条计时路线 + →B2 评测刷新二合一。**服务器 round 3（09-17 上午）**：
-→B2 (val) eval 全量刷新（推理耗时 = A100 权威值），求解器计时 **1/5 成功**
-（mdx_downstream npz 重建路线 12.7 s）——4 例失败根因 = 场景
-`meta['source']` 存的是导入机器的绝对路径。**服务器 round 4（09-17 晚，
-模板 scp 后重跑）**：preflight 修复**仍失败 4/5**——根因细化：存的是
-Windows 风格路径，在 Linux 上既不解析也不拆组件——`D:\...\mdx` 的
-`Path.name` 是整个字符串、`data\real_sources\wqh` 是单个组件，旧回退
-`data/real_sources / src.name` 拼出 `data/real_sources/D:\...\mdx` 与
-`data/real_sources\data\real_sources\wqh` 两种垃圾路径。mdx_downstream
-重计 **13.2 s**（服务器权威，覆盖 12.7）；step 2 的 47 条 →B2 评测再次
-全量刷新入库（registry 621→668）。
+三条计时路线 + →B2 评测刷新二合一。**round 3/4（09-17）**：→B2 eval 刷新
+两次成功，但求解器计时因 Windows 风格 `meta['source']` 路径在 Linux 上
+不解析（`Path.name` 整串、组件不拆）两轮共失败 4/5 → 4/5。**round 5
+（09-18，修复后脚本）**：`time_b2_solver.py --all` **5/5 全部成功**，权威
+求解器计时：**mdx 33.1 s**（模板 timing-only）、mdx_downstream **12.7 s**
+（npz 重建）、mdx_upstream **15.1 s** / wqh **7.3 s** / zxh **24.6 s**
+（validate 路线，重跑真值按既定协议刷新）；step 2 再刷 40 条 →B2 eval。
+从刷新 eval 反推的 5 个 runtime 跨 run 完全一致（= L9 日志值），加速比
+格**全部服务器权威化**，`runtime_source` 记档。
 
-**已修（2026-09-18 本地）**：`time_b2_solver.py` 重写可移植性预处理——
-分隔符归一化（反斜杠→POSIX）+ 候选列表（原值 / 仓库相对 /
-`data/real_sources/<名>` 平铺 / 保留父目录四层）+ 存储统一 `as_posix()`；
-mdx_downstream 路线不读 source、跳过 preflight。10 项单测
-（`tests/test_time_b2_solver.py`，含 round-4 两个失败场景的复现用例）；
-本地 5 例 npz meta 已就地归一化。**待办（round 5 服务器）**：同步修复后
-脚本重跑 `time_b2_solver.py --all` + step 2，4 例换服务器权威计时。
+**权威 speedup（flow_mdk s0 论文预算 run 全时程推理）**：mdx **22.8×** /
+mdx_downstream **22.0×** / mdx_upstream **40.5×** / wqh **19.3×** /
+zxh **134.7×**。40 条刷新 eval 的权威范围：mdx 15–46× /
+downstream 14–75× / upstream 25–136× / wqh 12–67× / zxh 85–461×。
 
-**已确立的数字与口径（round 4 刷新后）**：
+**口径方向修正（round 5 揭示，勘误 round 4 记档）**：本地 WSL2 求解器
+比服务器慢 1.25–4.5×（mdx 1.5×、upstream 1.55×、wqh 3.1×、zxh 1.25×、
+downstream 4.5×）——round 4「4 例本地格是保守下界」的表述**方向反了**：
+本地求解更慢意味着本地口径的 speedup 是**乐观上界**（如 wqh 本地口径
+63.3× → 权威 19.3×；mdx 34.5× → 22.8×）。论文效率表一律用 round 5
+权威值；「服务器复算」决策被进一步证实（本地计时不可信，且偏差随工况
+规模非一致）。
 
-- **→B2 speedup 五格全部有值**，口径混合如实记档：mdx_downstream 用
-  服务器 runtime（**13.2 s**，权威）；其余 4 例暂用本地 WSL2 runtime
-  （mdx 48.7 s / mdx_upstream 23.4 s / wqh 22.5 s / zxh 30.8 s，偏慢
-  → speedup 偏保守，`runtime_source` 标签区分）。
-- round 4 刷新的推理耗时比 round 3 又低 17–29%（同 checkpoint 同数据，
-  A100 状态更优；B1v2 flow_mdk s0 实测：mdx 1.67→**1.39 s**、
-  mdx_downstream 0.74→**0.53 s**、wqh 0.46→**0.34 s**、zxh 0.22→
-  **0.16 s**）。RMSE/MAE/CSI 逐位不变（仅 Dirichlet 能量有 ~1e-7 浮点
-  噪声），L4_report/Pareto 无需重生成。
-- 全 47 条刷新 eval 的 speedup 范围（混合口径）：mdx 11–66× /
-  mdx_downstream 13–132× / mdx_upstream 23–190× / wqh 10–178× /
-  zxh 65–510×；代表 run（partA_paper flow_mdk s0）：mdx 34.5× /
-  downstream 24.5× / upstream 64.6× / wqh 63.3× / zxh 183.9×。
-- **本地 vs 服务器求解器耗时差 ~4.5×**（mdx_downstream：本地 56.6 s vs
-  服务器 13.2 s；WSL2 docker 慢得多）——4 例本地口径格是保守下界，
-  服务器补跑后预计再抬 3–4 倍。
+历史记档：round 4 的 47 条刷新已确认推理耗时波动（±20%）而 RMSE 逐位
+不变；round 5 刷新同理。修复实现 = `time_b2_solver.py` 预处理（分隔符
+归一 + 四层候选 + `as_posix` 存储 + 无需 source 的 case 跳过），10 项
+单测。
 
 ## 复现
 

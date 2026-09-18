@@ -13,6 +13,7 @@
 >     python scripts/summarize_runs.py --prefix B1v2 --ks
 >     python scripts/summarize_runs.py --prefix unet_2d --ks
 >     python scripts/summarize_runs.py --prefix M4_chain_v1 --ks
+>     python scripts/summarize_runs.py --prefix M4v2_main --prefix M4v2_nocons --prefix M4v2_swegnn --ks
 >     python scripts/summarize_runs.py --prefix ptbest
 >
 > 分组：`partA_paper_*` / `L3_B1_paper_*` = 2026-09-13 论文预算单种子（s0）；
@@ -29,7 +30,7 @@
 
 # runs/partA_paper_*
 
-Generated 2026-09-17 18:41 · metric: h RMSE · 4 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 4 runs
 
 - **flow_mdk** — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=112 train=0.3h
 - **gat** — arch=baseline_gat G=64 layers=6 hops=1 mdk=False epochs=100 train=0.3h
@@ -113,7 +114,7 @@ Generated 2026-09-17 18:41 · metric: h RMSE · 4 runs
 
 # runs/L3_B1_paper_*
 
-Generated 2026-09-17 18:41 · metric: h RMSE · 3 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 3 runs
 
 - **flow_mdk** — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=112 train=0.6h
 - **ssgc** — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=103 train=0.5h
@@ -154,9 +155,11 @@ Generated 2026-09-17 18:41 · metric: h RMSE · 3 runs
 - →B2 (val): flow_mdk vs swegnn — D=0.400, p=0.873
 - →B2 (val): ssgc vs swegnn — D=0.400, p=0.873
 
+---
+
 # runs/MS4_partA_*
 
-Generated 2026-09-17 18:41 · metric: h RMSE · 12 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 12 runs
 
 - **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=112 (from config.yaml)
 - **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=112 train=0.3h
@@ -250,7 +253,7 @@ Generated 2026-09-17 18:41 · metric: h RMSE · 12 runs
 
 # runs/MS4_B1_*
 
-Generated 2026-09-17 18:41 · metric: h RMSE · 9 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 9 runs
 
 - **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=112 (from config.yaml)
 - **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=114 train=0.7h
@@ -267,7 +270,7 @@ Generated 2026-09-17 18:41 · metric: h RMSE · 9 runs
 | model | B1:test | →B2 (val) |
 |---|---|---|
 | flow_mdk | 1.392±0.986 | 2.084±0.482 |
-| ssgc | 2.540±2.042 | 3.575±1.750 |
+| ssgc | 2.540±2.042 | 3.572±1.745 |
 | swegnn | 1.249±0.781 | 2.004±0.503 |
 
 ## Zero-shot degradation (× vs in-domain)
@@ -282,7 +285,7 @@ Generated 2026-09-17 18:41 · metric: h RMSE · 9 runs
 
 | exam | flow_mdk | ssgc | swegnn |
 |---|---|---|---|
-| mdx | 4.537 | 7.059 | 5.069 |
+| mdx | 4.537 | 7.043 | 5.069 |
 | mdx_downstream | 4.059 | 8.599 | 2.119 |
 | mdx_upstream | 1.393 | 1.823 | 1.731 |
 | wqh | 0.344 | 0.319 | 0.737 |
@@ -299,9 +302,11 @@ Generated 2026-09-17 18:41 · metric: h RMSE · 9 runs
 
 ( · seeds s0/s1/s2; ± is the std of per-seed domain means)
 
+---
+
 # runs/MS4_2d_*
 
-Generated 2026-09-17 18:41 · metric: h RMSE · 9 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 9 runs
 
 - **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=114 train=2.5h
 - **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=113 train=2.6h
@@ -345,9 +350,11 @@ Generated 2026-09-17 18:41 · metric: h RMSE · 9 runs
 
 ( · seeds s0/s1/s2; ± is the std of per-seed domain means)
 
+---
+
 # runs/L4probe_*
 
-Generated 2026-09-17 18:41 · metric: h RMSE · 3 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 3 runs
 
 - **L4probe_es** — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=32 train=0.1h
 - **L4probe_L3** — arch=flow_mdk G=64 layers=3 hops=1 mdk=True epochs=109 train=0.3h
@@ -367,9 +374,11 @@ Generated 2026-09-17 18:41 · metric: h RMSE · 3 runs
 - A-test: L4probe_es vs L4probe_lr — D=0.980, p=7.69e-27 *
 - A-test: L4probe_L3 vs L4probe_lr — D=1.000, p=7.85e-29 *
 
+---
+
 # runs/MS5_partA_*
 
-Generated 2026-09-17 18:42 · metric: h RMSE · 3 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 3 runs
 
 - **MS5_partA_2x8mdk** (s0) — arch=flow_mdk G=64 layers=2 hops=8 mdk=True epochs=111 train=0.5h
 - **MS5_partA_2x8mdk** (s1) — arch=flow_mdk G=64 layers=2 hops=8 mdk=True epochs=110 train=0.5h
@@ -403,9 +412,11 @@ Generated 2026-09-17 18:42 · metric: h RMSE · 3 runs
 
 ( · seeds s0/s1/s2; ± is the std of per-seed domain means)
 
+---
+
 # runs/L16_mdkoff_partA_*
 
-Generated 2026-09-17 18:42 · metric: h RMSE · 3 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 3 runs
 
 - **L16_mdkoff_partA** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=False epochs=112 train=0.4h
 - **L16_mdkoff_partA** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=False epochs=111 train=0.2h
@@ -423,9 +434,11 @@ Generated 2026-09-17 18:42 · metric: h RMSE · 3 runs
 
 ( · seeds s0/s1/s2; ± is the std of per-seed domain means)
 
+---
+
 # runs/L16_mdkoff_2d_*
 
-Generated 2026-09-17 18:42 · metric: h RMSE · 3 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 3 runs
 
 - **L16_mdkoff_2d** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=False epochs=114 train=2.4h
 - **L16_mdkoff_2d** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=False epochs=108 train=2.5h
@@ -449,9 +462,11 @@ Generated 2026-09-17 18:42 · metric: h RMSE · 3 runs
 
 ( · seeds s0/s1/s2; ± is the std of per-seed domain means)
 
+---
+
 # runs/E61b_partA_full_*
 
-Generated 2026-09-17 18:43 · metric: h RMSE · 3 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 3 runs
 
 - **E61b_partA_full** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=115 train=0.5h
 - **E61b_partA_full** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=115 train=0.5h
@@ -469,9 +484,11 @@ Generated 2026-09-17 18:43 · metric: h RMSE · 3 runs
 
 ( · seeds s0/s1/s2; ± is the std of per-seed domain means)
 
+---
+
 # runs/B1v2_*
 
-Generated 2026-09-17 18:43 · metric: h RMSE · 9 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 9 runs
 
 - **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=113 train=1.1h
 - **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=114 train=1.0h
@@ -520,9 +537,11 @@ Generated 2026-09-17 18:43 · metric: h RMSE · 9 runs
 
 ( · seeds s0/s1/s2; ± is the std of per-seed domain means)
 
+---
+
 # runs/unet_2d_*
 
-Generated 2026-09-17 18:43 · metric: h RMSE · 3 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 3 runs
 
 - **unet_2d** (s0) — arch=baseline_unet G=32 layers=6 hops=1 mdk=True epochs=109 train=1.1h
 - **unet_2d** (s1) — arch=baseline_unet G=32 layers=6 hops=1 mdk=True epochs=113 train=0.7h
@@ -540,9 +559,11 @@ Generated 2026-09-17 18:43 · metric: h RMSE · 3 runs
 
 ( · seeds s0/s1/s2; ± is the std of per-seed domain means)
 
+---
+
 # runs/M4_chain_v1_*
 
-Generated 2026-09-17 18:43 · metric: h RMSE · 3 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 3 runs
 
 - **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=60 train=0.3h
 - **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=60 train=0.4h
@@ -560,9 +581,77 @@ Generated 2026-09-17 18:43 · metric: h RMSE · 3 runs
 
 ( · seeds s0/s1/s2; ± is the std of per-seed domain means)
 
+---
+
+# runs/M4v2_main_*
+
+Generated 2026-09-18 23:50 · metric: h RMSE · 3 runs
+
+- **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=60 train=1.1h
+- **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=60 train=1.1h
+- **flow_mdk** (s2) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=60 train=1.1h
+
+## h-RMSE by domain
+
+| model | coupled_chain_family:test |
+|---|---|
+| flow_mdk | 1.404±0.123 |
+
+## KS tests (per-scenario RMSE distributions, pooled over seeds)
+
+- (no domain with ≥2 models and ≥5 scenarios)
+
+( · seeds s0/s1/s2; ± is the std of per-seed domain means)
+
+---
+
+# runs/M4v2_nocons_*
+
+Generated 2026-09-18 23:50 · metric: h RMSE · 3 runs
+
+- **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=60 train=1.1h
+- **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=60 train=1.1h
+- **flow_mdk** (s2) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=60 train=1.1h
+
+## h-RMSE by domain
+
+| model | coupled_chain_family:test |
+|---|---|
+| flow_mdk | 1.419±0.096 |
+
+## KS tests (per-scenario RMSE distributions, pooled over seeds)
+
+- (no domain with ≥2 models and ≥5 scenarios)
+
+( · seeds s0/s1/s2; ± is the std of per-seed domain means)
+
+---
+
+# runs/M4v2_swegnn_*
+
+Generated 2026-09-18 23:50 · metric: h RMSE · 3 runs
+
+- **swegnn** (s0) — arch=flow_mdk G=64 layers=2 hops=8 mdk=False epochs=60 train=2.0h
+- **swegnn** (s1) — arch=flow_mdk G=64 layers=2 hops=8 mdk=False epochs=60 train=2.0h
+- **swegnn** (s2) — arch=flow_mdk G=64 layers=2 hops=8 mdk=False epochs=60 train=2.0h
+
+## h-RMSE by domain
+
+| model | coupled_chain_family:test |
+|---|---|
+| swegnn | 1.572±0.032 |
+
+## KS tests (per-scenario RMSE distributions, pooled over seeds)
+
+- (no domain with ≥2 models and ≥5 scenarios)
+
+( · seeds s0/s1/s2; ± is the std of per-seed domain means)
+
+---
+
 # runs/ptbest_*
 
-Generated 2026-09-17 18:44 · metric: h RMSE · 92 runs
+Generated 2026-09-18 23:50 · metric: h RMSE · 101 runs
 
 - **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
 - **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
@@ -621,6 +710,15 @@ Generated 2026-09-17 18:44 · metric: h RMSE · 92 runs
 - **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
 - **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
 - **flow_mdk** (s2) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
+- **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
+- **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
+- **flow_mdk** (s2) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
+- **swegnn** (s0) — arch=flow_mdk G=64 layers=2 hops=8 mdk=False epochs=? (from config.yaml)
+- **swegnn** (s1) — arch=flow_mdk G=64 layers=2 hops=8 mdk=False epochs=? (from config.yaml)
+- **swegnn** (s2) — arch=flow_mdk G=64 layers=2 hops=8 mdk=False epochs=? (from config.yaml)
+- **flow_mdk** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
+- **flow_mdk** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
+- **flow_mdk** (s2) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
 - **ssgc** (s0) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
 - **ssgc** (s1) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
 - **ssgc** (s2) — arch=flow_mdk G=64 layers=6 hops=1 mdk=True epochs=? (from config.yaml)
@@ -657,53 +755,53 @@ Generated 2026-09-17 18:44 · metric: h RMSE · 92 runs
 
 ## h-RMSE by domain
 
-| model | A-test | B1:test | scenarios_2d_family:test | →B2 (test) | coupled_chain:test | exams_2d:test | exams_2d_h8:test | scenarios_partA_v2_dt2:test | scenarios_partA_v2_dt3:test | →B2 (val) | →family_mdx |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| flow_mdk | 3.250±2.350 | 1.166±0.792 | 0.534±0.214 | — | 1.225±0.176 | 16.584±3.247 | 2.471±0.101 | 2.356±0.179 | 2.378±1.441 | 1.788±0.000 | 6.498±0.000 |
-| ssgc | — | 1.344±1.166 | 1.288±0.721 | — | — | 11.073±1.356 | 2.693±0.464 | — | — | 2.847±0.000 | — |
-| swegnn | 1.788±1.305 | 0.974±0.183 | 3.303±4.002 | — | — | 7.343±5.711 | 2.643±0.328 | 1.395±0.721 | 0.910±0.053 | 1.792±0.000 | 4.630±0.000 |
-| ptbest_E61_partA_full | — | — | — | 10.650±7.811 | — | — | — | — | — | — | — |
-| ptbest_E61b_partA_full | 1.751±1.417 | — | — | — | — | — | — | — | — | — | — |
-| ptbest_E6_partA_base | 3.843±1.833 | — | — | — | — | — | — | — | — | — | — |
-| ptbest_E6_partA_ema | 1.870±0.761 | — | — | — | — | — | — | — | — | — | — |
-| ptbest_E6_partA_full | 2.002±0.900 | — | — | — | — | — | — | — | — | — | — |
-| ptbest_E6_partA_valfix | 4.097±3.326 | — | — | — | — | — | — | — | — | — | — |
-| ptbest_L16_mdkoff_2d | — | — | 0.622±0.343 | — | — | — | — | — | — | — | — |
-| ptbest_L16_mdkoff_partA | 4.277±4.115 | — | — | — | — | — | — | — | — | — | — |
-| ptbest_L4probe_es | 1.931 | — | — | — | — | — | — | — | — | — | — |
-| ptbest_L4probe_L3 | 1.231 | — | — | — | — | — | — | — | — | — | — |
-| ptbest_L4probe_lr | 17.014 | — | — | — | — | — | — | — | — | — | — |
-| gat | 0.866±0.102 | — | — | — | — | — | — | — | — | — | 2.987±0.000 |
-| gcn | 0.777±0.032 | — | — | — | — | — | — | — | — | — | 2.835±0.000 |
-| ptbest_MS5_partA_2x8mdk | 1.169±0.206 | — | — | — | — | — | — | — | — | — | — |
-| ptbest_smoke_E6 | 3.253 | — | — | — | — | — | — | — | — | — | — |
-| ptbest_smoke_MS5_2x8mdk | 1.240 | — | — | — | — | — | — | — | — | — | — |
-| ptbest_unet_2d | — | — | 10.512±11.780 | — | — | — | — | — | — | — | — |
+| model | A-test | B1:test | scenarios_2d_family:test | →B2 (test) | coupled_chain:test | coupled_chain_family:test | exams_2d:test | exams_2d_h8:test | scenarios_partA_v2_dt2:test | scenarios_partA_v2_dt3:test | →B2 (val) | →family_mdx |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flow_mdk | 3.250±2.350 | 1.166±0.792 | 0.534±0.214 | — | 1.225±0.176 | 1.328±0.176 | 16.584±3.247 | 2.471±0.101 | 2.356±0.179 | 2.378±1.441 | 1.788±0.000 | 6.498±0.000 |
+| ssgc | — | 1.344±1.166 | 1.288±0.721 | — | — | — | 11.073±1.356 | 2.693±0.464 | — | — | 2.847±0.000 | — |
+| swegnn | 1.788±1.305 | 0.974±0.183 | 3.303±4.002 | — | — | 1.491±0.082 | 7.343±5.711 | 2.643±0.328 | 1.395±0.721 | 0.910±0.053 | 1.792±0.000 | 4.630±0.000 |
+| ptbest_E61_partA_full | — | — | — | 10.650±7.811 | — | — | — | — | — | — | — | — |
+| ptbest_E61b_partA_full | 1.751±1.417 | — | — | — | — | — | — | — | — | — | — | — |
+| ptbest_E6_partA_base | 3.843±1.833 | — | — | — | — | — | — | — | — | — | — | — |
+| ptbest_E6_partA_ema | 1.870±0.761 | — | — | — | — | — | — | — | — | — | — | — |
+| ptbest_E6_partA_full | 2.002±0.900 | — | — | — | — | — | — | — | — | — | — | — |
+| ptbest_E6_partA_valfix | 4.097±3.326 | — | — | — | — | — | — | — | — | — | — | — |
+| ptbest_L16_mdkoff_2d | — | — | 0.622±0.343 | — | — | — | — | — | — | — | — | — |
+| ptbest_L16_mdkoff_partA | 4.277±4.115 | — | — | — | — | — | — | — | — | — | — | — |
+| ptbest_L4probe_es | 1.931 | — | — | — | — | — | — | — | — | — | — | — |
+| ptbest_L4probe_L3 | 1.231 | — | — | — | — | — | — | — | — | — | — | — |
+| ptbest_L4probe_lr | 17.014 | — | — | — | — | — | — | — | — | — | — | — |
+| gat | 0.866±0.102 | — | — | — | — | — | — | — | — | — | — | 2.987±0.000 |
+| gcn | 0.777±0.032 | — | — | — | — | — | — | — | — | — | — | 2.835±0.000 |
+| ptbest_MS5_partA_2x8mdk | 1.169±0.206 | — | — | — | — | — | — | — | — | — | — | — |
+| ptbest_smoke_E6 | 3.253 | — | — | — | — | — | — | — | — | — | — | — |
+| ptbest_smoke_MS5_2x8mdk | 1.240 | — | — | — | — | — | — | — | — | — | — | — |
+| ptbest_unet_2d | — | — | 10.512±11.780 | — | — | — | — | — | — | — | — | — |
 
 ## Zero-shot degradation (× vs in-domain)
 
-| model | coupled_chain:test | exams_2d:test | exams_2d_h8:test | scenarios_partA_v2_dt2:test | scenarios_partA_v2_dt3:test | →B2 (val) | →family_mdx |
-|---|---|---|---|---|---|---|---|
-| flow_mdk | ×1.1 | ×14.2 | ×2.1 | ×2.0 | ×2.0 | ×1.5 | ×5.6 |
-| ssgc | — | ×8.2 | ×2.0 | — | — | ×2.1 | — |
-| swegnn | — | ×7.5 | ×2.7 | ×1.4 | ×0.9 | ×1.8 | ×4.8 |
-| ptbest_E61_partA_full | — | — | — | — | — | — | — |
-| ptbest_E61b_partA_full | — | — | — | — | — | — | — |
-| ptbest_E6_partA_base | — | — | — | — | — | — | — |
-| ptbest_E6_partA_ema | — | — | — | — | — | — | — |
-| ptbest_E6_partA_full | — | — | — | — | — | — | — |
-| ptbest_E6_partA_valfix | — | — | — | — | — | — | — |
-| ptbest_L16_mdkoff_2d | — | — | — | — | — | — | — |
-| ptbest_L16_mdkoff_partA | — | — | — | — | — | — | — |
-| ptbest_L4probe_es | — | — | — | — | — | — | — |
-| ptbest_L4probe_L3 | — | — | — | — | — | — | — |
-| ptbest_L4probe_lr | — | — | — | — | — | — | — |
-| gat | — | — | — | — | — | — | ×3.4 |
-| gcn | — | — | — | — | — | — | ×3.7 |
-| ptbest_MS5_partA_2x8mdk | — | — | — | — | — | — | — |
-| ptbest_smoke_E6 | — | — | — | — | — | — | — |
-| ptbest_smoke_MS5_2x8mdk | — | — | — | — | — | — | — |
-| ptbest_unet_2d | — | — | — | — | — | — | — |
+| model | coupled_chain:test | coupled_chain_family:test | exams_2d:test | exams_2d_h8:test | scenarios_partA_v2_dt2:test | scenarios_partA_v2_dt3:test | →B2 (val) | →family_mdx |
+|---|---|---|---|---|---|---|---|---|
+| flow_mdk | ×1.1 | ×1.1 | ×14.2 | ×2.1 | ×2.0 | ×2.0 | ×1.5 | ×5.6 |
+| ssgc | — | — | ×8.2 | ×2.0 | — | — | ×2.1 | — |
+| swegnn | — | ×1.5 | ×7.5 | ×2.7 | ×1.4 | ×0.9 | ×1.8 | ×4.8 |
+| ptbest_E61_partA_full | — | — | — | — | — | — | — | — |
+| ptbest_E61b_partA_full | — | — | — | — | — | — | — | — |
+| ptbest_E6_partA_base | — | — | — | — | — | — | — | — |
+| ptbest_E6_partA_ema | — | — | — | — | — | — | — | — |
+| ptbest_E6_partA_full | — | — | — | — | — | — | — | — |
+| ptbest_E6_partA_valfix | — | — | — | — | — | — | — | — |
+| ptbest_L16_mdkoff_2d | — | — | — | — | — | — | — | — |
+| ptbest_L16_mdkoff_partA | — | — | — | — | — | — | — | — |
+| ptbest_L4probe_es | — | — | — | — | — | — | — | — |
+| ptbest_L4probe_L3 | — | — | — | — | — | — | — | — |
+| ptbest_L4probe_lr | — | — | — | — | — | — | — | — |
+| gat | — | — | — | — | — | — | — | ×3.4 |
+| gcn | — | — | — | — | — | — | — | ×3.7 |
+| ptbest_MS5_partA_2x8mdk | — | — | — | — | — | — | — | — |
+| ptbest_smoke_E6 | — | — | — | — | — | — | — | — |
+| ptbest_smoke_MS5_2x8mdk | — | — | — | — | — | — | — | — |
+| ptbest_unet_2d | — | — | — | — | — | — | — | — |
 
 ## B2 per-exam (→B2 (test))
 
@@ -721,4 +819,3 @@ Generated 2026-09-17 18:44 · metric: h RMSE · 92 runs
 | 1d_0049 | — | — | — | 11.244 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
 
 ( · seeds s0/s1/s2; ± is the std of per-seed domain means)
-
