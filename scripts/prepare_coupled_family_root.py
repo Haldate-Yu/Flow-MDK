@@ -61,7 +61,9 @@ def main() -> None:
             kept += 1
             continue
         try:
-            os.symlink(src.resolve(), dst)
+            # RELATIVE link target: the family root stays portable if the
+            # repo tree is moved or rsynced (no machine-specific paths)
+            os.symlink(os.path.relpath(src, args.family_root), dst)
             linked += 1
         except OSError:  # Windows without symlink privilege: copy (~16 MB each)
             shutil.copyfile(src, dst)
