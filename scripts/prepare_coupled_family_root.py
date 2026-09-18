@@ -65,6 +65,8 @@ def main() -> None:
             # repo tree is moved or rsynced (no machine-specific paths)
             os.symlink(os.path.relpath(src, args.family_root), dst)
             linked += 1
+        except FileExistsError:
+            kept += 1  # concurrent prep instance already linked it
         except OSError:  # Windows without symlink privilege: copy (~16 MB each)
             shutil.copyfile(src, dst)
             copied += 1
