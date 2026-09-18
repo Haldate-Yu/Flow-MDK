@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import sys
 import time
@@ -57,38 +58,83 @@ SCENARIOS_1D = Path("data/real_cases/scenarios_1d")
 REPO = Path(__file__).resolve().parents[1]
 
 
+# routes whose template project (meta['source']) is actually read; the
+# mdx_downstream rebuild works from npz geometry alone.
+NEEDS_SOURCE = {"wqh", "zxh", "mdx_upstream", "mdx"}
+
+
+def _source_candidates(raw: str) -> list[Path]:
+    """Local candidate locations for a stored ``meta['source']`` template dir.
+
+    The value is written by whichever machine imported the case, so it can be
+    repo-relative (POSIX or Windows separators) or machine-absolute (Windows
+    drive letters / a foreign POSIX checkout). Round-4 server lesson: such
+    strings neither resolve nor even *parse* on Linux — ``Path`` keeps
+    ``data\\real_sources\\wqh`` as one component and the ``.name`` of
+    ``D:\\...\\telemac1d\\mdx`` is the whole string — so the naive
+    ``data/real_sources / src.name`` fallback joined garbage. Normalise
+    separators first, then try: the path itself, its repo-relative reading,
+    and the staged copies under ``data/real_sources/`` (schinta templates are
+    scp'd there by hand; they are not vendored into the repo by data policy).
+    """
+    norm = raw.replace("\\", "/")
+    parts = [p for p in norm.split("/") if p and p != "."]
+    if len(parts) > 1 and re.fullmatch(r"[A-Za-z]:", parts[0]):
+        parts = parts[1:]
+    cands = [Path(norm)]
+    if parts and parts[0] == "data":
+        cands.append(Path(*parts))
+    if "real_sources" in parts:
+        tail = parts[parts.index("real_sources") + 1:] or parts[-1:]
+        cands.append(Path("data", "real_sources", *tail))          # keeps any parents
+        if len(tail) > 1:
+            cands.append(Path("data", "real_sources", tail[-1]))   # flat staging
+    elif parts:
+        cands.append(Path("data", "real_sources", parts[-1]))      # documented flat staging
+        if len(parts) >= 2:
+            cands.append(Path("data", "real_sources", *parts[-2:]))  # parent-preserving
+    seen: set[str] = set()
+    out: list[Path] = []
+    for c in cands:
+        if str(c) not in seen:
+            seen.add(str(c))
+            out.append(c)
+    return out
+
+
 def preflight_portable_sources(cases: list[str]) -> None:
     """Make template paths portable before timing (round-3 lesson: the stored
-    ``meta['source']`` values are machine-specific absolute paths from the
-    importing machine; the server round failed 4/5 with empty StopIteration
-    errors because of exactly this).
+    ``meta['source']`` values are machine-specific paths from the importing
+    machine; the server round failed 4/5 with empty StopIteration errors
+    because of exactly this).
 
-    - repo-internal absolute paths are rewritten repo-relative (portable);
-    - external templates (schinta mdx / mdxUpStream, not vendored in the repo
-      by data policy) fall back to ``data/real_sources/<name>`` — scp the
-      project dir there on the target machine before running.
+    Repo-internal paths are rewritten repo-relative with forward slashes
+    (portable on POSIX and Windows); external templates (schinta mdx /
+    mdxUpStream, not vendored in the repo by data policy) fall back to the
+    staged copies under ``data/real_sources/`` — scp the project dir there on
+    the target machine before running.
     """
     for case in cases:
+        if case not in NEEDS_SOURCE:
+            continue
         p = SCENARIOS_1D / f"{case}.npz"
         sc = load_scenario(p)
-        src = Path(sc.meta["source"])
-        if src.exists():
+        raw = str(sc.meta["source"])
+        for cand in _source_candidates(raw):
+            if not cand.exists():
+                continue
             try:
-                rel = src.resolve().relative_to(REPO)
-                sc.meta["source"] = str(rel)
-                save_scenario(sc, p)
-                print(f"[time] {case}: source normalized to repo-relative ({rel})")
+                new = cand.resolve().relative_to(REPO).as_posix()
             except ValueError:
-                pass  # external path that exists on this machine: keep
-            continue
-        fb = Path("data/real_sources") / src.name
-        if fb.exists():
-            sc.meta["source"] = str(fb)
-            save_scenario(sc, p)
-            print(f"[time] {case}: source missing here -> rewrote to {fb}")
+                new = cand.as_posix()  # external path that exists here: keep
+            if new != raw:
+                sc.meta["source"] = new
+                save_scenario(sc, p)
+                print(f"[time] {case}: source normalized to {new}")
+            break
         else:
-            print(f"[time] {case}: WARNING template not available ({src}); "
-                  f"scp it to data/real_sources/{src.name} and rerun")
+            print(f"[time] {case}: WARNING template not available ({raw}); "
+                  f"scp it to data/real_sources/<name> and rerun")
 
 
 def _label(route: str) -> dict:

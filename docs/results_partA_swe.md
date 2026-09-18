@@ -93,8 +93,9 @@ B2 = 5 个真实历史考卷。水深 RMSE（m）：
 - mdx / mdx_upstream（闸门调度 + 耦合链考卷）上 Flow-MDK/SSGC 占优，简单考卷
   （zxh/wqh）上 SWE-GNN 占优——体制分工初现端倪。
 - 全部考卷 CSI≈1.0（1D 链式场景湿区判别几乎无难度，区分度在水量精度上）。
-- B2 加速比 19–206×（wqh/zxh/mdx_upstream 有参考耗时；mdx/mdx_downstream 待补，
-  见 L9）。
+- B2 加速比：全部 5 考卷已有时效（19–206×，round 4 刷新后全 eval 范围
+  10–510×；mdx/mdx_downstream 初期缺格已于 L9 补齐，4 例现用本地保守
+  口径，见 L9）。
 
 ## L4 · 论文预算复测（服务器 A100，2026-09-13 跑、09-14 取回）
 
@@ -614,6 +615,23 @@ OOM、内核零改动）——**管线能力验证通过且跨种子稳固**。
 3. 正式轮待办不变：接口边通量守恒损失项、闸门调度、K=√(2DΔt)/dx̄
    物理匹配、多场景耦合家族（M4 v2）。
 
+### M4 v2 · 耦合家族批跑（2026-09-17/18 服务器，`build_coupled_family.py --num 12 --seed 11`，✅ 12/12）
+
+参数化耦合家族生成器落地后的首轮服务器批跑：每场景扰动入链流量律
+（q_scale ∈ 0.61–1.97 × t_stretch ∈ 0.82–1.54，B1 家族同款协议；
+fam000 = 基线对拍 draw）→ 2D 重跑 → 下游重建 → 组装链 npz（v1 同款
+规则，扰动参数入 meta）。
+
+- **12/12 全部成功**（`mdx_chain_fam000–011.npz`，每场景 ~17.5 min、
+  65,189 节点 / 31 帧；fam000 等价性在 round-4 prep 已逐字节证明）；
+  逐场景 report → `data/real_cases/coupled_chain/coupled_family_report.json`
+  （服务器端工件，下次取回）。
+- 物理量级合理：链 2D 真值 h_max 11.14–12.62 m（fam011 最强工况
+  q_scale 1.97），出口 Q 356–2203 m³/s 覆盖 v1 范围——家族多样性
+  达设计意图。
+- **M4 v2 正式训练的数据就绪**：训练腿（flow_mdk × 3 种子 + 接口守恒
+  损失 + K 物理匹配）为 round 5 服务器主任务。
+
 ## B1v2 · 家族 v2 重训（2026-09-17 服务器，`run_B1v2_family.sh`，L6 敏感性检查）
 
 L6 把 mdx 家族补齐到 50、family_all 重建为 **130 场景**（89/20/21，对齐
@@ -673,30 +691,46 @@ harness，E5 同预算）三种子：
    矩阵真实考卷格留空并注明；SWE-GNN 原文的 U-Net 对比同样仅域内，
    口径一致。这是 GNN 对 CNN 的结构性优势，论文直接引用。
 
-## L9 · 加速比基线（2026-09-17 服务器 + 本地，`run_L9_speedup_baselines.sh`，部分收口）
+## L9 · 加速比基线（2026-09-17/18 服务器两轮 + 本地，`run_L9_speedup_baselines.sh`，5/5 格已填、4 例口径待服务器权威化）
 
-三条计时路线 + →B2 评测刷新二合一。**服务器轮结果**：①→B2 评测刷新
-完成——全部 →B2 (val) eval 重算，推理耗时为 A100 权威值（如 flow_mdk
-s0：mdx 2.12 s / zxh 0.28 s）；②求解器计时 **1/5 成功**（mdx_downstream
-npz 重建路线 **12.7 s**）——4 例失败根因 = 场景 `meta['source']` 存的
-是导入机器的绝对路径（`D:\Projects\...`），服务器上不存在，
-`next(glob)` 抛空 StopIteration。**修复**：`time_b2_solver.py` 加
-可移植性预处理（仓库内绝对路径改写为相对、外部模板回退
-`data/real_sources/<名>`），wqh/zxh 的 npz meta 已就地修复；
-mdx/mdx_upstream 模板按数据策略不入库，需手动 scp 到服务器
-`data/real_sources/{mdx,mdxUpStream}` 后重跑 `--all`。
+三条计时路线 + →B2 评测刷新二合一。**服务器 round 3（09-17 上午）**：
+→B2 (val) eval 全量刷新（推理耗时 = A100 权威值），求解器计时 **1/5 成功**
+（mdx_downstream npz 重建路线 12.7 s）——4 例失败根因 = 场景
+`meta['source']` 存的是导入机器的绝对路径。**服务器 round 4（09-17 晚，
+模板 scp 后重跑）**：preflight 修复**仍失败 4/5**——根因细化：存的是
+Windows 风格路径，在 Linux 上既不解析也不拆组件——`D:\...\mdx` 的
+`Path.name` 是整个字符串、`data\real_sources\wqh` 是单个组件，旧回退
+`data/real_sources / src.name` 拼出 `data/real_sources/D:\...\mdx` 与
+`data/real_sources\data\real_sources\wqh` 两种垃圾路径。mdx_downstream
+重计 **13.2 s**（服务器权威，覆盖 12.7）；step 2 的 47 条 →B2 评测再次
+全量刷新入库（registry 621→668）。
 
-**已确立的数字与口径**：
+**已修（2026-09-18 本地）**：`time_b2_solver.py` 重写可移植性预处理——
+分隔符归一化（反斜杠→POSIX）+ 候选列表（原值 / 仓库相对 /
+`data/real_sources/<名>` 平铺 / 保留父目录四层）+ 存储统一 `as_posix()`；
+mdx_downstream 路线不读 source、跳过 preflight。10 项单测
+（`tests/test_time_b2_solver.py`，含 round-4 两个失败场景的复现用例）；
+本地 5 例 npz meta 已就地归一化。**待办（round 5 服务器）**：同步修复后
+脚本重跑 `time_b2_solver.py --all` + step 2，4 例换服务器权威计时。
 
+**已确立的数字与口径（round 4 刷新后）**：
+
+- **→B2 speedup 五格全部有值**，口径混合如实记档：mdx_downstream 用
+  服务器 runtime（**13.2 s**，权威）；其余 4 例暂用本地 WSL2 runtime
+  （mdx 48.7 s / mdx_upstream 23.4 s / wqh 22.5 s / zxh 30.8 s，偏慢
+  → speedup 偏保守，`runtime_source` 标签区分）。
+- round 4 刷新的推理耗时比 round 3 又低 17–29%（同 checkpoint 同数据，
+  A100 状态更优；B1v2 flow_mdk s0 实测：mdx 1.67→**1.39 s**、
+  mdx_downstream 0.74→**0.53 s**、wqh 0.46→**0.34 s**、zxh 0.22→
+  **0.16 s**）。RMSE/MAE/CSI 逐位不变（仅 Dirichlet 能量有 ~1e-7 浮点
+  噪声），L4_report/Pareto 无需重生成。
+- 全 47 条刷新 eval 的 speedup 范围（混合口径）：mdx 11–66× /
+  mdx_downstream 13–132× / mdx_upstream 23–190× / wqh 10–178× /
+  zxh 65–510×；代表 run（partA_paper flow_mdk s0）：mdx 34.5× /
+  downstream 24.5× / upstream 64.6× / wqh 63.3× / zxh 183.9×。
 - **本地 vs 服务器求解器耗时差 ~4.5×**（mdx_downstream：本地 56.6 s vs
-  服务器 12.7 s；WSL2 docker 慢得多）——证实「服务器复算」决策：本地
-  计时会让加速比被低估 4–5 倍。
-- 当前 →B2 speedup 格的混合口径如实记档：mdx_downstream 用服务器
-  runtime（权威），其余 4 例暂用本地 runtime（偏慢 → speedup 偏保守，
-  如 flow_mdk s0：mdx 23× / wqh 20.9× / zxh 111× 为下界）；服务器补跑
-  后以 `runtime_source` 标签区分。
-- 参考（A100 推理耗时，flow_mdk s0 全时程）：mdx 2.12 s、mdx_upstream
-  0.59 s、wqh 0.56 s、zxh 0.28 s、mdx_downstream 0.97 s。
+  服务器 13.2 s；WSL2 docker 慢得多）——4 例本地口径格是保守下界，
+  服务器补跑后预计再抬 3–4 倍。
 
 ## 复现
 
@@ -737,7 +771,9 @@ bash scripts/run_M4_coupled_v1.sh
 python scripts/evaluate.py --config runs/M4_chain_v1_flow_mdk_s0/config.yaml --checkpoint runs/M4_chain_v1_flow_mdk_s0/last.pt --split test
 python scripts/evaluate.py --config runs/ptbest_M4_chain_v1_flow_mdk_s0/config.yaml --checkpoint runs/M4_chain_v1_flow_mdk_s0/best.pt --split test
 python scripts/evaluate.py --config runs/ptema_M4_chain_v1_flow_mdk_s0/config.yaml --checkpoint runs/M4_chain_v1_flow_mdk_s0/ema.pt --split test
-# L9 求解器计时（round 3 补跑：mdx/mdx_upstream 模板 scp 到服务器 data/real_sources/ 后）
+# M4 v2 耦合家族批跑（参数化：q_scale × t_stretch 扰动入链流量律；服务器纯 CPU）
+python scripts/build_coupled_family.py --num 12 --seed 11
+# L9 求解器计时（round 5 服务器：同步修复后的 time_b2_solver.py，模板已在 data/real_sources/）
 python scripts/time_b2_solver.py --all
 # 汇总报告（docs/L4_report.md 的十四个分组）
 python scripts/summarize_runs.py --prefix partA_paper --prefix L3_B1_paper --ks
