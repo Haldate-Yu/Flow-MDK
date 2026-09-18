@@ -133,3 +133,21 @@ baselines.sh`）：
    time_b2_solver.py（上轮修复）+ 本轮 scripts/prepare_coupled_family_
    root.py、scripts/run_M4_v2_family.sh + src/flow_mdk/{config,data/
    dataset,train/loss,train/trainer}。
+
+## 七、round 5 执行发现（main/nocons 完成，swegnn OOM 三连——脚本两处修复）
+
+- **swegnn 臂 batch 4 在 65k 节点耦合图上 OOM**（单进程 torch 已分配
+  55.3 GiB 时再要 382 MiB 失败，卡上另有 ~22 GiB 其他租户）：2L×8 =
+  16 跳消息传递，逐跳激活沿**边维**（389,928 × batch）堆积——E5 时代
+  swegnn 只训过 4k 节点合成网格，这是该骨架第一次上 65k 节点图，
+  激活足迹是 flow_mdk（6 跳 + MDK 稀疏扩散）的数倍。**处置：swegnn 臂
+  `BATCH_SIZE=2` 重跑**（激活减半 ~28–30 GiB，余量充足）——协议混杂
+  如实记档：swegnn 对照 batch 2 vs main/nocons batch 4（同 lr 下基线
+  略吃亏，方向对 flow_mdk 有利，论文 M4 节必须披露）；60 ep × 99 步
+  wall-clock 与 batch 4 基本持平。
+- **`run_M4_v2_family.sh` 两处修复**：①`set -eo pipefail`——原
+  `set -e` 管不住 `| tail` 管道，训练 OOM 后仍继续跑 eval 并「成功」
+  跑完三个种子；②跳过条件从 `config.yaml` 存在改为 **`last.pt` 存在**
+  ——崩溃的 run 只留 config.yaml（训练前 stamp），按旧条件会被误跳，
+  现在自愈重跑，**无需手动清理服务器上的三个失败目录**。同批附带
+  prepare 脚本 symlink 竞态加固（FileExistsError 容忍，并发启动安全）。

@@ -29,7 +29,9 @@
 #   CUDA_VISIBLE_DEVICES=1 ARMS="main nocons" bash scripts/run_M4_v2_family.sh
 #   CUDA_VISIBLE_DEVICES=0 ARMS="swegnn"     bash scripts/run_M4_v2_family.sh
 # or run everything serially on one GPU overnight.
-set -e
+# pipefail: without it the `| tail` pipelines swallow training failures
+# (round-5 lesson: three OOM crashes ran straight through as "success")
+set -eo pipefail
 cd "$(dirname "$0")/.."
 
 SEEDS=(${SEEDS:-0 1 2})
@@ -64,7 +66,9 @@ for arm in "${ARMS[@]}"; do
                     extra="" ;;
             *) echo "unknown arm $arm"; exit 1 ;;
         esac
-        if [ -f "$run/config.yaml" ]; then echo "[skip] $run exists"; continue; fi
+        # skip on the training ARTIFACT, not config.yaml: a crashed run leaves
+        # config.yaml behind (stamped pre-training) and must be retrained
+        if [ -f "$run/last.pt" ]; then echo "[skip] $run done"; continue; fi
         echo "=== [M4v2 ${arm} s${seed}] training -> $run ==="
         python scripts/train.py --config "$base" --set \
             out_dir=$run data.root=data/real_cases/coupled_chain_family \
