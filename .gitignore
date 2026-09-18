@@ -217,9 +217,10 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Flow-MDK generated datasets & checkpoints
-data/
-runs/
+# Flow-MDK generated datasets & checkpoints (root-anchored: an unanchored
+# data/ also ignored the src/flow_mdk/data/ source package — fixed 2026-09-18)
+/data/
+/runs/
 *.npz
 *.zarr
 *.pt
