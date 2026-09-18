@@ -632,6 +632,23 @@ fam000 = 基线对拍 draw）→ 2D 重跑 → 下游重建 → 组装链 npz（
 - **M4 v2 正式训练的数据就绪**：训练腿（flow_mdk × 3 种子 + 接口守恒
   损失 + K 物理匹配）为 round 5 服务器主任务。
 
+### M4 v2 · 正式轮准备（2026-09-18 本地实现，round 5 执行）
+
+- **接口通量守恒损失项**（`train.interface_cons_weight`，main 臂 0.1）：
+  候选恒等式逐一验证后取**界面通量形式**——储量恒等式在 1800s 子采样
+  帧不闭合（Z=280 出流边界符号通量未保留，残差~通量量级）；
+  `Q_chain_exit = Σ_v |q|_v·ℓ_v` 成立（入口段总长真值反推 ~336 m，跨步
+  CV 14%），且损失为**预测侧自洽约束**（真值只标定 ℓ 不进损失）。
+  `extract_interfaces` 湿步中位数自动标定、无信号界面（出流侧 |q|≈0）
+  自动跳过；**仅训练侧启用**，val 纯数据损失保跨臂可比。
+- **K=4**：ceil(2·√(1800/647)) ≈ 3.3 → 4，与 L14 的 dt×3→K4 同款
+  √m 映射（混合 1D/2D 边缘分辨率下 dx̄ 修正不唯一，记档为限定）。
+- **家族数据根**：`prepare_coupled_family_root.py` 平铺 + split 9/1/2
+  （test = fam000 v1 对拍 + fam011 最强工况；val = fam010）；v1 根不动。
+- **`run_M4_v2_family.sh` 三臂 × 3 种子**：main（K=4 + cons 0.1）/
+  nocons（K=4，守恒消融）/ swegnn（official 2L×8 对照）；E6 配方 +
+  ema 0.99（v1 短预算修正）。预算 ~2.5 h/run A100。
+
 ## B1v2 · 家族 v2 重训（2026-09-17 服务器，`run_B1v2_family.sh`，L6 敏感性检查）
 
 L6 把 mdx 家族补齐到 50、family_all 重建为 **130 场景**（89/20/21，对齐
@@ -773,6 +790,9 @@ python scripts/evaluate.py --config runs/ptbest_M4_chain_v1_flow_mdk_s0/config.y
 python scripts/evaluate.py --config runs/ptema_M4_chain_v1_flow_mdk_s0/config.yaml --checkpoint runs/M4_chain_v1_flow_mdk_s0/ema.pt --split test
 # M4 v2 耦合家族批跑（参数化：q_scale × t_stretch 扰动入链流量律；服务器纯 CPU）
 python scripts/build_coupled_family.py --num 12 --seed 11
+# M4 v2 正式训练（家族 12 场景三臂 × 3 种子；先平铺 + split，再训练）
+python scripts/prepare_coupled_family_root.py
+bash scripts/run_M4_v2_family.sh   # ARMS/SEEDS/BATCH_SIZE 可覆盖；~2.5h/run A100
 # L9 求解器计时（round 5 服务器：同步修复后的 time_b2_solver.py，模板已在 data/real_sources/）
 python scripts/time_b2_solver.py --all
 # 汇总报告（docs/L4_report.md 的十四个分组）

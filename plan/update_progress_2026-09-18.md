@@ -97,3 +97,39 @@ baselines.sh`）：
    计时、效率表定稿。
 4. 取回清单：`coupled_family_report.json` + M4 v2 训练 runs + L9
    权威计时；照旧挂起 L6/2D 真实母版微调（可选）。
+
+## 六、round 5 准备落地（同日第十轮：M4 v2 训练臂三件套全部实现）
+
+1. **接口边通量守恒损失项**（`train.interface_cons_weight`，默认 0 关闭）：
+   - **设计探索如实记档**：储量恒等式（Σ A_v·Δh/Δt = Q_in − Q_out）在
+     1800s 子采样帧上**不闭合**（残差与通量同量级——2D 出流 Z=280 边界
+     的符号通量未保留进 npz，无法复算 Solver 内部账目）；界面通量恒等式
+     `Q_chain_exit = Σ_v |q|_v·ℓ_v` **可用**：入口段总长从真值反推
+     L≈336 m（跨步 CV 14%），且该损失是**预测侧自洽约束**（比较模型
+     自己的 1D 侧 Q 与 2D 侧 |q| 通量，真值只标定 ℓ 不进损失项），真值
+     噪声不产生偏置。出流界面（mesh→chain）边界节点 |q|≈0 无信号，
+     自动跳过——守恒项单侧生效，如实记档。
+   - 实现：`extract_interfaces`（dataset.py）逐场景自动标定 ℓ（湿步
+     中位数、无信号/湿步不足自动跳过）；collate 统一性检查（混合 split
+     自动禁用）；`multistep_rollout_loss` 每步对 mask 后状态加罚；
+     **仅训练侧启用**（val 保持纯数据损失，best.pt 选择跨臂可比）。
+   - 测试：10 项新单测（ℓ 恢复、真值零罚、逐 item 索引、混合禁用、
+     端到端冒烟、真实链标定门限），全套 64 项通过；真实 v1 链标定
+     ℓ=19.79 m/节点（=336 m/17，与 25 m 占位几何量级相容）。
+2. **家族数据根** `prepare_coupled_family_root.py`：把服务器端逐场景
+   子目录平铺为 `coupled_chain_family/*.npz`（符号链接/拷贝幂等）+
+   写 split.json（**9/1/2：train fam001–009 / val fam010 / test
+   fam000+fam011**——fam000 为 v1 对拍 draw 入 test 直连 v1 可行性轮，
+   fam011 最强工况 q_scale 1.97 同入 test）。v1 根不动。
+3. **训练脚本** `run_M4_v2_family.sh`：三臂 × 3 种子——
+   `main`（flow_mdk **K=4** + cons 0.1）/ `nocons`（K=4 消融）/ `swegnn`
+   （official 2L×8 对照）；E6 配方（val_horizon=8 + 课程后早停 + EMA）+
+   **ema 0.99**（v1 短预算修正）。K=4 = ceil(2·√(1800/647)) ≈ L14 的
+   m=3→K4 同款映射（混合 1D/2D 边缘分辨率的 dx̄ 限定如实记档）；swegnn
+   臂用 `1d_swegnn_official.yaml`（先误指 baseline 6L -MDK，已修正）。
+   预算 ~2.5 h/run（A100，60 ep × ~50 batch），9 run 串行 ~22 h，可
+   ARMS/SEEDS 分 GPU 并行。
+4. **服务器执行序**：L9 重跑（快）→ M4 v2 三臂（长）；同步清单 =
+   time_b2_solver.py（上轮修复）+ 本轮 scripts/prepare_coupled_family_
+   root.py、scripts/run_M4_v2_family.sh + src/flow_mdk/{config,data/
+   dataset,train/loss,train/trainer}。
