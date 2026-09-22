@@ -16,7 +16,9 @@ STEPS="${STEPS:-48}"   # wqh_2d full horizon; mdx_2d caps itself at 28
 
 for model in swegnn flow_mdk ssgc; do
   for seed in 0 1 2; do
+    # swegnn = the official-depth 1x8 arm (MS4b_ prefix)
     run="MS4_2d_${model}_s${seed}"
+    if [ "$model" = swegnn ]; then run="MS4b_2d_swegnn_s${seed}"; fi
     echo "=== [real2d exam] ${run}: last.pt ==="
     python scripts/evaluate.py \
       --config "runs/${run}/config.yaml" \

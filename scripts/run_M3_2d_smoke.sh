@@ -27,7 +27,7 @@ smoke () {
         --checkpoint $run_dir/last.pt --split test 2>&1 | tail -2
 }
 
-smoke swegnn   configs/2d_swegnn_2x8.yaml
+smoke swegnn   configs/2d_swegnn_official.yaml
 smoke flow_mdk configs/2d_flow_mdk.yaml
 
 echo "M3_2D_SMOKE_DONE"

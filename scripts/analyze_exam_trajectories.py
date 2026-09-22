@@ -35,7 +35,7 @@ from flow_mdk.utils.seed import get_device  # noqa: E402
 
 DEFAULT_RUNS = [
     ("flow_mdk（定向）", "runs/MS4_2d_flow_mdk_s0"),
-    ("swegnn（浅层8跳）", "runs/MS4_2d_swegnn_s0"),
+    ("swegnn（官方1×8）", "runs/MS4b_2d_swegnn_s0"),
     ("ssgc（对称）", "runs/MS4_2d_ssgc_s0"),
     ("-MDK（无扩散分支）", "runs/L16_mdkoff_2d_s0"),
     ("gcn（vanilla）", "runs/MS4_2d_gcn_s0"),

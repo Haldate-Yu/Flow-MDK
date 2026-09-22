@@ -21,7 +21,7 @@
 #
 # Usage:
 #   bash scripts/run_2d_swegnn_exams.sh                     # the three 1x8 seeds
-#   RUNS="runs/MS4_2d_swegnn_s0" bash scripts/run_2d_swegnn_exams.sh   # before/after control
+#   RUNS="runs/MS4b_2d_swegnn_s0" bash scripts/run_2d_swegnn_exams.sh  # single run (re-scoring control)
 set -eo pipefail
 cd "$(dirname "$0")/.."
 

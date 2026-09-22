@@ -77,7 +77,9 @@ twin_eval () {  # prefix run_dir checkpoint
 
 for model in "${MODELS[@]}"; do
     for seed in "${SEEDS[@]}"; do
+        # swegnn = the official-depth 1x8 arm (MS4b_ prefix); see run_2d_larger_1x8.sh
         run=runs/MS4_2d_${model}_s${seed}
+        if [ "$model" = swegnn ]; then run=runs/MS4b_2d_swegnn_s${seed}; fi
         [ -f "$run/last.pt" ] || { echo "[skip] $run not found"; continue; }
         echo "--- [larger-domain zero-shot] ${model} s${seed} last.pt"
         python scripts/evaluate.py --config $run/config.yaml \
@@ -111,7 +113,7 @@ PY
     for model in flow_mdk swegnn ssgc; do
         case $model in
             flow_mdk) base=configs/2d_flow_mdk.yaml ;;
-            swegnn)   base=configs/2d_swegnn_2x8.yaml ;;
+            swegnn)   base=configs/2d_swegnn_official.yaml ;;
             ssgc)     base=configs/2d_ssgc_symmetric.yaml ;;
         esac
         for seed in "${SEEDS[@]}"; do

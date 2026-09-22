@@ -32,7 +32,7 @@ from build_generalization_matrix import parse_run  # noqa: E402
 
 PANELS = {
     "2D test": {
-        "models": ("swegnn", "swegnn(1x8)", "flow_mdk", "ssgc", "gcn", "gat",
+        "models": ("swegnn(1x8)", "flow_mdk", "ssgc", "gcn", "gat",
                    "flow_mdk(-MDK)", "unet"),
         "prefixes": ("MS4_2d_", "MS4b_2d_", "L16_mdkoff_2d_", "unet_2d_"),
         "domain": ("data/scenarios_2d_family", "test"),

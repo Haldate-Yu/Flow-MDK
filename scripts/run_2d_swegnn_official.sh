@@ -7,10 +7,12 @@
 #   last.pt  -> eval_test.json in the run dir            (--split test)
 #   best.pt  -> twin dir runs/ptbest_MS4b_2d_swegnn_s*   (--split test)
 #
-# Every existing artifact is left alone: new run prefix MS4b_2d_*, new config
-# file. The only intended difference from runs/MS4_2d_swegnn_s* is the depth
-# (16 -> 8 message-passing hops per step); patience stays at the sibling arms'
-# 99. For full paper fidelity (patience 30) run with:
+# Depth provenance: the earlier 2x8-depth arm (runs/MS4_2d_swegnn_s*, main
+# branch) misread the official class default n_GNN_layers=2; the paper model
+# is 1 outer layer x K=8 (E1-E5 evidence chain). The only intended difference
+# from those runs is the depth (16 -> 8 message-passing hops per step);
+# patience stays at the sibling arms' 99. For full paper fidelity (patience
+# 30) run with:
 #   EXTRA="train.early_stop_patience=30" bash scripts/run_2d_swegnn_official.sh
 #
 # Usage (server, one A100; ~1.5-2.5 h per seed with 8 hops instead of 16):

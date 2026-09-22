@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # L16 · -MDK ablation at matched depth (M5 baseline table closure, 2D).
 #
-# The E5 headline comparison (flow_mdk 6L+MDK vs swegnn 2Lx8) confounds the
-# MDK branch with depth/hops. This round runs the DEPTH-MATCHED ablation:
+# The earlier headline comparison (flow_mdk 6L+MDK vs the retired 2x8-depth
+# swegnn arm) confounded the MDK branch with depth/hops. This round runs the
+# DEPTH-MATCHED ablation:
 # the same 6L x 1-hop splitting layer with model.mdk.use=false — i.e. exactly
 # the Flow-MDK harness minus the diffusion branch (config
 # configs/2d_swegnn_baseline.yaml). Paired control: E5 MS4_2d_flow_mdk_s* —

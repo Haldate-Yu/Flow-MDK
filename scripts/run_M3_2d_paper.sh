@@ -4,7 +4,9 @@
 # Trains the three core models on the synthetic 2D family
 # (data/scenarios_2d_family: 130 TELEMAC-2D scenarios, 64x64 @ 100 m,
 # 70/15/15 split) at the 2D paper budget (G=64, 150 epochs, curriculum 15,
-# early stop off). Models: swegnn (2Lx8hop skeleton), flow_mdk (6L+MDK),
+# early stop off). Models: swegnn (official depth 1x8 = 8 message-passing
+# hops/step, paper-faithful per plan/paper1x8_swegnn_runbook.md E1-E5;
+# the retired 2Lx8 depth was a misreading of the class default), flow_mdk (6L+MDK),
 # ssgc (symmetric MDK) — the directed-vs-symmetric question on 2D is the
 # M3 headline, so ssgc is in from the start.
 #
@@ -41,7 +43,11 @@ best_eval () {  # run_dir [evaluate.py args...] -> eval best.pt in a twin dir
 
 train_and_eval_2d () {
     local seed=$1 name=$2 config=$3
+    # swegnn trains the official-depth arm under the MS4b_ prefix (round-7
+    # convention, already whitelisted as swegnn(1x8) in the matrix tooling);
+    # the other arms keep the MS4_2d_ prefix
     local run_dir=runs/MS4_2d_${name}_s${seed}
+    if [ "$name" = swegnn ]; then run_dir=runs/MS4b_2d_swegnn_s${seed}; fi
     if [ -f "$run_dir/config.yaml" ]; then echo "[skip] $run_dir exists"; return; fi
     echo "=== [2D s${seed}:${name}] training -> $run_dir ==="
     python scripts/train.py --config "$config" --set \
@@ -54,7 +60,7 @@ train_and_eval_2d () {
 }
 
 for seed in "${SEEDS[@]}"; do
-    train_and_eval_2d $seed swegnn   configs/2d_swegnn_2x8.yaml
+    train_and_eval_2d $seed swegnn   configs/2d_swegnn_official.yaml
     train_and_eval_2d $seed flow_mdk configs/2d_flow_mdk.yaml
     train_and_eval_2d $seed ssgc     configs/2d_ssgc_symmetric.yaml
 done

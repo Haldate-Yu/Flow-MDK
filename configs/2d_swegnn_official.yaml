@@ -8,11 +8,10 @@
 #     results/best_models/config.yaml            -> n_GNN_layers: 1, K: 8
 #     results/best_models/SWEGNN/config.yaml     -> n_GNN_layers: 1, K: 8
 #     results/GNN_layers_temporal_res/<res>/     -> n_GNN_layers: 1, K: 2/8/8/8
-# The class default for `n_GNN_layers` is 2 — that legacy-depth arm is kept
-# as configs/2d_swegnn_2x8.yaml (2 outer x 8 hops = 16 hops per step, what
-# runs/MS4_2d_swegnn_s* were trained with). This config is the
-# **single-variable** variant of that arm: 1 x 8 hops, everything else
-# byte-for-byte identical.
+# The class default for `n_GNN_layers` is 2 — an early misreading that
+# produced the retired 2x8-depth arm (runs/MS4_2d_swegnn_s* on the main
+# branch, 16 hops per step). This config is the depth-faithful arm: 1 x 8
+# hops, everything else byte-for-byte identical to what those runs used.
 #
 # Two protocol choices, both deliberate
 # -------------------------------------

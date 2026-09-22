@@ -5,11 +5,13 @@ Rows   = model x checkpoint protocol (last.pt / best.pt), mean±std over seeds
 Cols  = evaluation domains (in-domain, generalization subsets, zero-shot,
         real exams), as recorded by the registry (data_root + split).
 
-Only paper-budget run families are folded (G=64): partA_paper_* / L3_B1_paper_*
-(single-seed s0 rounds), MS4_partA_* / MS4_B1_* / B1v2_* / MS4_2d_* /
-MS5_partA_2x8mdk_* (3 seeds), L14_dt*_* (dt trade-off), L16_mdkoff_* /
-E61_partA_full_* (ablation/recipe arms when present), unet_2d_* / unet_2d_e6_*.
-Local-budget rounds (G=32 L2/L3/MS_*/E6_partA) are excluded by design.
+Only paper-budget run families are folded (G=64): MS4_2d_* (flow_mdk / ssgc /
+gcn / gat, 3 seeds), MS4b_2d_swegnn_* (the official-depth 1x8 SWE-GNN arm),
+MS4c_2d_*p8_* (input-window control), L16_mdkoff_2d_* (-MDK ablation),
+unet_2d_* / unet_2d_e6_*, and the floor_persist_* no-skill rows. The legacy
+2x8-depth swegnn rows (runs/MS4_2d_swegnn_s*, a misread of the official
+class default) are NOT folded — the paper baseline is swegnn(1x8); those
+runs live on the main branch.
 
 B1 has TWO recorded generations on different family sizes and they do NOT give
 the same verdict, so they are kept as separate columns rather than pooled:
@@ -51,7 +53,7 @@ DOMAINS = [
 
 # run-name family whitelist (paper budget) -> display model
 FAMILIES = [
-    (re.compile(r"^MS4_2d_(swegnn|flow_mdk|ssgc|gcn|gat)_s\d+$"), None),
+    (re.compile(r"^MS4_2d_(flow_mdk|ssgc|gcn|gat)_s\d+$"), None),
     (re.compile(r"^MS4c_2d_\w+p8_s\d+$"), None),
     (re.compile(r"^L16_mdkoff_2d_s\d+$"), "flow_mdk(-MDK)"),
     # U-Net 2D baseline (round 3): real-exam zero-shot cells stay empty by

@@ -17,7 +17,7 @@ Key design choices:
 - **Dry/wet safety** — per-step renormalization as wet/dry edges evolve, and bias-free dynamic encoders so dry cells stay dry;
 - **Residual spectral filtering** — the MDK filter acts on *increments*, not absolute states; the λ₀·I identity term caps smoothing depth (anti-over-smoothing by construction), so the untrained model starts exactly at the persistence floor.
 
-Ground truth is generated with **TELEMAC-2D** (docker, `datasets/telemac-mascaret-v8p4r0/`). Evaluation follows the SWE-GNN protocol — RMSE/MAE on water depth and unit discharge, wet-cell CSI, speed-up — extended with the forecast-verification **no-skill gate**: every arm is compared against a zero-parameter **persistence floor** (freeze the last input frame). Arms on this branch: Flow-MDK, SWE-GNN (official 1×8 depth + legacy 2×8), GCN, GAT, U-Net, SSGC (symmetric-MDK ablation), the depth-matched -MDK ablation, and persistence.
+Ground truth is generated with **TELEMAC-2D** (docker, `datasets/telemac-mascaret-v8p4r0/`). Evaluation follows the SWE-GNN protocol — RMSE/MAE on water depth and unit discharge, wet-cell CSI, speed-up — extended with the forecast-verification **no-skill gate**: every arm is compared against a zero-parameter **persistence floor** (freeze the last input frame). Arms on this branch: Flow-MDK, SWE-GNN (official 1×8 depth — the paper-faithful configuration per the E1–E5 evidence chain), GCN, GAT, U-Net, SSGC (symmetric-MDK ablation), the depth-matched -MDK ablation, and persistence.
 
 **中文说明**
 
@@ -35,7 +35,7 @@ Ground truth is generated with **TELEMAC-2D** (docker, `datasets/telemac-mascare
 - **干湿安全**——干湿边演化时逐步重归一化，动态 encoder 无偏置项，干单元恒不产流；
 - **残差式谱滤波**——MDK 滤波作用于增量而非状态本身，λ₀·I 恒等项限制平滑深度（未训练即等于 persistence 地板）。
 
-真值由 **TELEMAC-2D**（docker）批量生成；评测沿用 SWE-GNN 协议（水深与单宽流量 RMSE/MAE、湿区 CSI、加速比），并引入预报验证学的 **no-skill 门槛**：所有臂与零参数 **persistence 地板**（冻结末一帧输入）配对比较。本分支八条臂：Flow-MDK、SWE-GNN（官方 1×8 深度 + 旧 2×8）、GCN、GAT、U-Net、SSGC（对称消融）、-MDK 深度匹配消融、persistence 地板。
+真值由 **TELEMAC-2D**（docker）批量生成；评测沿用 SWE-GNN 协议（水深与单宽流量 RMSE/MAE、湿区 CSI、加速比），并引入预报验证学的 **no-skill 门槛**：所有臂与零参数 **persistence 地板**（冻结末一帧输入）配对比较。本分支八条臂：Flow-MDK、SWE-GNN（官方 1×8 深度，经 E1–E5 五重证据链钉死的论文口径）、GCN、GAT、U-Net、SSGC（对称消融）、-MDK 深度匹配消融、persistence 地板。
 
 ---
 
