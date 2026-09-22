@@ -10,23 +10,8 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from flow_mdk.data.dataset import FlowDataset, collate_flow, window_count
-from flow_mdk.data.graph_1d import build_1d_graph
 from flow_mdk.data.graph_2d import build_2d_grid_graph, perlin_dem
 from flow_mdk.data.topology import edge_activity_sequence, topology_transitions
-
-
-def test_chain_graph_both_orientations():
-    n = 6
-    x = np.linspace(0, 500, n)
-    z = np.linspace(10, 0, n)
-    width = np.full(n, 15.0)
-    edge_index, edge_attr = build_1d_graph(x, z, width)
-    assert edge_index.shape == (2, 2 * (n - 1))
-    assert edge_attr.shape == (2 * (n - 1), 3)
-    # dx constant 100 m
-    assert np.allclose(edge_attr[:, 0], 100.0)
-    # bed slope signed along arc direction: downstream arcs negative
-    assert np.all(edge_attr[0::2, 2] < 0) and np.all(edge_attr[1::2, 2] > 0)
 
 
 def test_grid_dual_graph_normals_and_lengths():

@@ -3,7 +3,7 @@
 #
 # Trains the three core models on the synthetic 2D family
 # (data/scenarios_2d_family: 130 TELEMAC-2D scenarios, 64x64 @ 100 m,
-# 70/15/15 split) at the 1D paper budget (G=64, 150 epochs, curriculum 15,
+# 70/15/15 split) at the 2D paper budget (G=64, 150 epochs, curriculum 15,
 # early stop off). Models: swegnn (2Lx8hop skeleton), flow_mdk (6L+MDK),
 # ssgc (symmetric MDK) — the directed-vs-symmetric question on 2D is the
 # M3 headline, so ssgc is in from the start.
@@ -54,9 +54,9 @@ train_and_eval_2d () {
 }
 
 for seed in "${SEEDS[@]}"; do
-    train_and_eval_2d $seed swegnn   configs/1d_swegnn_official.yaml
-    train_and_eval_2d $seed flow_mdk configs/1d_flow_mdk.yaml
-    train_and_eval_2d $seed ssgc     configs/1d_ssgc_symmetric.yaml
+    train_and_eval_2d $seed swegnn   configs/2d_swegnn_2x8.yaml
+    train_and_eval_2d $seed flow_mdk configs/2d_flow_mdk.yaml
+    train_and_eval_2d $seed ssgc     configs/2d_ssgc_symmetric.yaml
 done
 
 echo "M3_2D_PAPER_DONE"

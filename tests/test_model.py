@@ -9,25 +9,27 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from flow_mdk.config import ExperimentConfig, MDKConfig, ModelConfig
-from flow_mdk.data.graph_1d import build_1d_graph
+from flow_mdk.data.graph_2d import build_2d_grid_graph
 from flow_mdk.models.flow_mdk_gnn import FlowMDKNet
 
 
-def _tiny_graph(n: int = 8):
+def _tiny_graph(nx: int = 3, ny: int = 3):
     import numpy as np
 
-    x = np.linspace(0.0, 1000.0, n)
-    z = 1e-3 * (x[-1] - x)
-    width = np.full(n, 20.0)
-    edge_index, edge_attr = build_1d_graph(x, z, width)
-    # 4 base statics + appended water-level channel (w = z + h, dry start)
+    n = nx * ny
+    edge_index, edge_attr, _ = build_2d_grid_graph(nx, ny, 50.0, 50.0)
+    # 2D layout: 5 base statics (area, elevation, slope_x, slope_y, manning)
+    # + appended water-level channel (w = elevation + h, dry start)
+    elev = np.linspace(5.0, 0.0, n)
     static = np.stack(
-        [z, width, np.full(n, 30.0), np.zeros(n), z], axis=1
+        [np.full(n, 2500.0), elev, np.zeros(n), np.zeros(n),
+         np.full(n, 0.03), elev],
+        axis=1,
     ).astype(np.float32)
     return (
         torch.from_numpy(static),
         torch.from_numpy(edge_index),
-        torch.from_numpy(edge_attr),
+        torch.from_numpy(edge_attr.astype(np.float32)),
     )
 
 
@@ -36,14 +38,14 @@ def _tiny_model(**overrides) -> FlowMDKNet:
     cfg = ExperimentConfig()
     cfg.model = ModelConfig(
         hidden_dim=16, num_message_passing_layers=3,
-        elevation_feature_idx=0,  # 1D layout: z_bottom channel
+        elevation_feature_idx=1,  # 2D layout: elevation is static column 1
         hops_per_layer=hops,
         mdk=MDKConfig(**{"lambda0": 0.3, **overrides}),
     )
-    return FlowMDKNet(cfg.model, num_static_features=5, num_edge_features=3)
+    return FlowMDKNet(cfg.model, num_static_features=6, num_edge_features=3)
 
 
-def _window(n: int = 8, wet_upto: int = 4):
+def _window(n: int = 9, wet_upto: int = 4):
     """Dynamic window [p+1, N, O] with water on the upstream part."""
     dyn = torch.zeros(2, n, 2)
     dyn[:, :wet_upto, 0] = torch.linspace(2.0, 0.2, wet_upto)
@@ -65,7 +67,7 @@ def test_dry_nodes_stay_dry():
     exactly zero increment (SWE-GNN dry-node guarantee)."""
     static, edge_index, edge_attr = _tiny_graph()
     model = _tiny_model()
-    dyn = torch.zeros(2, 8, 2)
+    dyn = torch.zeros(2, 9, 2)
     delta = model.step(static, dyn, edge_index, edge_attr)
     assert torch.allclose(delta, torch.zeros_like(delta), atol=1e-7)
 
@@ -75,11 +77,11 @@ def test_rollout_shapes_and_water_level_refresh():
     model = _tiny_model()
     dyn = _window()
     preds = model.rollout(static, dyn, edge_index, edge_attr, n_steps=5)
-    assert preds.shape == (5, 8, 2)
+    assert preds.shape == (5, 9, 2)
     assert torch.isfinite(preds).all()
     # the water-level static channel must be refreshed as elevation + depth
     refreshed = model._refresh_static(static, preds[-1])
-    assert torch.allclose(refreshed[:, -1], static[:, 0] + preds[-1][:, 0])
+    assert torch.allclose(refreshed[:, -1], static[:, 1] + preds[-1][:, 0])
 
 
 def test_ablation_pure_swegnn_has_no_mdk():

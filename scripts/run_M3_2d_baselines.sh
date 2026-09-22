@@ -64,10 +64,10 @@ for arm in "${ARMS[@]}"; do
     for seed in "${SEEDS[@]}"; do
         case $arm in
             gcn)     run=runs/MS4_2d_gcn_s${seed}
-                     base=configs/1d_baseline_gcn.yaml
+                     base=configs/2d_baseline_gcn.yaml
                      extra="" ;;
             gat)     run=runs/MS4_2d_gat_s${seed}
-                     base=configs/1d_baseline_gat.yaml
+                     base=configs/2d_baseline_gat.yaml
                      extra="" ;;
             unet_e6) run=runs/unet_2d_e6_s${seed}
                      base=configs/2d_baseline_unet.yaml

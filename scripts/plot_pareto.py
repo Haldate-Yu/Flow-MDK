@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-"""M5 Pareto assembly: accuracy x efficiency x complexity per model/domain.
+"""M5 Pareto assembly: accuracy x efficiency x complexity per model (2D).
 
 Axes follow the PLAN M5 protocol:
-- accuracy  : in-domain h-RMSE (1D A-test for the 1D panel, 2D family test for
-              the 2D panel), mean over paper-budget seeds (runs/results.csv);
+- accuracy  : in-domain h-RMSE (2D family test), mean over paper-budget seeds
+              (runs/results.csv);
 - efficiency: mean solver->surrogate speedup over the same eval scenarios
               (eval json `speedup`, i.e. TELEMAC wall time / rollout time);
 - complexity: parameter count, counted from the seed-0 checkpoint.
@@ -31,11 +31,6 @@ sys.path.insert(0, str(REPO / "scripts"))
 from build_generalization_matrix import parse_run  # noqa: E402
 
 PANELS = {
-    "1D A-test": {
-        "models": ("swegnn", "flow_mdk", "gcn", "gat"),
-        "prefixes": ("MS4_partA_", "partA_paper_"),  # s0 lives under the stamped name
-        "domain": ("data/scenarios_partA_v2", "test"),
-    },
     "2D test": {
         "models": ("swegnn", "swegnn(1x8)", "flow_mdk", "ssgc", "gcn", "gat",
                    "flow_mdk(-MDK)", "unet"),

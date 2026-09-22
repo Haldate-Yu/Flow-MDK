@@ -1,9 +1,6 @@
-"""Synthetic scenario generators (plan M0).
+"""Synthetic 2D scenario generators (plan M0/M3).
 
-``scenarios_1d`` ships a lightweight *implicit diffusive-wave* reference
-solver so the whole pipeline (generate -> dataset -> train -> evaluate) runs
-end-to-end without TELEMAC. For the M1 milestone the same scenario families
-are re-run through Mascaret (headless, docker or TelApy, see
-``scripts/run_mascaret.py``); the reference solver is then demoted to a
-sanity cross-check.
+``scenarios_2d`` builds the Perlin-DEM polder family (SWE-GNN protocol,
+transposed): parametrised breach boundary + DEM noise, written as npz for the
+TELEMAC-2D truth runner (``scripts/run_telemac2d_docker.py``).
 """

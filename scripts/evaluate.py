@@ -52,8 +52,8 @@ def main() -> None:
                          f"({split_path})")
     names = split[args.split]
 
-    # feature layout: 1D elev idx 0, 2D elev idx 1
-    elev_idx = 0 if config.data.name.startswith("1d") else 1
+    # 2D layout: bed elevation is static column 1 (water level appended as last)
+    elev_idx = 1
     # probe the layout on a scenario from the requested split: the
     # alphabetically-first npz can carry a different static layout when one
     # data root mixes domains (e.g. the coupled chain dir also holds the 2D leg)

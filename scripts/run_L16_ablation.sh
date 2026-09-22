@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
-# L16 · -MDK ablation at matched depth (M5 baseline table closure).
+# L16 · -MDK ablation at matched depth (M5 baseline table closure, 2D).
 #
-# The E3/E5 headline comparison (flow_mdk 6L+MDK vs swegnn 2Lx8) confounds
-# the MDK branch with depth/hops. This round runs the DEPTH-MATCHED ablation:
+# The E5 headline comparison (flow_mdk 6L+MDK vs swegnn 2Lx8) confounds the
+# MDK branch with depth/hops. This round runs the DEPTH-MATCHED ablation:
 # the same 6L x 1-hop splitting layer with model.mdk.use=false — i.e. exactly
 # the Flow-MDK harness minus the diffusion branch (config
-# configs/1d_swegnn_baseline.yaml). Paired controls: E3 MS4_partA_flow_mdk_s*
-# (1D) and E5 MS4_2d_flow_mdk_s* (2D) — same seeds, same budget, the ONLY
-# difference is the mdk flag. 12 runs total (2 domains x 3 seeds... 6 runs).
+# configs/2d_swegnn_baseline.yaml). Paired control: E5 MS4_2d_flow_mdk_s* —
+# same seeds, same budget, the ONLY difference is the mdk flag.
 #
-#   1D: data/scenarios_partA_v2, A-test, G=64 150ep curriculum 15
-#   2D: data/scenarios_2d_family, 2D test, same budget batch 8
+#   2D: data/scenarios_2d_family, 2D test, G=64 150ep curriculum 15 batch 8
 #
-# Judgment: if -MDK collapses to swegnn-2Lx8-level or worse (1D) / loses the
-# x5 margin (2D), the gated-MDK branch (not depth) carries the advantage.
+# Judgment: if -MDK loses the flow_mdk margin (2D: 0.529 vs 0.835 vs ssgc
+# 1.820, all pairwise significant), the directed MDK branch — not depth —
+# carries the advantage (paper slide "机制消融").
 #
-# Server usage (A100 GPU1; can run alongside round-1 leftovers):
+# Server usage (A100 GPU1):
 #   CUDA_VISIBLE_DEVICES=1 bash scripts/run_L16_ablation.sh 2>&1 \
 #       | tee data/L16_ablation_$(date +%Y%m%d_%H%M%S).log
 set -e
@@ -32,27 +31,14 @@ twin_eval () {  # prefix run_dir checkpoint --split <split>
         --checkpoint "$ckpt" "$@" 2>&1 | tail -1
 }
 
-train_arm () {  # domain seed
-    local domain=$1 seed=$2
-    local run split
-    if [ "$domain" = partA ]; then
-        run=runs/L16_mdkoff_partA_s${seed}; split=test
-        local extra="data.root=data/scenarios_partA_v2"
-    else
-        run=runs/L16_mdkoff_2d_s${seed}; split=test
-        local extra="data.name=2d_grid data.root=data/scenarios_2d_family train.batch_size=8"
-    fi
-    if [ -f "$run/config.yaml" ]; then echo "[skip] $run exists"; return; fi
-    echo "=== [L16 -MDK ${domain} s${seed}] training -> $run ==="
-    python scripts/train.py --config configs/1d_swegnn_baseline.yaml --set \
-        out_dir=$run seed=${seed} train.early_stop_patience=99 ${extra} 2>&1 | tail -3
-    python scripts/evaluate.py --config $run/config.yaml \
-        --checkpoint $run/last.pt --split ${split} 2>&1 | tail -1
-    twin_eval ptbest "$run" "$run/best.pt" --split ${split}
-}
-
 for seed in "${SEEDS[@]}"; do
-    train_arm partA $seed
-    train_arm 2d $seed
+    run=runs/L16_mdkoff_2d_s${seed}
+    if [ -f "$run/config.yaml" ]; then echo "[skip] $run exists"; continue; fi
+    echo "=== [L16 -MDK 2D s${seed}] training -> $run ==="
+    python scripts/train.py --config configs/2d_swegnn_baseline.yaml --set \
+        out_dir=$run seed=${seed} train.early_stop_patience=99 2>&1 | tail -3
+    python scripts/evaluate.py --config $run/config.yaml \
+        --checkpoint $run/last.pt --split test 2>&1 | tail -1
+    twin_eval ptbest "$run" "$run/best.pt" --split test
 done
 echo "L16_ABLATION_DONE"

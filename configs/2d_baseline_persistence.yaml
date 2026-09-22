@@ -1,12 +1,19 @@
-# Flow-MDK full model: GCN baseline (comparison protocol: same encoder-decoder, GCNConv processor)
+# Persistence floor on the synthetic 2D family (A4): the no-skill reference.
+#
+# Zero parameters, zero training — "next step = current step" (frozen last
+# input frame). Evaluated with `evaluate.py --checkpoint none`, which skips
+# weight loading entirely. Every predictive arm must beat this floor before
+# its RMSE numbers mean anything (forecast-verification no-skill reference).
 model:
-  arch: baseline_gcn
+  arch: baseline_persistence
   hidden_dim: 64
   num_message_passing_layers: 6
-  hops_per_layer: 1              # official SWE-GNN uses 8 (see 1d_swegnn_official.yaml)
+  hops_per_layer: 1              # official SWE-GNN uses 8 (see 2d_swegnn_official.yaml)
   num_previous_steps: 1
   num_dynamic_vars: 2
-  elevation_feature_idx: 0      # 1D layout: z_bottom channel
+  # Irrelevant for persistence (no WSE is reconstructed), kept at the shared
+  # harness value for uniformity — see 2d_flow_mdk.yaml.
+  elevation_feature_idx: 0
   mdk:
     use: false               # unused by baselines
     num_steps: 2                # K: matched to sqrt(2 D dt)/dx (see layers.mdk.suggest_num_steps)
@@ -16,7 +23,7 @@ model:
     directed: true              # flow-directed transition matrix
     wet_gate: source            # dry nodes never relay diffusion
     mixing: learned             # per-channel advection/diffusion gate
-    edge_weight: discharge      # |Q|-weighted conductance
+    edge_weight: discharge      # |q|-weighted conductance
     direction_beta: 1.0
 
 train:
@@ -32,9 +39,9 @@ train:
   grad_clip_value: 0.5         # official clip_grad_value_(0.5)
 
 data:
-  name: 1d_chain
-  root: data/scenarios_1d
+  name: 2d_grid
+  root: data/scenarios_2d_family
 
 seed: 0
 device: auto
-out_dir: runs/1d_baseline_gcn
+out_dir: runs/2d_baseline_persistence

@@ -1,5 +1,6 @@
-"""End-to-end pipeline smoke test (tiny): generate -> dataset -> train ->
-evaluate. Keeps the model and data minimal so it runs on CPU in seconds."""
+"""End-to-end pipeline smoke test on the 2D grid domain (tiny): generate ->
+inject analytic truth -> dataset -> train -> evaluate. Keeps the model and
+data minimal so it runs on CPU in seconds."""
 
 import sys
 from pathlib import Path
@@ -12,17 +13,25 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 @pytest.fixture(scope="module")
 def tiny_scenarios(tmp_path_factory):
-    from flow_mdk.gen.scenarios_1d import Scenario1DParams, generate_1d_scenario
+    from flow_mdk.gen.scenarios_2d import Scenario2DParams, generate_2d_scenario
     from flow_mdk.utils.io import save_scenario
 
     root = tmp_path_factory.mktemp("scen")
     names = []
     for i in range(4):
-        params = Scenario1DParams(
-            num_sections=30, length=3000.0, duration=3 * 3600, dt=30.0,
-            dt_out=600.0, q_peak=60.0 + 20 * i, seed=100 + i,
+        params = Scenario2DParams(
+            nx=8, ny=8, cell_size=100.0, simulation_hours=2.0, dt_out=600.0,
+            seed=100 + i,
         )
-        sc = generate_1d_scenario(params, f"t{i}")
+        sc = generate_2d_scenario(params, f"t{i}")
+        # the generator ships zero dynamics (truth pending) — inject a smooth
+        # analytic flood so the loss/curriculum paths see non-trivial targets
+        frames, n, _ = sc.dynamic.shape
+        tt = (np.arange(frames) / max(frames - 1, 1))[:, None]
+        h = 0.5 * tt * (1.0 + np.sin(np.linspace(0.0, np.pi, n))[None, :])
+        sc.dynamic[..., 0] = h.astype(np.float32)
+        sc.dynamic[..., 1] = (0.1 * h + 1e-3).astype(np.float32)
+        sc.wet = (sc.dynamic[..., 0] > 1e-3).astype(np.uint8)
         save_scenario(sc, root / f"t{i}.npz")
         names.append(sc.name)
     return root, names
@@ -42,15 +51,15 @@ def test_end_to_end(tiny_scenarios, tmp_path):
     cfg = ExperimentConfig()
     cfg.model = ModelConfig(
         hidden_dim=16, num_message_passing_layers=2,
-        elevation_feature_idx=0,
+        elevation_feature_idx=1,  # 2D layout: elevation is static column 1
         mdk=MDKConfig(num_steps=2, lambda0=0.3, learn_lambda=True),
     )
     cfg.train = TrainConfig(max_epochs=3, horizon_max=2, curriculum_steps=1,
                             batch_size=2, early_stop_patience=10)
     cfg.out_dir = str(tmp_path / "run")
 
-    train_set = FlowDataset(root, names[:2], horizon=1, elevation_feature_idx=0)
-    val_set = FlowDataset(root, names[2:3], horizon=2, elevation_feature_idx=0)
+    train_set = FlowDataset(root, names[:2], horizon=1, elevation_feature_idx=1)
+    val_set = FlowDataset(root, names[2:3], horizon=2, elevation_feature_idx=1)
     assert len(train_set) > 0 and len(val_set) > 0
 
     model = FlowMDKNet(cfg.model, train_set.num_static_features,
@@ -62,7 +71,7 @@ def test_end_to_end(tiny_scenarios, tmp_path):
 
     # evaluate a full rollout on the held-out scenario
     scenario = load_scenario(root / f"{names[3]}.npz")
-    report = rollout_scenario(model, scenario, n_steps=10, elevation_feature_idx=0)
+    report = rollout_scenario(model, scenario, n_steps=10, elevation_feature_idx=1)
     assert report.prediction.shape == (10, scenario.num_nodes, 2)
     assert np.isfinite(report.prediction).all()
 

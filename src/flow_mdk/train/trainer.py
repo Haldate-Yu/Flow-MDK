@@ -112,22 +112,12 @@ class Trainer:
                 batch.edge_index = batch.edge_index.to(self.device)
                 batch.edge_attr = batch.edge_attr.to(self.device)
                 batch.targets = batch.targets.to(self.device)
-                iface = batch.iface
-                if iface is not None:
-                    iface = {k: v.to(self.device) for k, v in iface.items()}
                 loss, _ = multistep_rollout_loss(
                     self.model,
                     batch,
                     horizon,
                     var_weights=self.config.train.var_weights,
                     only_where_water=self.config.train.only_where_water,
-                    # the flux-continuity term is a training regulariser only:
-                    # val stays the pure data loss so val curves (and best.pt
-                    # selection) stay comparable across cons/no-cons arms
-                    iface=iface,
-                    iface_weight=self.config.train.interface_cons_weight
-                    if train
-                    else 0.0,
                 )
                 if train:
                     self.optimizer.zero_grad()

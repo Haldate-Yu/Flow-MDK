@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "flow-mdk"
 version = "0.1.0"
-description = "Flow-directed Markov Diffusion Kernel GNN surrogates for shallow-water solvers (1D / 2D / 1D-2D coupled)"
+description = "Flow-directed Markov Diffusion Kernel GNN surrogates for 2D shallow-water flood solvers"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

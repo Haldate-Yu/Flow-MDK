@@ -41,7 +41,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-__all__ = ["FeatureLayout", "attach_water_level", "layouts_1d", "layouts_2d"]
+__all__ = ["FeatureLayout", "attach_water_level", "layouts_2d"]
 
 
 @dataclass(frozen=True)
@@ -64,14 +64,6 @@ class FeatureLayout:
     def num_edge(self) -> int:
         return len(self.edge_names)
 
-
-layouts_1d = FeatureLayout(
-    name="1d_chain",
-    static_names=("z_bottom", "width", "strickler_k", "boundary_flag"),
-    dynamic_names=("h", "Q"),
-    edge_names=("dx", "width_avg", "bed_slope"),
-    elevation_feature_idx=0,
-)
 
 layouts_2d = FeatureLayout(
     name="2d_grid",

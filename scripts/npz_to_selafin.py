@@ -32,11 +32,6 @@ sys.path.insert(0, str(REPO / "src"))
 from selafin import Selafin  # noqa: E402
 from flow_mdk.utils.io import load_scenario  # noqa: E402
 
-DEFAULT_GEO = Path(
-    r"D:/Projects/wzzhsl-rest-subsystems-xd/schinta-module-basin-flood-prevention"
-    r"/schinta-module-basin-flood-prevention-start/src/main/resources/template"
-    r"/telemac2d/mdx/geo.slf")
-
 
 def write_selafin(out: Path, title: bytes, var_names: list[tuple[str, str]],
                   times: np.ndarray, x: np.ndarray, y: np.ndarray,
@@ -67,18 +62,6 @@ def write_selafin(out: Path, title: bytes, var_names: list[tuple[str, str]],
                 rec(np.ascontiguousarray(frames[t, v], dtype=">f4").tobytes())
 
 
-def chain_mesh_and_fields(npz_path: Path, leg: int, mesh_slf: Path):
-    """耦合链：2D 段切片 + geo.slf 网格（节点顺序摄取时保持一致）。"""
-    geo = Selafin(mesh_slf)
-    sc = load_scenario(npz_path)
-    off = sc.meta["node_offsets"]
-    a, b = off[leg], off[leg + 1]
-    if b - a != geo.npoin:
-        raise SystemExit(f"2D 段节点数 {b - a} != 几何 npoin {geo.npoin}——顺序不一致，先核对")
-    dyn = sc.dynamic[:, a:b, :]
-    return geo.x, geo.y, geo.ikle.astype(np.int64), geo.ipobo.astype(np.int64), dyn
-
-
 def synthetic_mesh_and_fields(npz_path: Path):
     """合成 2D 家族：结构网格坐标/三角剖分由 meta['grid'] 确定性重建。"""
     from flow_mdk.data.graph_2d import build_2d_grid_graph
@@ -105,19 +88,14 @@ def synthetic_mesh_and_fields(npz_path: Path):
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--npz", required=True, help="场数据 npz（耦合链或合成 2D 场景）")
-    ap.add_argument("--mesh-slf", default=str(DEFAULT_GEO),
-                    help="TELEMAC 几何模板（仅耦合链路径需要）")
+    ap.add_argument("--npz", required=True, help="场数据 npz（2d_grid 布局场景）")
     ap.add_argument("--out", required=True, help="输出 .slf 路径")
-    ap.add_argument("--leg", type=int, default=1, help="耦合链 2D 子图序号（默认 1）")
     args = ap.parse_args()
 
     probe = load_scenario(args.npz)
-    if probe.meta.get("layout") == "2d_grid":
-        x, y, ikle, ipobo, dyn = synthetic_mesh_and_fields(Path(args.npz))
-    else:
-        x, y, ikle, ipobo, dyn = chain_mesh_and_fields(Path(args.npz), args.leg,
-                                                       Path(args.mesh_slf))
+    if probe.meta.get("layout") != "2d_grid":
+        raise SystemExit(f"仅支持 2d_grid 布局场景，meta.layout={probe.meta.get('layout')!r}")
+    x, y, ikle, ipobo, dyn = synthetic_mesh_and_fields(Path(args.npz))
 
     frames = np.stack([dyn[:, :, 0], np.abs(dyn[:, :, 1])], axis=1).astype(np.float32)
     times = probe.times.astype(np.float32)

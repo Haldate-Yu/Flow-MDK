@@ -125,19 +125,12 @@ class TrainConfig:
     # horizon reaches horizon_max.
     ema_decay: float = 0.0
     ema_after_curriculum: bool = False
-    # Interface flux-continuity penalty (M4 coupled rounds). For coupled
-    # scenarios carrying meta['interfaces'] with a chain->mesh handoff, adds
-    # mean |Q_chain_side - sum(|q|_mesh_side * ell)| / scale per rollout step
-    # to the TRAINING loss only (val stays the pure data loss so val curves
-    # stay comparable across arms). ell (boundary metres per mesh node) is
-    # auto-calibrated from the scenario truth; weight 0 disables (default).
-    interface_cons_weight: float = 0.0
 
 
 @dataclass
 class DataConfig:
-    name: str = "1d_chain"
-    root: str = "data/scenarios_1d"  # directory of scenario .npz files
+    name: str = "2d_grid"
+    root: str = "data/scenarios_2d_family"  # directory of scenario .npz files
     split: dict[str, list[str]] = field(default_factory=dict)  # explicit file stems
     train_frac: float = 0.6
     val_frac: float = 0.2

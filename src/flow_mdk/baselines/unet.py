@@ -13,12 +13,14 @@ them to images ``[B, C, nx, ny]`` via the row-major grid layout
 / ``edge_attr`` are ignored (connectivity is implicit in the convolution).
 
 Harness parity note: the model-side static indices copy the values the 2D
-control runs actually used (``elevation_feature_idx=0`` from the 1D base
-configs, ``water_level_feature_idx=-1``), so the comparison stays
+control runs actually used (``elevation_feature_idx=0`` — inherited from the
+pre-2026-09-22 1D base configs and kept verbatim in every 2d_*.yaml on this
+branch, ``water_level_feature_idx=-1``), so the comparison stays
 apples-to-apples with E4/E5 — even though the 2D layout keeps bed elevation
 at column 1 and the refreshed water-level channel therefore carries
-``area + h`` (a per-run constant offset of h) from the second step on. All
-2D arms share this behaviour; changing it here would break comparability.
+``area + h`` (a per-run constant offset of h on the uniform synthetic family)
+from the second step on. All 2D arms share this behaviour; changing it here
+would break comparability with every trained checkpoint.
 """
 
 from __future__ import annotations

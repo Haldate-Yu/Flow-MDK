@@ -20,18 +20,17 @@ from flow_mdk.models.factory import ARCHITECTURES, build_model
 
 def _tiny_model(arch: str):
     cfg = ModelConfig(arch=arch, hidden_dim=16, num_message_passing_layers=2,
-                      elevation_feature_idx=0)
+                      elevation_feature_idx=1, unet_grid_nx=3, unet_grid_ny=3)
     return build_model(cfg, num_static_features=5, num_edge_features=3)
 
 
-def _inputs(n: int = 8):
+def _inputs(nx: int = 3, ny: int = 3):
     import numpy as np
 
-    from flow_mdk.data.graph_1d import build_1d_graph
+    from flow_mdk.data.graph_2d import build_2d_grid_graph
 
-    x = np.linspace(0.0, 1000.0, n)
-    z = 1e-3 * (x[-1] - x)
-    edge_index, edge_attr = build_1d_graph(x, z, np.full(n, 20.0))
+    n = nx * ny
+    edge_index, edge_attr, _ = build_2d_grid_graph(nx, ny, 50.0, 50.0)
     static = torch.randn(n, 5) * 0.1
     dyn = torch.randn(2, n, 2) * 0.1
     dyn[..., 0] = dyn[..., 0].abs()  # depth must be non-negative
@@ -66,7 +65,7 @@ def test_gcn_shapes_and_finite():
     static, dyn, edge_index, edge_attr = _inputs()
     model = _tiny_model("baseline_gcn")
     preds = model.rollout(static, dyn, edge_index, edge_attr, n_steps=4)
-    assert preds.shape == (4, 8, 2)
+    assert preds.shape == (4, 9, 2)
     assert torch.isfinite(preds).all()
 
 
@@ -74,13 +73,13 @@ def test_gat_shapes_and_finite():
     static, dyn, edge_index, edge_attr = _inputs()
     model = _tiny_model("baseline_gat")
     preds = model.rollout(static, dyn, edge_index, edge_attr, n_steps=4)
-    assert preds.shape == (4, 8, 2)
+    assert preds.shape == (4, 9, 2)
     assert torch.isfinite(preds).all()
 
 
 def test_baseline_batched_forward_matches_single():
     """The factory models must work on the flattened training batches."""
-    static, dyn, edge_index, edge_attr = _inputs(4)
+    static, dyn, edge_index, edge_attr = _inputs(nx=2, ny=2)
     model = _tiny_model("baseline_gcn")
     dyn_flat = dyn.permute(1, 0, 2).reshape(4, 4)
     single = model.forward(static, dyn_flat, edge_index, edge_attr)

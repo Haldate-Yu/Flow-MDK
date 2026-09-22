@@ -34,9 +34,9 @@ twin_eval () {  # twin_dir run_dir checkpoint data_root
 
 for arm in "${ARMS[@]}"; do
     case $arm in
-        gcn)      base=configs/1d_baseline_gcn.yaml ;;
-        gat)      base=configs/1d_baseline_gat.yaml ;;
-        flow_mdk) base=configs/1d_flow_mdk.yaml ;;
+        gcn)      base=configs/2d_baseline_gcn.yaml ;;
+        gat)      base=configs/2d_baseline_gat.yaml ;;
+        flow_mdk) base=configs/2d_flow_mdk.yaml ;;
         *) echo "unknown arm $arm"; exit 1 ;;
     esac
     for seed in "${SEEDS[@]}"; do

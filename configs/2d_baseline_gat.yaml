@@ -1,13 +1,19 @@
-# Flow-MDK full model: SWE-GNN backbone + directed MDK diffusion branch
+# GAT baseline on the synthetic 2D family (comparison protocol: same
+# encoder-decoder, GATConv processor; MS4_2d_gat_s* runs — the identity-mapping
+# arm of the no-skill analysis).
 model:
+  arch: baseline_gat
   hidden_dim: 64
   num_message_passing_layers: 6
-  hops_per_layer: 1              # official SWE-GNN uses 8 (see 1d_swegnn_official.yaml)
+  hops_per_layer: 1              # official SWE-GNN uses 8 (see 2d_swegnn_official.yaml)
   num_previous_steps: 1
   num_dynamic_vars: 2
-  elevation_feature_idx: 0      # 1D layout: z_bottom channel
+  # Harness parity with the E4/E5/MS4b runs — see 2d_flow_mdk.yaml for why
+  # this stays 0 on the 2D layout (uniform cell area => constant WSE offset,
+  # shared by every arm).
+  elevation_feature_idx: 0
   mdk:
-    use: true
+    use: false               # unused by baselines
     num_steps: 2                # K: matched to sqrt(2 D dt)/dx (see layers.mdk.suggest_num_steps)
     weighting: geometric        # S2GC MDK series
     lambda0: 0.3                # identity/teleport coefficient (over-smoothing cap)
@@ -15,7 +21,7 @@ model:
     directed: true              # flow-directed transition matrix
     wet_gate: source            # dry nodes never relay diffusion
     mixing: learned             # per-channel advection/diffusion gate
-    edge_weight: discharge      # |Q|-weighted conductance
+    edge_weight: discharge      # |q|-weighted conductance
     direction_beta: 1.0
 
 train:
@@ -31,9 +37,9 @@ train:
   grad_clip_value: 0.5         # official clip_grad_value_(0.5)
 
 data:
-  name: 1d_chain
-  root: data/scenarios_1d
+  name: 2d_grid
+  root: data/scenarios_2d_family
 
 seed: 0
 device: auto
-out_dir: runs/1d_flow_mdk
+out_dir: runs/2d_baseline_gat

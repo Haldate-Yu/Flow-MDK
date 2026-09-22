@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """Train a Flow-MDK / SWE-GNN model from an experiment config.
 
-    python scripts/train.py --config configs/1d_flow_mdk.yaml
-    python scripts/train.py --config configs/1d_flow_mdk.yaml \\
+    python scripts/train.py --config configs/2d_flow_mdk.yaml
+    python scripts/train.py --config configs/2d_flow_mdk.yaml \\
         --set train.max_epochs=5 model.hidden_dim=32
 """
 
@@ -68,7 +68,8 @@ def main() -> None:
         if not split["test"]:
             split["test"] = list(split["val"])
 
-    elev_idx = 0 if config.data.name.startswith("1d") else 1
+    # 2D layout: bed elevation is static column 1 (water level appended as last)
+    elev_idx = 1
     common = dict(num_previous_steps=config.model.num_previous_steps,
                   elevation_feature_idx=elev_idx)
     train_set = FlowDataset(config.data.root, split["train"], horizon=1, **common)

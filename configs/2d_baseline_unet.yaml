@@ -1,6 +1,6 @@
 # U-Net baseline on the structured 2D grid (M5 baseline table; SWE-GNN paper
 # comparison set). Budget mirrors the E4/E5 2D paper runs exactly (same
-# train section as configs/1d_flow_mdk.yaml resolved on MS4_2d_*) — only the
+# train section as configs/2d_flow_mdk.yaml resolved on MS4_2d_*) — only the
 # processor differs: a channel-scaled U-Net (base width hidden_dim) replaces
 # the message-passing layers, on the same 64x64 grid / autoregressive
 # residual harness / output masking.

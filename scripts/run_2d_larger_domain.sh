@@ -110,9 +110,9 @@ for p in sorted(root.glob("*.npz")):
 PY
     for model in flow_mdk swegnn ssgc; do
         case $model in
-            flow_mdk) base=configs/1d_flow_mdk.yaml ;;
-            swegnn)   base=configs/1d_swegnn_official.yaml ;;
-            ssgc)     base=configs/1d_ssgc_symmetric.yaml ;;
+            flow_mdk) base=configs/2d_flow_mdk.yaml ;;
+            swegnn)   base=configs/2d_swegnn_2x8.yaml ;;
+            ssgc)     base=configs/2d_ssgc_symmetric.yaml ;;
         esac
         for seed in "${SEEDS[@]}"; do
             run=runs/L2d_${model}_s${seed}
