@@ -21,7 +21,9 @@ stage clamped at Z=280, gateless downstream reach) and are stamped into each
 scenario's meta. Batch is serial: each 2D run already uses ncsize MPI ranks.
 
 Idempotent: scenarios with an existing chain npz are skipped, so an
-interrupted batch resumes with ``--num`` unchanged.
+interrupted batch resumes with ``--num`` unchanged (condition draws are
+keyed by index, so resuming or extending --num never duplicates or shifts
+an earlier scenario's parameters — fixed 2026-09-21).
 
 Server usage (CPU only, docker image required; ~32 min per scenario):
 
@@ -256,6 +258,29 @@ def _assemble(fam_dir: Path, name: str, q_scale: float, t_stretch: float,
     return scenario
 
 
+def _draw_conditions(seed: int, num: int) -> list:
+    """Per-index (q_scale, t_stretch) draws: index 0 is the v1 parity draw
+    (1.0, 1.0, consumes no RNG), then two uniforms per index in order.
+
+    Drawn up front and keyed by index so that the value for scenario i never
+    depends on which scenarios already exist on disk (see module note above).
+    """
+    rng = np.random.default_rng(seed)
+    out = [(1.0, 1.0)]
+    for _ in range(1, num):
+        out.append((float(rng.uniform(*Q_SCALE_RANGE)),
+                    float(rng.uniform(*TIME_STRETCH_RANGE))))
+    return out
+
+
+def _upsert(report: list, entry: dict) -> list:
+    """Replace-or-append by scenario name; keeps the family record sorted and
+    intact across extension runs."""
+    kept = [r for r in report if r.get("name") != entry.get("name")]
+    kept.append(entry)
+    return sorted(kept, key=lambda r: r.get("name", ""))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--num", type=int, default=12,
@@ -269,22 +294,27 @@ def main() -> None:
     up = load_scenario(UPSTREAM_NPZ)
     times = up.times
     q_out = up.dynamic[:, -1, 1]  # Q at the downstream end section
-    rng = np.random.default_rng(args.seed)
+    draws = _draw_conditions(args.seed, args.num)
 
-    report = []
+    report_path = CHAIN / "coupled_family_report.json"
+    report: list = []
+    if report_path.exists():
+        try:
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001 — corrupt record must not block the run
+            report = []
+    batch = []
     for i in range(args.num):
         name = f"mdx_chain_fam{i:03d}"
         fam_dir = CHAIN / name
         out_npz = fam_dir / f"{name}.npz"
+        # index-keyed: scenario i's conditions never depend on what exists on disk
+        q_scale, t_stretch = draws[i]
         if out_npz.exists():
-            print(f"[fam] {name}: npz exists, skip")
+            print(f"[fam] {name}: npz exists, skip "
+                  f"(q_scale={q_scale:.3f} t_stretch={t_stretch:.3f})")
             continue
-        # scenario 0 = the v1 baseline draw (scale/stretch = 1) for pairing
-        if i == 0:
-            q_scale, t_stretch = 1.0, 1.0
-        else:
-            q_scale = float(rng.uniform(*Q_SCALE_RANGE))
-            t_stretch = float(rng.uniform(*TIME_STRETCH_RANGE))
+        batch.append(name)
         print(f"=== [{name}] q_scale={q_scale:.3f} t_stretch={t_stretch:.3f} ===")
         t0 = time.perf_counter()
         try:
@@ -300,20 +330,21 @@ def main() -> None:
             print(f"[fam] {name}: DONE in {mins:.1f} min "
                   f"({scenario.num_nodes} nodes, "
                   f"{scenario.dynamic.shape[0]} frames) -> {out_npz}")
-            report.append({"name": name, "q_scale": q_scale,
-                           "time_stretch": t_stretch, "t2d_min": t2d_s / 60,
-                           "total_min": mins, "status": "ok"})
+            report = _upsert(report, {"name": name, "q_scale": q_scale,
+                                      "time_stretch": t_stretch,
+                                      "t2d_min": t2d_s / 60,
+                                      "total_min": mins, "status": "ok"})
         except Exception as exc:
             mins = (time.perf_counter() - t0) / 60
             print(f"[fam] {name}: FAILED after {mins:.1f} min ({exc})")
-            report.append({"name": name, "q_scale": q_scale,
-                           "time_stretch": t_stretch, "status": f"failed: {exc}"})
-        (CHAIN / "coupled_family_report.json").write_text(
-            json.dumps(report, indent=2), encoding="utf-8")
+            report = _upsert(report, {"name": name, "q_scale": q_scale,
+                                      "time_stretch": t_stretch,
+                                      "status": f"failed: {exc}"})
+        report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
-    ok = sum(1 for r in report if r["status"] == "ok")
-    print(f"[fam] batch done: {ok}/{len(report)} ok; report -> "
-          f"{CHAIN / 'coupled_family_report.json'}")
+    ok = sum(1 for r in report if r.get("status") == "ok")
+    print(f"[fam] batch done: this batch {len(batch)} scenario(s) attempted; "
+          f"record {ok}/{len(report)} ok -> {report_path}")
 
 
 if __name__ == "__main__":

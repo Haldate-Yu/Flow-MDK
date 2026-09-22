@@ -103,7 +103,11 @@ def rollout_scenario(
     device: torch.device | None = None,
 ) -> RolloutReport:
     """Autoregressive rollout from the scenario's initial window."""
-    device = device or next(model.parameters()).device
+    if device is None:
+        # zero-parameter arms (baseline_persistence) have no parameters to
+        # read a device from — fall back to CPU instead of raising
+        first_param = next(model.parameters(), None)
+        device = first_param.device if first_param is not None else torch.device("cpu")
     n_steps = min(
         n_steps, scenario.num_steps - model.cfg.num_previous_steps - 1
     )

@@ -1,0 +1,64 @@
+# SWE-GNN baseline on the synthetic 2D family — **depth-faithful** variant.
+#
+# Why this file exists
+# -------------------
+# The official repository's saved best models run `K: 8` (the paper's "L = 8
+# layers") together with `n_GNN_layers: 1`, i.e. **8 message-passing hops per
+# model step**:
+#     results/best_models/config.yaml            -> n_GNN_layers: 1, K: 8
+#     results/best_models/SWEGNN/config.yaml     -> n_GNN_layers: 1, K: 8
+#     results/GNN_layers_temporal_res/<res>/     -> n_GNN_layers: 1, K: 2/8/8/8
+# The class default for `n_GNN_layers` is 2, which is what
+# configs/1d_swegnn_official.yaml follows (2 outer x 8 hops = 16 hops per
+# step). This config is the **single-variable** variant of that arm: 1 x 8
+# hops, everything else byte-for-byte identical to what
+# runs/MS4_2d_swegnn_s* were trained with.
+#
+# Two protocol choices, both deliberate
+# -------------------------------------
+# * early_stop_patience = 99 — the same value run_M3_2d_paper.sh passes to all
+#   three 2D arms, so the new arm stays comparable to flow_mdk / ssgc.
+#   The paper's own value is 30; for full paper fidelity add
+#   `train.early_stop_patience=30` via EXTRA (see the runner).
+# * static features are left as the shared 2D layout
+#   (area, elevation, slope_x, slope_y, manning, breach flag + water level).
+#   The official model gets DEM + slopes + water level only. Removing the
+#   extra channels is a **data-layer** change shared by every 2D arm, not a
+#   per-arm knob, so it is out of scope here (see the runbook).
+#
+# Artifacts go to runs/MS4b_2d_swegnn_s<seed> — the existing MS4_2d_* runs and
+# every other config/script are left untouched.
+
+model:
+  arch: flow_mdk
+  hidden_dim: 64                   # official hid_features: 64
+  num_message_passing_layers: 1    # official n_GNN_layers: 1   (the change: was 2)
+  hops_per_layer: 8                # official "K: 8  # num GNN layers"
+  hidden_activation: tanh          # official gnn_activation: 'tanh', applied per layer
+  num_previous_steps: 1            # official previous_t: 2 frames (current + 1)
+  num_dynamic_vars: 2
+  elevation_feature_idx: 0         # placeholder only: train.py resolves the index
+                                   # from data.name (2d_grid -> 1, 1d_chain -> 0)
+  mdk:
+    use: false                     # pure SWE-GNN: no diffusion branch
+
+train:
+  horizon_max: 8                   # official rollout_steps: 8
+  curriculum_steps: 15             # official curriculum_epoch: 15
+  var_weights: [1.0, 3.0]          # official velocity_scaler: 3
+  only_where_water: true           # official only_where_water: true
+  lr: 0.007                        # official learning_rate (paper text says 0.005)
+  lr_decay: 0.9                    # official gamma
+  lr_step_epochs: 7                # official step_size
+  max_epochs: 150
+  early_stop_patience: 99          # sibling 2D arms' value (paper value is 30)
+  batch_size: 8
+  grad_clip_value: 0.5             # official clip_grad_value_(0.5)
+
+data:
+  name: 2d_grid
+  root: data/scenarios_2d_family
+
+seed: 0
+device: auto
+out_dir: runs/MS4b_2d_swegnn_s0

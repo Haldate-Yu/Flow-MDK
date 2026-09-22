@@ -37,9 +37,17 @@ PANELS = {
         "domain": ("data/scenarios_partA_v2", "test"),
     },
     "2D test": {
-        "models": ("swegnn", "flow_mdk", "ssgc"),
-        "prefixes": ("MS4_2d_",),
+        "models": ("swegnn", "swegnn(1x8)", "flow_mdk", "ssgc", "gcn", "gat",
+                   "flow_mdk(-MDK)", "unet"),
+        "prefixes": ("MS4_2d_", "MS4b_2d_", "L16_mdkoff_2d_", "unet_2d_"),
         "domain": ("data/scenarios_2d_family", "test"),
+        # display name -> run dir holding the s0 checkpoint (default:
+        # prefixes[0] + model + "_s0"; parentheses don't appear in dir names)
+        "ckpt": {
+            "swegnn(1x8)": "MS4b_2d_swegnn_s0",
+            "flow_mdk(-MDK)": "L16_mdkoff_2d_s0",
+            "unet": "unet_2d_s0",
+        },
     },
 }
 
@@ -73,7 +81,8 @@ def main() -> None:
     table = []
     for panel, cfg in PANELS.items():
         for model in cfg["models"]:
-            ckpt = REPO / "runs" / f"{cfg['prefixes'][0]}{model}_s0" / "last.pt"
+            ckpt_dir = cfg.get("ckpt", {}).get(model, f"{cfg['prefixes'][0]}{model}_s0")
+            ckpt = REPO / "runs" / ckpt_dir / "last.pt"
             if not ckpt.exists():  # stamped s0 fallback (partA_paper_*)
                 import glob
                 cand = sorted(glob.glob(str(REPO / "runs" / f"{cfg['prefixes'][1] if len(cfg['prefixes']) > 1 else cfg['prefixes'][0]}{model}_*")))

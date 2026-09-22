@@ -228,3 +228,8 @@ __marimo__/
 
 # archival datasets are tracked (via Git LFS patterns in .gitattributes)
 !datasets/**
+
+# External reference code snapshots (not vendored into git; see
+# references/README.md for provenance). mSWE-GNN: 90 MB, mostly trained
+# .h5 weights from the upstream paper repository.
+/third_party/mSWE-GNN/

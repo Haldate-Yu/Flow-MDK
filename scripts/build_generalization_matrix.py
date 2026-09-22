@@ -6,9 +6,19 @@ Cols  = evaluation domains (in-domain, generalization subsets, zero-shot,
         real exams), as recorded by the registry (data_root + split).
 
 Only paper-budget run families are folded (G=64): partA_paper_* / L3_B1_paper_*
-(single-seed s0 rounds), MS4_partA_* / MS4_B1_* / MS4_2d_* / MS5_partA_2x8mdk_*
-(3 seeds), L16_mdkoff_* / E61_partA_full_* (ablation/recipe arms when present).
+(single-seed s0 rounds), MS4_partA_* / MS4_B1_* / B1v2_* / MS4_2d_* /
+MS5_partA_2x8mdk_* (3 seeds), L14_dt*_* (dt trade-off), L16_mdkoff_* /
+E61_partA_full_* (ablation/recipe arms when present), unet_2d_* / unet_2d_e6_*.
 Local-budget rounds (G=32 L2/L3/MS_*/E6_partA) are excluded by design.
+
+B1 has TWO recorded generations on different family sizes and they do NOT give
+the same verdict, so they are kept as separate columns rather than pooled:
+  v2/130  B1v2_*          family_all rebuilt to 130 scenarios (SWE-GNN protocol)
+  v1/117  L3_B1_paper_* + MS4_B1_*   the round-3 (E3) generation
+**v2/130 is the reporting generation** (decided 2026-09-21; it is the benchmark
+declared in paper_architecture_plan 4); v1/117 is retained as the sensitivity
+check against the family extension, whose failure to reproduce the v1 verdict
+is itself a recorded methodology finding.
 
     python scripts/build_generalization_matrix.py          # -> docs/generalization_matrix.{md,csv}
 """
@@ -27,19 +37,34 @@ REGISTRY = REPO / "runs" / "results.csv"
 OUT_MD = REPO / "docs" / "generalization_matrix.md"
 OUT_CSV = REPO / "docs" / "generalization_matrix.csv"
 
-# domain label <- (data_root, split)
+# (domain label, (data_root, split), run-name regex or None)
+# The regex disambiguates domains that share a (root, split) — the two B1
+# generations — by matching the RAW registry run name (before protocol/seed
+# stripping). Order matters: first match wins.
 DOMAINS = [
-    ("1D 域内 A-test", ("data/scenarios_partA_v2", "test")),
-    ("1D →A2 未见水情", ("data/scenarios_partA_v2", "A2_test")),
-    ("1D →A3 更大域", ("data/scenarios_partA_v2", "A3_test")),
-    ("1D B1 真实域内", ("data/real_cases/family_all", "test")),
-    ("1D →B2 真实考卷", ("data/real_cases/scenarios_1d", "val")),
-    ("1D →fam_mdx 零样本", ("data/real_cases/family_mdx", "test")),
-    ("1D →fam_zxh 零样本", ("data/real_cases/family_zxh", "test")),
-    ("1D →fam_wqh 零样本", ("data/real_cases/family_wqh", "test")),
-    ("2D 域内", ("data/scenarios_2d_family", "test")),
-    ("2D →真实考卷 H=8", ("data/real_cases/exams_2d_h8", "test")),
-    ("2D →真实考卷 全时程", ("data/real_cases/exams_2d", "test")),
+    ("1D 域内 A-test", ("data/scenarios_partA_v2", "test"), None),
+    ("1D →A2 未见水情", ("data/scenarios_partA_v2", "A2_test"), None),
+    ("1D →A3 更大域", ("data/scenarios_partA_v2", "A3_test"), None),
+    ("1D 域内 dt×2", ("data/scenarios_partA_v2_dt2", "test"), None),
+    ("1D 域内 dt×3", ("data/scenarios_partA_v2_dt3", "test"), None),
+    ("1D B1 真实域内 (v2/130)", ("data/real_cases/family_all", "test"),
+     r"^B1v2_"),
+    ("1D B1 真实域内 (v1/117)", ("data/real_cases/family_all", "test"),
+     r"^(L3_B1_paper_|MS4_B1_)"),
+    ("1D →B2 真实考卷 (v2/130)", ("data/real_cases/scenarios_1d", "val"),
+     r"^B1v2_"),
+    ("1D →B2 真实考卷 (v1/117)", ("data/real_cases/scenarios_1d", "val"),
+     r"^(L3_B1_paper_|MS4_B1_)"),
+    ("1D →fam_mdx 零样本", ("data/real_cases/family_mdx", "test"), None),
+    ("1D →fam_zxh 零样本", ("data/real_cases/family_zxh", "test"), None),
+    ("1D →fam_wqh 零样本", ("data/real_cases/family_wqh", "test"), None),
+    ("2D 域内", ("data/scenarios_2d_family", "test"), None),
+    ("2D →真实考卷 H=8", ("data/real_cases/exams_2d_h8", "test"), None),
+    ("2D →真实考卷 全时程", ("data/real_cases/exams_2d", "test"), None),
+    ("2D →大域 12.8km 零样本", ("data/scenarios_2d_larger", "test"),
+     r"^(MS4_2d_|MS4b_2d_|L16_mdkoff_2d|floor_persist_2d_larger)"),
+    ("耦合家族 v3 (13/2/5)", ("data/real_cases/coupled_chain_family", "test"),
+     r"^(M4v3_|floor_persist_coupled)"),
 ]
 
 # run-name family whitelist (paper budget) -> display model
@@ -48,19 +73,34 @@ FAMILIES = [
     (re.compile(r"^L3_B1_paper_(swegnn|flow_mdk|ssgc)_"), None),
     (re.compile(r"^MS4_partA_(swegnn|flow_mdk|gcn|gat)_s\d+$"), None),
     (re.compile(r"^MS4_B1_(swegnn|flow_mdk|ssgc)_s\d+$"), None),
-    (re.compile(r"^MS4_2d_(swegnn|flow_mdk|ssgc)_s\d+$"), None),
+    (re.compile(r"^B1v2_(swegnn|flow_mdk|ssgc|gcn|gat|2x8mdk)_s\d+$"), None),
+    (re.compile(r"^MS4_2d_(swegnn|flow_mdk|ssgc|gcn|gat)_s\d+$"), None),
     (re.compile(r"^MS5_partA_2x8mdk_s\d+$"), "2x8mdk"),
+    (re.compile(r"^L14_dt[23]_(swegnn|flow_mdk_K\d|gcn|gat)_s\d+$"), None),
     (re.compile(r"^L16_mdkoff_(partA|2d)_s\d+$"), "flow_mdk(-MDK)"),
     (re.compile(r"^E61_partA_full_s\d+$"), "flow_mdk(E6配方)"),
     # U-Net 2D baseline (round 3): real-exam zero-shot cells stay empty by
     # design — a grid CNN cannot ingest the unstructured 65k-node meshes
     # (UNetSurrogate refuses non-grid node counts); noted in the matrix doc.
     (re.compile(r"^unet_2d_s\d+$"), "unet"),
+    (re.compile(r"^unet_2d_e6_s\d+$"), "unet(E6配方)"),
+    # 1x8 official-depth SWE-GNN arm (round 7) — two generations kept apart
+    (re.compile(r"^MS4b_2d_swegnn_s\d+$"), "swegnn(1x8)"),
+    (re.compile(r"^M4v2b_swegnn_s\d+$"), "swegnn(1x8)"),
+    # M4v3 expanded coupled family (S1 round; negative result, kept for archive)
+    (re.compile(r"^M4v3_(nocons_flow_mdk|swegnn|ssgc)_s\d+$"), None),
+    # persistence floor rows (A4): the no-skill reference, one per data root
+    (re.compile(r"^floor_persist_\w+$"), "persist(floor)"),
 ]
 MODEL_PATTERNS = [  # order matters: first hit wins
+    (re.compile(r"^floor_persist"), "persist(floor)"),
+    (re.compile(r"^MS4b_2d_swegnn"), "swegnn(1x8)"),
+    (re.compile(r"^M4v2b_swegnn"), "swegnn(1x8)"),
+    (re.compile(r"^M4v3_nocons"), "flow_mdk(nocons)"),
     (re.compile(r"2x8mdk"), "2x8mdk"),
     (re.compile(r"mdkoff"), "flow_mdk(-MDK)"),
     (re.compile(r"E61|E6配方"), "flow_mdk(E6配方)"),
+    (re.compile(r"unet_2d_e6"), "unet(E6配方)"),
     (re.compile(r"unet"), "unet"),
     (re.compile(r"flow_mdk"), "flow_mdk"),
     (re.compile(r"ssgc"), "ssgc"),
@@ -70,6 +110,7 @@ MODEL_PATTERNS = [  # order matters: first hit wins
 ]
 SEED_RE = re.compile(r"_s(\d+)$")
 STAMP_RE = re.compile(r"_\d{8}_\d{6}$")
+PROTO_RE = re.compile(r"^(ptbest_|ptema_)")
 
 
 def parse_run(run: str) -> tuple[str, str, str] | None:
@@ -106,7 +147,10 @@ def main() -> None:
             continue
         model, protocol, seed = parsed
         key = (r["data_root"], r["split"])
-        label = next((lab for lab, k in DOMAINS if k == key), None)
+        fam_name = PROTO_RE.sub("", r["run"])  # predicates match the run, not its protocol
+        label = next((lab for lab, k, pat in DOMAINS
+                      if k == key and (pat is None or re.search(pat, fam_name))),
+                     None)
         if label is None:
             continue
         h = float(r["rmse"].split(";")[0])
@@ -123,7 +167,7 @@ def main() -> None:
     models = sorted({m for m, _, _ in cell},
                     key=lambda m: (MODEL_PATTERNS and [n for _, n in MODEL_PATTERNS].index(m)
                                    if m in [n for _, n in MODEL_PATTERNS] else 99))
-    labels = [lab for lab, _ in DOMAINS]
+    labels = [lab for lab, _, _ in DOMAINS]
 
     lines = [
         "# M5 泛化矩阵 · h-RMSE（m，paper budget，registry 自动生成）",

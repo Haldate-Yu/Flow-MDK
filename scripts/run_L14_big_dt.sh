@@ -23,12 +23,29 @@
 # Server usage (A100 GPU1):
 #   CUDA_VISIBLE_DEVICES=1 bash scripts/run_L14_big_dt.sh 2>&1 \
 #       | tee data/L14_big_dt_$(date +%Y%m%d_%H%M%S).log
-set -e
+#
+# Round-6 addendum (pre-registered here before execution): the original two
+# arms only support "swegnn beats the MDK family at every dt"; the paper
+# claim C2 / table T3 is the stronger "1D *ranking* robust to dt", whose
+# ranking includes GCN/GAT — the Part A winners. This addendum adds gcn/gat
+# arms (no model-side overrides: fixed receptive field like swegnn, no K to
+# match) on the same dt x {2,3} grid, seeds and budget. Controls remain the
+# E3 dt x1 runs (MS4_partA_{gcn,gat}_{s0,s1,s2}).
+set -eo pipefail
 cd "$(dirname "$0")/.."
 
 SEEDS=(${SEEDS:-0 1 2})
 MULTS=(${MULTS:-2 3})
 K0=2
+
+# derive the dt roots if absent (idempotent; needs partA_v2 on this machine)
+for m in "${MULTS[@]}"; do
+  if [ ! -d "data/scenarios_partA_v2_dt${m}" ]; then
+    echo "=== [L14] deriving data/scenarios_partA_v2_dt${m} (stride ${m}) ==="
+    python scripts/subsample_scenarios_dt.py --src data/scenarios_partA_v2 \
+        --dst data/scenarios_partA_v2_dt${m} --stride ${m}
+  fi
+done
 
 twin_eval () {  # prefix run_dir checkpoint
     local prefix=$1 run_dir=$2 ckpt=$3
@@ -72,6 +89,20 @@ for m in "${MULTS[@]}"; do
     else
       echo "[skip] $run exists"
     fi
+
+    # round-6 addendum: artifact-based skip (a crashed run leaves config.yaml
+    # behind and must be retrained)
+    for arm in gcn gat; do
+      run=runs/L14_dt${m}_${arm}_s${seed}
+      if [ -f "$run/last.pt" ]; then echo "[skip] $run done"; continue; fi
+      echo "=== [L14 dt x${m} ${arm} s${seed}] training -> $run ==="
+      python scripts/train.py --config configs/1d_baseline_${arm}.yaml --set \
+        out_dir=$run data.root=data/scenarios_partA_v2_dt${m} \
+        seed=${seed} train.early_stop_patience=99 2>&1 | tail -3
+      python scripts/evaluate.py --config $run/config.yaml \
+        --checkpoint $run/last.pt --split test 2>&1 | tail -1
+      twin_eval ptbest "$run" "$run/best.pt"
+    done
   done
 done
 echo "L14_BIG_DT_DONE"

@@ -38,6 +38,8 @@ def main() -> None:
 
     config = load_config(args.config)
     device = get_device(config.device)
+    # "none" = parameter-free arms (baseline_persistence): skip weight loading
+    checkpoint = None if args.checkpoint.lower() == "none" else args.checkpoint
     data_root = args.data_root or config.data.root
     split_path = Path(data_root) / "split.json"
     if split_path.exists():
@@ -64,7 +66,7 @@ def main() -> None:
     num_static = scenario0.node_static.shape[1] + 1
     num_edge = scenario0.edge_attr.shape[1]
 
-    model = load_model(config, num_static, num_edge, args.checkpoint, device)
+    model = load_model(config, num_static, num_edge, checkpoint, device)
     steps = args.steps or (scenario0.num_steps - config.model.num_previous_steps - 1)
     reports = evaluate_scenarios(model, data_root, names, steps, elev_idx, device)
 

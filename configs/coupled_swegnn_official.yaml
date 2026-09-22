@@ -1,0 +1,70 @@
+# SWE-GNN baseline on the 1D-2D coupled family — **depth-faithful** variant.
+#
+# Same rationale as configs/2d_swegnn_official.yaml: the official repository's
+# saved best models are `n_GNN_layers: 1` with `K: 8` (8 hops per model step),
+# while configs/1d_swegnn_official.yaml (used by every existing swegnn arm)
+# follows the class default of 2 outer layers, i.e. 16 hops per step.
+#
+# This config reproduces exactly what runs/M4v2_swegnn_s* were trained with —
+# resolved from runs/M4v2_swegnn_s0/config.yaml — with the single change
+# num_message_passing_layers: 2 -> 1:
+#
+#   curriculum_steps 5   (the coupled round's v1 feasibility protocol, not 15)
+#   max_epochs 60        (coupled budget; the 2D arm uses 150)
+#   batch_size 2         (the swegnn arm OOM'd at batch 4 on a shared A100)
+#   val_horizon 8        + early_stop_after_curriculum  (E6 selection governance)
+#   ema_decay 0.99       + ema_after_curriculum         (the M4 v1 -> v2 fix)
+#   early_stop_patience 99  (sibling coupled arms' value; paper value is 30 —
+#                            add `train.early_stop_patience=30` via EXTRA for
+#                            full paper fidelity)
+#
+# `data.name: 1d_chain` is NOT a typo: it is what every M4v2 arm used, and
+# train.py picks the elevation channel from the name prefix
+# (`0 if name.startswith("1d") else 1`). Changing it would silently break the
+# water-level refresh during rollout.
+#
+# The data root is a **dedicated v2 root** (…_family_v2), built and split-pinned
+# by scripts/run_coupled_swegnn_official.sh. That keeps the shared
+# coupled_chain_family root free for the S1/M4v3 expansion, which rewrites its
+# split.json, and it removes every ordering constraint between this run and S1.
+# The scenario npz are symlinks to the same files, so the run is comparable
+# with the existing M4v2 arms.
+#
+# Artifacts go to runs/M4v2b_swegnn_s<seed> — M4v2_* artifacts untouched.
+
+model:
+  arch: flow_mdk
+  hidden_dim: 64
+  num_message_passing_layers: 1    # official n_GNN_layers: 1   (the change: was 2)
+  hops_per_layer: 8                # official K: 8
+  hidden_activation: tanh          # official gnn_activation applied per layer
+  num_previous_steps: 1
+  num_dynamic_vars: 2
+  elevation_feature_idx: 0         # placeholder only (resolved from data.name)
+  mdk:
+    use: false
+
+train:
+  horizon_max: 8
+  curriculum_steps: 5              # coupled round protocol
+  var_weights: [1.0, 3.0]
+  only_where_water: true
+  lr: 0.007
+  lr_decay: 0.9
+  lr_step_epochs: 7
+  max_epochs: 60                   # coupled budget
+  early_stop_patience: 99
+  batch_size: 2                    # swegnn OOM'd at batch 4 on the shared A100
+  grad_clip_value: 0.5
+  val_horizon: 8                   # E6 selection governance
+  early_stop_after_curriculum: true
+  ema_decay: 0.99
+  ema_after_curriculum: true
+
+data:
+  name: 1d_chain                   # keep: controls the elevation channel index
+  root: data/real_cases/coupled_chain_family_v2
+
+seed: 0
+device: auto
+out_dir: runs/M4v2b_swegnn_s0

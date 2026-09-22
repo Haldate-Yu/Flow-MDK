@@ -33,15 +33,27 @@ def main() -> None:
     parser.add_argument("--num", type=int, default=20)
     parser.add_argument("--out", default="data/scenarios_2d")
     parser.add_argument("--prefix", default="T2D")
+    parser.add_argument("--nx", type=int, default=64)
+    parser.add_argument("--ny", type=int, default=64)
+    parser.add_argument("--cell-size", type=float, default=100.0, dest="cell_size")
+    parser.add_argument("--seed-base", type=int, default=SEED_BASE, dest="seed_base")
+    parser.add_argument("--split-mode", choices=("70-15-15", "generalization"),
+                        default="70-15-15", dest="split_mode",
+                        help="generalization puts every scenario under 'test' "
+                             "(held-out domain-size set for models trained on the "
+                             "smaller domain)")
     args = parser.parse_args()
 
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     names = []
     for k in range(args.num):
-        rng = np.random.default_rng(SEED_BASE + k)
+        rng = np.random.default_rng(args.seed_base + k)
         params = Scenario2DParams(
-            seed=SEED_BASE + k,
+            seed=args.seed_base + k,
+            nx=args.nx,
+            ny=args.ny,
+            cell_size=args.cell_size,
             breach_side=SIDES[k % 4],
             breach_discharge=float(rng.uniform(20.0, 80.0)),
             breach_width_cells=int(rng.integers(3, 6)),
@@ -55,22 +67,38 @@ def main() -> None:
               f"{params.breach_discharge:.1f} z_max={params.z_range[1]:.1f} "
               f"breach_w={params.breach_width_cells}")
 
-    # 70/15/15 split, flat views for scripts/train.py / evaluate.py
-    n_train = int(args.num * 0.7)
-    n_val = int(args.num * 0.15)
-    split = {
-        "train": names[:n_train],
-        "val": names[n_train:n_train + n_val],
-        "test": names[n_train + n_val:],
-    }
+    # flat views for scripts/train.py / evaluate.py
+    if args.split_mode == "generalization":
+        split = {"test": names}
+    else:
+        n_train = int(args.num * 0.7)
+        n_val = int(args.num * 0.15)
+        split = {
+            "train": names[:n_train],
+            "val": names[n_train:n_train + n_val],
+            "test": names[n_train + n_val:],
+        }
     (out / "split.json").write_text(json.dumps(split, indent=2), encoding="utf-8")
+    domain_km = args.nx * args.cell_size / 1000.0
     meta = {
         "protocol": "SWE-GNN polder protocol on structured grids (M3)",
-        "grid": "64x64 @ 100 m cells, dry start, constant breach inflow",
+        "grid": f"{args.nx}x{args.ny} @ {args.cell_size:.0f} m cells, dry start, "
+                f"constant breach inflow",
+        "domain_km": f"{domain_km:.1f}x{args.ny * args.cell_size / 1000.0:.1f} km",
         "inflow": "TELEMAC source point adjacent to the breach border",
         "truth": "telemac2d_docker_rerun via scripts/run_telemac2d_docker.py",
         "count": args.num,
+        "split_mode": args.split_mode,
+        "seed_base": args.seed_base,
     }
+    if (args.nx, args.ny) != (64, 64):
+        meta["note"] = (
+            "LARGER-DOMAIN set: not the 6.4 km training family. Evaluate the "
+            "64x64-trained checkpoints here zero-shot for domain-size "
+            "generalization (mirrors SWE-GNN dataset 3, 12.8 km / g=128). "
+            "U-Net cannot be evaluated here without care: 128x128 nodes is a "
+            "multiple of its 64x64 grid, so it silently reshapes instead of "
+            "refusing — exclude it from this root.")
     (out / "family_meta.json").write_text(
         json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"[fam2d] {args.num} scenarios -> {out}; "
