@@ -10,6 +10,7 @@ Included
 - ``gcn``           — GCNConv processor (Kipf & Welling symmetric normalization)
 - ``gat``           — GATConv processor with edge features in the attention
 - ``persistence``   — zero-increment reference (U_{t+1} = U_t)
+- ``alldry``        — all-dry reference (h = |q| = 0 at every step; Card 1)
 - ``unet``          — U-Net CNN processor on structured 2D grids (M5)
 
 Note: unlike Flow-MDK, the standard-GNN baselines do *not* preserve the
@@ -18,9 +19,11 @@ mixes statics into dry cells) — that difference is part of what the
 comparison measures.
 """
 
+from flow_mdk.baselines.alldry import AlldrySurrogate
 from flow_mdk.baselines.gat import GATSurrogate
 from flow_mdk.baselines.gcn import GCNSurrogate
 from flow_mdk.baselines.persistence import PersistenceSurrogate
 from flow_mdk.baselines.unet import UNetSurrogate
 
-__all__ = ["GATSurrogate", "GCNSurrogate", "PersistenceSurrogate", "UNetSurrogate"]
+__all__ = ["AlldrySurrogate", "GATSurrogate", "GCNSurrogate",
+           "PersistenceSurrogate", "UNetSurrogate"]

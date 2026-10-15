@@ -1,0 +1,232 @@
+{
+  "channel_legacy": "area + h        (elevation_feature_idx: 0)",
+  "channel_fixed": "bed elevation + h (elevation_feature_idx: 1) — equals the true water-surface slope by construction (agreement 100%)",
+  "note": "flip_fraction = share of wet/wet edge-frame comparisons whose gate direction the legacy area+h channel inverts w.r.t. the true water-surface slope; the corrected channel has zero flips by construction.",
+  "pooled": {
+    "wet_edge_frame_comparisons": 545336,
+    "gate_direction_flips": 59926,
+    "flip_fraction": 0.1099
+  },
+  "exams": [
+    {
+      "exam": "T2D_110",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 26635,
+      "gate_direction_flips": 3150,
+      "flip_fraction": 0.1183,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_111",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 24924,
+      "gate_direction_flips": 2528,
+      "flip_fraction": 0.1014,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_112",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 24133,
+      "gate_direction_flips": 2591,
+      "flip_fraction": 0.1074,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_113",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 30339,
+      "gate_direction_flips": 2889,
+      "flip_fraction": 0.0952,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_114",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 36024,
+      "gate_direction_flips": 5262,
+      "flip_fraction": 0.1461,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_115",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 35514,
+      "gate_direction_flips": 5319,
+      "flip_fraction": 0.1498,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_116",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 34380,
+      "gate_direction_flips": 2346,
+      "flip_fraction": 0.0682,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_117",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 26669,
+      "gate_direction_flips": 2419,
+      "flip_fraction": 0.0907,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_118",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 36263,
+      "gate_direction_flips": 3111,
+      "flip_fraction": 0.0858,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_119",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 31238,
+      "gate_direction_flips": 3197,
+      "flip_fraction": 0.1023,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_120",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 17975,
+      "gate_direction_flips": 2731,
+      "flip_fraction": 0.1519,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_121",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 34924,
+      "gate_direction_flips": 3546,
+      "flip_fraction": 0.1015,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_122",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 18193,
+      "gate_direction_flips": 1591,
+      "flip_fraction": 0.0875,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_123",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 29141,
+      "gate_direction_flips": 2688,
+      "flip_fraction": 0.0922,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_124",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 18779,
+      "gate_direction_flips": 2454,
+      "flip_fraction": 0.1307,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_125",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 33208,
+      "gate_direction_flips": 3331,
+      "flip_fraction": 0.1003,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_126",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 16459,
+      "gate_direction_flips": 2022,
+      "flip_fraction": 0.1229,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_127",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 20133,
+      "gate_direction_flips": 2043,
+      "flip_fraction": 0.1015,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_128",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 32630,
+      "gate_direction_flips": 3765,
+      "flip_fraction": 0.1154,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "T2D_129",
+      "nodes": 4096,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 17775,
+      "gate_direction_flips": 2943,
+      "flip_fraction": 0.1656,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    }
+  ]
+}

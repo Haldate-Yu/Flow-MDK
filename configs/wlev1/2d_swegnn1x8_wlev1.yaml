@@ -1,0 +1,49 @@
+# SWE-GNN official-depth (1x8) baseline — **W1 water-level fix** variant.
+#
+# Card 1 (plan/card1_wlev1_channel_fix.md): byte-for-byte copy of
+# configs/2d_swegnn_official.yaml (the depth-faithful MS4b_2d_swegnn arm) with
+# `elevation_feature_idx: 1` so the water-level channel — which SWE-GNN also
+# consumes as a static input and refreshes during rollout — is the physical
+# `w = bed elevation + h` on both the dataset and the model side.
+# See 2d_flow_mdk_wlev1.yaml for the full rationale.
+#
+# Note: in this file the field was previously documented as "placeholder only:
+# train.py resolves the index" — that is true for the DATASET side only. The
+# model-side rollout refresh (`_refresh_static`) reads this field directly, so
+# it is NOT a placeholder: with 0 every legacy arm refreshed the channel as
+# `area + h` from the second rollout step onward. Setting 1 here is the fix.
+#
+# Artifacts: runs/W1_2d_swegnn1x8_s<seed> (out_dir overridden per seed).
+
+model:
+  arch: flow_mdk
+  hidden_dim: 64                   # official hid_features: 64
+  num_message_passing_layers: 1    # official n_GNN_layers: 1
+  hops_per_layer: 8                # official "K: 8  # num GNN layers"
+  hidden_activation: tanh          # official gnn_activation: 'tanh', applied per layer
+  num_previous_steps: 1            # official previous_t: 2 frames (current + 1)
+  num_dynamic_vars: 2
+  elevation_feature_idx: 1         # W1 fix: model-side refresh + gate use bed + h
+  mdk:
+    use: false                     # pure SWE-GNN: no diffusion branch
+
+train:
+  horizon_max: 8                   # official rollout_steps: 8
+  curriculum_steps: 15             # official curriculum_epoch: 15
+  var_weights: [1.0, 3.0]          # official velocity_scaler: 3
+  only_where_water: true           # official only_where_water: true
+  lr: 0.007                        # official learning_rate (paper text says 0.005)
+  lr_decay: 0.9                    # official gamma
+  lr_step_epochs: 7                # official step_size
+  max_epochs: 150
+  early_stop_patience: 99          # sibling 2D arms' value (paper value is 30)
+  batch_size: 8
+  grad_clip_value: 0.5             # official clip_grad_value_(0.5)
+
+data:
+  name: 2d_grid
+  root: data/scenarios_2d_family
+
+seed: 0
+device: auto
+out_dir: runs/W1_2d_swegnn1x8_s0

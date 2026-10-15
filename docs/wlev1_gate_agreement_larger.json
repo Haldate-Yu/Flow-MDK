@@ -1,0 +1,276 @@
+{
+  "channel_legacy": "area + h        (elevation_feature_idx: 0)",
+  "channel_fixed": "bed elevation + h (elevation_feature_idx: 1) — equals the true water-surface slope by construction (agreement 100%)",
+  "note": "flip_fraction = share of wet/wet edge-frame comparisons whose gate direction the legacy area+h channel inverts w.r.t. the true water-surface slope; the corrected channel has zero flips by construction.",
+  "pooled": {
+    "wet_edge_frame_comparisons": 654129,
+    "gate_direction_flips": 40210,
+    "flip_fraction": 0.0615
+  },
+  "exams": [
+    {
+      "exam": "L2D_000",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 29651,
+      "gate_direction_flips": 2010,
+      "flip_fraction": 0.0678,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_001",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 23802,
+      "gate_direction_flips": 2028,
+      "flip_fraction": 0.0852,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_002",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 29276,
+      "gate_direction_flips": 1631,
+      "flip_fraction": 0.0557,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_003",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 31615,
+      "gate_direction_flips": 1258,
+      "flip_fraction": 0.0398,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_004",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 21134,
+      "gate_direction_flips": 1195,
+      "flip_fraction": 0.0565,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_005",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 18138,
+      "gate_direction_flips": 1153,
+      "flip_fraction": 0.0636,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_006",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 17868,
+      "gate_direction_flips": 1270,
+      "flip_fraction": 0.0711,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_007",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 36530,
+      "gate_direction_flips": 1750,
+      "flip_fraction": 0.0479,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_008",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 33412,
+      "gate_direction_flips": 2295,
+      "flip_fraction": 0.0687,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_009",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 34956,
+      "gate_direction_flips": 2683,
+      "flip_fraction": 0.0768,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_010",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 27087,
+      "gate_direction_flips": 944,
+      "flip_fraction": 0.0349,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_011",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 16816,
+      "gate_direction_flips": 1326,
+      "flip_fraction": 0.0789,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_012",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 17880,
+      "gate_direction_flips": 880,
+      "flip_fraction": 0.0492,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_013",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 29049,
+      "gate_direction_flips": 2548,
+      "flip_fraction": 0.0877,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_014",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 36503,
+      "gate_direction_flips": 1948,
+      "flip_fraction": 0.0534,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_015",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 27312,
+      "gate_direction_flips": 2787,
+      "flip_fraction": 0.102,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_016",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 34317,
+      "gate_direction_flips": 1102,
+      "flip_fraction": 0.0321,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_017",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 26214,
+      "gate_direction_flips": 1220,
+      "flip_fraction": 0.0465,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_018",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 20418,
+      "gate_direction_flips": 1056,
+      "flip_fraction": 0.0517,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_019",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 21514,
+      "gate_direction_flips": 887,
+      "flip_fraction": 0.0412,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_020",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 32798,
+      "gate_direction_flips": 1731,
+      "flip_fraction": 0.0528,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_021",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 30311,
+      "gate_direction_flips": 1504,
+      "flip_fraction": 0.0496,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_022",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 30492,
+      "gate_direction_flips": 2109,
+      "flip_fraction": 0.0692,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    },
+    {
+      "exam": "L2D_023",
+      "nodes": 16384,
+      "frames": 97,
+      "wet_edge_frame_comparisons": 27036,
+      "gate_direction_flips": 2895,
+      "flip_fraction": 0.1071,
+      "area_min_m2": 10000.0,
+      "area_max_m2": 10000.0,
+      "area_cv": 0.0
+    }
+  ]
+}

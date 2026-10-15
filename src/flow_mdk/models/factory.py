@@ -6,6 +6,7 @@
 - ``baseline_gat``         — GAT processor baseline
 - ``baseline_unet``        — U-Net CNN baseline (structured 2D grids only)
 - ``baseline_persistence`` — zero-increment reference
+- ``baseline_alldry``      — all-dry reference (Card 1: second no-skill floor)
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ from flow_mdk.models.flow_mdk_gnn import FlowMDKNet
 __all__ = ["build_model", "ARCHITECTURES"]
 
 ARCHITECTURES = ("flow_mdk", "baseline_gcn", "baseline_gat", "baseline_unet",
-                 "baseline_persistence")
+                 "baseline_persistence", "baseline_alldry")
 
 
 def build_model(cfg: ModelConfig, num_static_features: int, num_edge_features: int):
@@ -38,6 +39,10 @@ def build_model(cfg: ModelConfig, num_static_features: int, num_edge_features: i
         from flow_mdk.baselines.persistence import PersistenceSurrogate
 
         return PersistenceSurrogate(cfg)
+    if cfg.arch == "baseline_alldry":
+        from flow_mdk.baselines.alldry import AlldrySurrogate
+
+        return AlldrySurrogate(cfg)
     raise ValueError(
         f"Unknown arch '{cfg.arch}'; expected one of {', '.join(ARCHITECTURES)}"
     )
